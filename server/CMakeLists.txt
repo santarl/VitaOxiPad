@@ -53,6 +53,7 @@ add_executable(${VITA_APP_NAME}
   src/net.cpp
 )
 
+add_compile_definitions(FLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE)
 target_compile_options(${VITA_APP_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 add_dependencies(${VITA_APP_NAME} flatbuffers_target)
