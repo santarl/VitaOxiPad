@@ -196,8 +196,8 @@ impl<F: AsRawFd> VitaDevice<F> {
         };
         let mt_y_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
-                minimum: 0,
-                maximum: 1087,
+                minimum: 108,
+                maximum: 889,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionY,
