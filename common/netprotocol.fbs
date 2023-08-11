@@ -53,8 +53,8 @@ struct TouchReport
 {
     pressure: ubyte;
     id: ubyte;
-    x: short;
-    y: short;
+    x: ushort;
+    y: ushort;
     // timestamp: ulong;
 }
 
