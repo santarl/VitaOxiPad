@@ -71,8 +71,8 @@ impl From<flatbuffers_structs::net_protocol::MotionData> for MotionData {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct TouchReport {
-    pub x: i16,
-    pub y: i16,
+    pub x: u16,
+    pub y: u16,
     pub id: u8,
     pub force: u8,
 }
