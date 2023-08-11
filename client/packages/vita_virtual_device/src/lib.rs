@@ -1,23 +1,33 @@
-use std::ffi::OsString;
+use std::ffi::OsStr;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[cfg(target_os = "linux")]
     #[error(transparent)]
     Linux(#[from] linux::Error),
+    #[cfg(target_os = "windows")]
+    #[error(transparent)]
+    Windows(#[from] windows::Error),
 }
 
 type Result<T> = std::result::Result<T, Error>;
 
 /// A trait for creating and using a virtual device.
-pub trait VitaVirtualDevice: Sized {
+pub trait VitaVirtualDevice<ConfigSetter: ?Sized>: Sized {
+    type Config;
+
     fn create() -> Result<Self>;
-    fn identifiers(&self) -> Option<Vec<OsString>>;
+    fn identifiers(&self) -> Option<&[&OsStr]>;
+    fn set_config(&mut self, config: ConfigSetter) -> Result<()>;
     fn send_report(&mut self, report: vita_reports::MainReport) -> Result<()>;
 }
 
-#[cfg(target_os = "linux")]
-mod linux;
-
-#[cfg(target_os = "linux")]
-pub use linux::VitaDevice;
+cfg_if::cfg_if! {
+    if #[cfg(target_os = "linux")] {
+        mod linux;
+        pub use linux::VitaDevice;
+    } else if #[cfg(target_os = "windows")] {
+        mod windows;
+        pub use windows::VitaDevice;
+    }
+}
