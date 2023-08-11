@@ -14,6 +14,8 @@ use crate::VitaVirtualDevice;
 
 type TrackingId = u8;
 
+pub struct Config {}
+
 pub struct VitaDevice<F: AsRawFd> {
     main_handle: UInputHandle<F>,
     sensor_handle: UInputHandle<F>,
@@ -262,7 +264,7 @@ impl<F: AsRawFd> VitaDevice<F> {
     }
 }
 
-impl VitaVirtualDevice for VitaDevice<File> {
+impl VitaVirtualDevice<Config> for VitaDevice<File> {
     fn create() -> crate::Result<Self> {
         let uinput_file = OpenOptions::new()
             .read(true)
@@ -288,6 +290,10 @@ impl VitaVirtualDevice for VitaDevice<File> {
             .ok()
             .zip(self.sensor_handle.evdev_name().ok())
             .map(|(main, sensor)| [main, sensor].to_vec())
+    }
+
+    fn set_config(&mut self, config: Config) -> crate::Result<()> {
+        Ok(())
     }
 
     fn send_report(&mut self, report: vita_reports::MainReport) -> crate::Result<()> {
