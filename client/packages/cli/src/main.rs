@@ -7,6 +7,7 @@ use std::{
 
 use argh::FromArgs;
 use color_eyre::eyre::WrapErr;
+use polling::{Event, Poller};
 
 use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
 use protocol::connection::Connection;
@@ -41,7 +42,7 @@ fn filter_udp_nonblocking_error(
 fn main() -> color_eyre::Result<()> {
     const NET_PORT: u16 = 5000;
     const TIMEOUT: Duration = Duration::from_secs(25);
-    const BUFFER_SIZE: usize = 4196;
+    const BUFFER_SIZE: usize = 2048;
     const MIN_POLLING_RATE: u64 = (1 * 1000 / 250) * 1000;
 
     color_eyre::install()?;
@@ -111,6 +112,7 @@ fn main() -> color_eyre::Result<()> {
     let heartbeat_freq = handshake_response.heartbeat_freq;
     log::debug!("Heartbeat frequency: {}", heartbeat_freq);
 
+    // We just send it to bypass firewall
     conn.send_heartbeat();
     pad_socket
         .send_to(conn.retrieve_out_data().as_slice(), addr)
@@ -125,14 +127,15 @@ fn main() -> color_eyre::Result<()> {
         please check that you have permissions on uinput device",
     )?;
 
-    println!(
-        "Device identifiers: {}",
-        device
-            .identifiers()
-            .expect("No identifier found")
-            .join(OsStr::new(", "))
-            .to_string_lossy()
-    );
+    let identfiers = device.identifiers().map(|ids| ids.join(", ".as_ref()));
+    log::info!("Virtual device created");
+    if let Some(identifiers) = identfiers {
+        println!(
+            "Virtual device created with identifiers: {}",
+            identifiers.to_string_lossy()
+        );
+    }
+
     println!("Connection established, press Ctrl+C to exit");
 
     if polling_interval < MIN_POLLING_RATE {
@@ -152,9 +155,21 @@ fn main() -> color_eyre::Result<()> {
             .wrap_err("Failed to send configuration to Vita")?;
     }
 
+    let poller = Poller::new().wrap_err("Failed to create poller")?;
+    poller
+        .add_with_mode(&pad_socket, Event::readable(1), polling::PollMode::Level)
+        .wrap_err("Failed to add socket to poller")?;
+
+    let mut events = Vec::new();
     loop {
-        std::thread::sleep(Duration::from_micros(polling_interval));
         log::trace!("Polling");
+        let timeout = Duration::from_secs(
+            (heartbeat_freq.saturating_sub(5) as u64)
+                .saturating_sub(last_time.elapsed().unwrap().as_secs()),
+        );
+        poller
+            .wait(&mut events, Some(timeout))
+            .wrap_err("Failed to poll")?;
 
         if last_time
             .elapsed()
@@ -170,6 +185,10 @@ fn main() -> color_eyre::Result<()> {
             log::debug!("Heartbeat sent to Vita");
             last_time = SystemTime::now();
             log::trace!("Last time updated to {last_time:?}");
+        }
+
+        if events.len() == 0 {
+            continue;
         }
 
         let (len, _) = pad_socket
@@ -202,5 +221,7 @@ fn main() -> color_eyre::Result<()> {
                 _ => {}
             }
         }
+
+        events.clear();
     }
 }

@@ -6,6 +6,9 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+cfg-if = "1.0.0"
+derive_builder = "0.12.0"
+rstar = "0.11.0"
 thiserror = "1.0.38"
 vita_reports = { version = "0.1.0", path = "../vita_reports" }
 
@@ -13,4 +16,4 @@ vita_reports = { version = "0.1.0", path = "../vita_reports" }
 input-linux = "0.6.0"
 
 [target.'cfg(windows)'.dependencies]
-vigem-client = "0.1.0"
+vigem-client = { git = "https://github.com/musikid/vigem-client.git", branch = "ds4_new_api" }
