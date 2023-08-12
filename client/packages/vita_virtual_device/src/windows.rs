@@ -1,5 +1,5 @@
 use rstar::{primitives::Rectangle, RTree, AABB};
-use std::{ffi::OsStr, time::Duration};
+use std::{ffi::OsString, time::Duration};
 use vigem_client::{
     Client, DS4Buttons, DS4ReportExBuilder, DS4TouchPoint, DS4TouchReport, DpadDirection,
     DualShock4Wired, TargetId,
@@ -36,6 +36,14 @@ impl rstar::RTreeObject for TouchZone {
 impl rstar::PointDistance for TouchZone {
     fn distance_2(&self, point: &(i32, i32)) -> i32 {
         self.rect.distance_2(point)
+    }
+
+    fn contains_point(&self, point: &<Self::Envelope as rstar::Envelope>::Point) -> bool {
+        self.rect.contains_point(point)
+    }
+
+    fn distance_2_if_less_or_equal(&self, point: &(i32, i32), max_distance_2: i32) -> Option<i32> {
+        self.rect.distance_2_if_less_or_equal(point, max_distance_2)
     }
 }
 
@@ -114,10 +122,8 @@ pub struct VitaDevice {
     config: Config,
 }
 
-impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
-    type Config = Config;
-
-    fn create() -> crate::Result<Self> {
+impl VitaDevice {
+    pub fn create() -> crate::Result<Self> {
         let client = Client::connect().map_err(Error::ConnectionFailed)?;
         let mut ds4_target = DualShock4Wired::new(client, TargetId::DUALSHOCK4_WIRED);
 
@@ -131,8 +137,12 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             config: Config::back_l2_r2_front_touchpad(),
         })
     }
+}
 
-    fn identifiers(&self) -> Option<&[&OsStr]> {
+impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
+    type Config = Config;
+
+    fn identifiers(&self) -> Option<&[OsString]> {
         None
     }
 

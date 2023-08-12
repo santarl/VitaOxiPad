@@ -1,6 +1,7 @@
 use std::{
     ffi::OsString,
     fs::{File, OpenOptions},
+    io::Write,
     os::fd::AsRawFd,
 };
 
@@ -21,6 +22,7 @@ pub struct VitaDevice<F: AsRawFd> {
     sensor_handle: UInputHandle<F>,
     previous_front_touches: [Option<TrackingId>; 6],
     previous_back_touches: [Option<TrackingId>; 4],
+    ids: Option<Vec<OsString>>,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -255,17 +257,24 @@ impl<F: AsRawFd> VitaDevice<F> {
             ],
         )?;
 
+        let ids = main_handle
+            .evdev_name()
+            .ok()
+            .zip(sensor_handle.evdev_name().ok())
+            .map(|(main, sensor)| [main, sensor].to_vec());
+
         Ok(VitaDevice {
             main_handle,
             sensor_handle,
             previous_front_touches: [None; 6],
             previous_back_touches: [None; 4],
+            ids,
         })
     }
 }
 
-impl VitaVirtualDevice<Config> for VitaDevice<File> {
-    fn create() -> crate::Result<Self> {
+impl VitaDevice<File> {
+    pub fn create() -> crate::Result<Self> {
         let uinput_file = OpenOptions::new()
             .read(true)
             .write(true)
@@ -278,18 +287,18 @@ impl VitaVirtualDevice<Config> for VitaDevice<File> {
             .open("/dev/uinput")
             .map_err(Error::DeviceCreationFailed)?;
 
-        let device = VitaDevice::new(uinput_file, uinput_sensor_file)
-            .map_err(Error::DeviceCreationFailed)?;
+        let device =
+            Self::new(uinput_file, uinput_sensor_file).map_err(Error::DeviceCreationFailed)?;
 
         Ok(device)
     }
+}
 
-    fn identifiers(&self) -> Option<Vec<OsString>> {
-        self.main_handle
-            .evdev_name()
-            .ok()
-            .zip(self.sensor_handle.evdev_name().ok())
-            .map(|(main, sensor)| [main, sensor].to_vec())
+impl<F: AsRawFd + Write> VitaVirtualDevice<Config> for VitaDevice<F> {
+    type Config = Config;
+
+    fn identifiers(&self) -> Option<&[OsString]> {
+        self.ids.as_ref().map(|ids| ids.as_slice())
     }
 
     fn set_config(&mut self, config: Config) -> crate::Result<()> {
