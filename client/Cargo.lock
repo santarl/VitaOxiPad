@@ -634,6 +634,7 @@ checksum = "73111312eb7a2287d229f06c00ff35b51ddee180f017ab6dec1f69d62ac098d6"
 dependencies = [
  "heapless",
  "num-traits",
+ "serde",
  "smallvec",
 ]
 
@@ -877,6 +878,7 @@ dependencies = [
  "derive_builder",
  "input-linux",
  "rstar",
+ "serde",
  "thiserror",
  "vigem-client",
  "vita_reports",
