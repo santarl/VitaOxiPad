@@ -1,7 +1,17 @@
-# Tauri + Svelte + Typescript
+# gui
 
-This template should help get you started developing with Tauri, Svelte and TypeScript in Vite.
+## Developing
 
-## Recommended IDE Setup
+Once you've created a project and installed dependencies with `pnpm install`, start a development server:
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+```bash
+pnpm tauri dev
+```
+
+## Building
+
+To create a production version:
+
+```bash
+pnpm tauri build
+```
