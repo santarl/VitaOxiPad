@@ -23,7 +23,7 @@
 				id="port"
 				placeholder="5000"
 			/>
-			<button class="rounded text-white bg-sky-600 hover:(bg-sky-500) border-none py-2 px-6"
+			<button class="rounded text-white bg-playstation hover:(bg-sky-600 cursor-pointer) border-none py-2 px-6"
 				>Connect</button
 			>
 		</form>
