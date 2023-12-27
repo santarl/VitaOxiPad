@@ -193,34 +193,35 @@ impl Config {
                 TouchZone::new(
                     (
                         BACK_TOUCHPAD_RECT.0,
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y() / 2),
+                        Point((BACK_TOUCHPAD_RECT.1).0 / 2, (BACK_TOUCHPAD_RECT.1).1),
                     ),
-                    Some(TouchAction::Button(DS4Buttons::TRIGGER_LEFT)),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_LEFT)),
                 ),
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.0.y()),
-                        Point(BACK_TOUCHPAD_RECT.1.x(), BACK_TOUCHPAD_RECT.1.y() / 2),
+                        Point((BACK_TOUCHPAD_RECT.1).0 / 2, (BACK_TOUCHPAD_RECT.0).0),
+                        BACK_TOUCHPAD_RECT.1,
                     ),
-                    Some(TouchAction::Button(DS4Buttons::TRIGGER_RIGHT)),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_RIGHT)),
                 ),
+            ])),
+            front_touch_config: Some(TouchConfig::zones([
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.0.x(), BACK_TOUCHPAD_RECT.1.y() / 2),
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y()),
+                        FRONT_TOUCHPAD_RECT.0,
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.1).1),
                     ),
                     Some(TouchAction::Button(DS4Buttons::THUMB_LEFT)),
                 ),
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y() / 2),
-                        BACK_TOUCHPAD_RECT.1,
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.0).0),
+                        FRONT_TOUCHPAD_RECT.1,
                     ),
                     Some(TouchAction::Button(DS4Buttons::THUMB_RIGHT)),
                 ),
             ])),
-            front_touch_config: Some(TouchConfig::Touchpad),
-            trigger_config: TriggerConfig::Shoulder,
+            trigger_config: TriggerConfig::Trigger,
         }
     }
 }
