@@ -341,6 +341,8 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             }
         }
 
+        let mut pwr_trigger_l: u8 = 0;
+        let mut pwr_trigger_r: u8 = 0;
         match self.config.trigger_config {
             TriggerConfig::Shoulder => {
                 if report.buttons.lt {
@@ -353,9 +355,11 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             TriggerConfig::Trigger => {
                 if report.buttons.lt {
                     buttons |= DS4Buttons::TRIGGER_LEFT;
+                    pwr_trigger_l = 255;
                 }
                 if report.buttons.rt {
                     buttons |= DS4Buttons::TRIGGER_RIGHT;
+                    pwr_trigger_r = 255;
                 }
             }
         }
@@ -397,6 +401,8 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             .thumb_ry(report.ry)
             .buttons(buttons)
             .touch_reports(touchpad, None, None)
+            .trigger_l(pwr_trigger_l)
+            .trigger_r(pwr_trigger_r)
             .build();
 
         self.ds4_target
