@@ -162,6 +162,13 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
         Ok(())
     }
 
+    fn f32_to_i16(value: f32, min_value: f32, max_value: f32) -> i16 {
+        let clamped_value = value.clamp(min_value, max_value);
+        let normalized_value = (clamped_value - min_value) / (max_value - min_value);
+        let scaled_value = normalized_value * 65535.0 - 32768.0;
+        scaled_value as i16
+    }
+
     fn send_report(&mut self, report: vita_reports::MainReport) -> crate::Result<()> {
         let dpad = match (
             report.buttons.down,
@@ -254,6 +261,16 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             None
         };
 
+        // Convert the vita accel range [-1.0, 1.0] to the dualshock 4 range [-32768, 32768]
+        let accel_x_i16 = Self::f32_to_i16(report.motion.accelerometer.x, -1.0, 1.0);
+        let accel_y_i16 = Self::f32_to_i16(report.motion.accelerometer.y, -1.0, 1.0);
+        let accel_z_i16 = Self::f32_to_i16(report.motion.accelerometer.z, -1.0, 1.0);
+
+        // Convert the vita gyro range [-35.0, 35.0] to the dualshock 4 range [-32768, 32768]
+        let gyro_x_i16 =  Self::f32_to_i16(report.motion.gyro.x, -35.0, 35.0);
+        let gyro_y_i16 =  Self::f32_to_i16(report.motion.gyro.y, -35.0, 35.0);
+        let gyro_z_i16 =  Self::f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
+
         let report = DS4ReportExBuilder::new()
             .thumb_lx(report.lx)
             .thumb_ly(report.ly)
@@ -261,6 +278,12 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             .thumb_ry(report.ry)
             .buttons(buttons)
             .touch_reports(touchpad, None, None)
+            .gyro_x(gyro_x_i16)
+            .gyro_y(gyro_y_i16)
+            .gyro_z(gyro_z_i16)
+            .accel_x(accel_z_i16)
+            .accel_y(accel_x_i16)
+            .accel_z(accel_y_i16)
             .build();
 
         self.ds4_target

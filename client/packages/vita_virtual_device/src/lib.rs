@@ -19,6 +19,7 @@ pub trait VitaVirtualDevice<ConfigSetter: ?Sized>: Sized {
     fn identifiers(&self) -> Option<&[OsString]>;
     fn set_config(&mut self, config: ConfigSetter) -> Result<()>;
     fn send_report(&mut self, report: vita_reports::MainReport) -> Result<()>;
+    fn f32_to_i16(value: f32, min_value: f32, max_value: f32) -> i16;
 }
 
 cfg_if::cfg_if! {
