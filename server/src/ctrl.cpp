@@ -55,7 +55,7 @@ flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol() {
                              motion_data.accelerometer.z);
   NetProtocol::Vector3 gyro(motion_data.gyro.x, motion_data.gyro.y,
                             motion_data.gyro.z);
-  NetProtocol::MotionData motion(accel, gyro);
+  NetProtocol::MotionData motion(gyro, accel);
 
   auto content =
       NetProtocol::CreatePad(builder, &buttons, pad.lx, pad.ly, pad.rx, pad.ry,
