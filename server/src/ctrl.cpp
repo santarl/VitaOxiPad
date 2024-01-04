@@ -35,8 +35,11 @@ convert_touch_data(flatbuffers::FlatBufferBuilder &builder,
 
 flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol() {
   SceCtrlData pad;
-  SceMotionSensorState motion_data; // TODO: Needs calibration
+  SceMotionState motion_data; // TODO: Needs calibration
   SceTouchData touch_data_front, touch_data_back;
+
+  sceMotionSetGyroBiasCorrection(1);
+  sceMotionSetTiltCorrection(1);
 
   flatbuffers::FlatBufferBuilder builder(512);
 
@@ -49,12 +52,12 @@ flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol() {
   sceTouchPeek(SCE_TOUCH_PORT_BACK, &touch_data_back, 1);
   auto data_back = convert_touch_data(builder, touch_data_back);
 
-  sceMotionGetSensorState(&motion_data, 1);
-  NetProtocol::Vector3 accel(motion_data.accelerometer.x,
-                             motion_data.accelerometer.y,
-                             motion_data.accelerometer.z);
-  NetProtocol::Vector3 gyro(motion_data.gyro.x, motion_data.gyro.y,
-                            motion_data.gyro.z);
+  sceMotionGetState(&motion_data);
+  NetProtocol::Vector3 accel(motion_data.acceleration.x,
+                             motion_data.acceleration.y,
+                             motion_data.acceleration.z);
+  NetProtocol::Vector3 gyro(motion_data.angularVelocity.x, motion_data.angularVelocity.y,
+                            motion_data.angularVelocity.z);
   NetProtocol::MotionData motion(gyro, accel);
 
   auto content =
