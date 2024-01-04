@@ -85,7 +85,9 @@ int main() {
     vita2d_start_drawing();
     vita2d_clear_screen();
     vita2d_pgf_draw_text(debug_font, 2, 20, text_color, 1.0,
-                         "VitaPad v1.3 build from " __DATE__ ", " __TIME__);
+                         "VitaPad v1.3-mod\nbuild " __DATE__ ", " __TIME__);
+    vita2d_pgf_draw_text(debug_font, 480, 20, text_color, 1.0,
+                         "|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|");
     if (events & NetEvent::NET_CONNECT) {
       connected_to_network = true;
       sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &info);
@@ -95,15 +97,14 @@ int main() {
     }
 
     if (connected_to_network) {
-      vita2d_pgf_draw_textf(debug_font, 2, 60, text_color, 1.0,
-                            "Listening on:\nIP: %s\nPort: %d", vita_ip,
-                            NET_PORT);
+      vita2d_pgf_draw_textf(debug_font, 740, 20, text_color, 1.0,
+                            "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
     } else {
-      vita2d_pgf_draw_text(debug_font, 2, 60, text_color, 1.0,
-                           "Not connected to a network");
+      vita2d_pgf_draw_text(debug_font, 740, 20, text_color, 1.0,
+                           "Not connected\nto a network");
     }
 
-    vita2d_pgf_draw_textf(debug_font, 2, 200, text_color, 1.0, "Status: %s",
+    vita2d_pgf_draw_textf(debug_font, 2, 542, text_color, 1.0, "Status: %s",
                           events & NetEvent::PC_CONNECT ? "Connected"
                                                         : "Not connected");
     vita2d_end_drawing();
