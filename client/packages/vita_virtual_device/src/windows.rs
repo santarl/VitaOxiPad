@@ -408,7 +408,7 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
 
         // Convert the vita gyro range [-35.0, 35.0] to the dualshock 4 range [-32768, 32768]
         let gyro_x_i16 =  Self::f32_to_i16(report.motion.gyro.x, -35.0, 35.0);
-        let gyro_y_i16 =  Self::f32_to_i16(report.motion.gyro.y, -35.0, 35.0);
+        let gyro_y_i16 =  Self::f32_to_i16(-report.motion.gyro.y, -35.0, 35.0); //inverted
         let gyro_z_i16 =  Self::f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
 
         let report = DS4ReportExBuilder::new()
@@ -419,8 +419,8 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             .buttons(buttons)
             .touch_reports(touchpad, None, None)
             .gyro_x(gyro_x_i16)
-            .gyro_y(gyro_y_i16)
-            .gyro_z(gyro_z_i16)
+            .gyro_y(gyro_z_i16)
+            .gyro_z(gyro_y_i16)
             .accel_x(accel_z_i16)
             .accel_y(accel_x_i16)
             .accel_z(accel_y_i16)
