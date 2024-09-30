@@ -1,43 +1,72 @@
-# VitaPad v1.3
+# VitaPad on Rust
 
 <center>
-<img src="./server/sce_sys/icon0.png" width="128" height="128" />
-<p>Turn your PS Vita into a gamepad for your PC!</p>
-<sub>Based on <a href="https://github.com/Rinnegatamante/VitaPad">VitaPad</a> by <a href="https://github.com/Rinnegatamante">Rinnegatamante</a></sub>
+    <img src="./server/sce_sys/icon0.png" width="128" height="128" />
+    <p>Turn your PS Vita into a gamepad for your PC!</p>
+    <sub>
+        Based on <a href="https://github.com/Rinnegatamante/VitaPad">VitaPad</a>
+        by <a href="https://github.com/Rinnegatamante">Rinnegatamante</a> and <a href="https://github.com/saidsay-so">saidsay-so</a>
+    </sub>
 </center>
 
 ## Installation
 
 The server has to be installed on the PS Vita and the client on the PC.
 
-### Requirements
-
-- [VitaSDK](https://vitasdk.org/)
-- [CMake](https://cmake.org/)
-- [flatc](https://google.github.io/flatbuffers/flatbuffers_guide_using_schema_compiler.html)
-
-#### Windows
+### Requirements for Windows
 
 - [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases)
 
-### Server
+## Client compilation 
+
+### Windows
+
+To compile on Windows you will need
+- Make and Cmake;
+- Rust (Cargo).
+
+You can use [MSYS2](https://www.msys2.org/), which provides this in a convenient way.
+
+Dependencies you will need for **MSYS2 MINGW64**:
 
 ```bash
-cmake -S server -B build
-cmake --build build
+pacman -S mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers make git wget cmake
 ```
 
-Then, install the generated `VitaPad.vpk` file on your PS Vita.
-
-### Client
+Clone the repository and log into it:
 
 ```bash
-cd client
+git clone --recurse-submodules https://github.com/DvaMishkiLapa/VitaPad.git
+cd ./VitaPad
+```
+
+Build the client side:
+
+```bash
+cd ./client
 cargo build --release --bin cli
 ```
 
-Then, run the generated executable (target/release/cli{.exe}) on your PC.
+You can check the finished binary by running in it:
+
+```bash
+ ./target/release/cli.exe your_PS_Vita_IP
+```
+
+### Server
+
+1. Make sure that you have [`cmake`](https://cmake.org) installed.
+2. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm)).
+3. Build the project with the following commands:
+
+  ```bash
+  cmake -S server -B build
+  cmake --build build
+  ```
+
+Then, install the generated `VitaPad.vpk` file on your PS Vita.
 
 ## Thanks
 
-Thanks to all the people who contributed to VitaSDK, and Rinnegatamante for the original project.
+Thanks to all the people who contributed to VitaSDK,
+as well as Rinnegatamante for the original project and saidsay-so for the improved Rust version.
