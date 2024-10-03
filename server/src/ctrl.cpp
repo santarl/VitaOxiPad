@@ -40,6 +40,7 @@ flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol() {
 
   sceMotionSetGyroBiasCorrection(1);
   sceMotionSetTiltCorrection(1);
+  sceMotionSetDeadband(0);
 
   flatbuffers::FlatBufferBuilder builder(512);
 
