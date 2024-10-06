@@ -17,4 +17,4 @@ vita_reports = { version = "0.1.0", path = "../vita_reports" }
 input-linux = "0.6.0"
 
 [target.'cfg(windows)'.dependencies]
-vigem-client = { git = "https://github.com/musikid/vigem-client.git", branch = "ds4_new_api" }
+vigem-client = { git = "https://github.com/santarl/vigem_client_rust/" }
