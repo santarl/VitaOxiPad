@@ -4,10 +4,36 @@
     <img src="./server/sce_sys/icon0.png" width="128" height="128" />
     <p>Turn your PS Vita into a gamepad for your PC!</p>
     <sub>
-        Based on <a href="https://github.com/Rinnegatamante/VitaPad">VitaPad</a>
-        by <a href="https://github.com/Rinnegatamante">Rinnegatamante</a> and <a href="https://github.com/saidsay-so">saidsay-so</a>
+        Based on<br>
+        <a href="https://github.com/Rinnegatamante/VitaPad">VitaPad</a> by <a href="https://github.com/Rinnegatamante">Rinnegatamante</a>
+        <br>and<br>
+        <a href="https://github.com/saidsay-so/VitaPad">Rust-based VitaPad</a> by <a href="https://github.com/saidsay-so">saidsay-so</a>
     </sub>
 </center>
+
+## Description
+
+VitaPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
+
+The server part is written in C, the client part is written in Rust.
+
+This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
+
+## What works
+
+| Feature                            | Support | Details                                                                              |
+| ---------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
+| Buttons                            |    ✅    | -                                                                                    |
+| Sticks                             |    ✅    | -                                                                                    |
+| L1 and R1                          |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
+| Select and Start                   |    ✅    | -                                                                                    |
+| Use of the front PS Vita digitizer |    ✅    | Can be used to emulate L2\L3 and R2\R3                                               |
+| Use of the back PS Vita digitizer  |    ✅    | Can be used to emulate L2\L3 and R2\R3                                               |
+| Accelerometer                      |    ✅    | A little less accurate than the DS4, but still usable                                |
+| Gyroscope                          |    ✅    | A little less accurate than the DS4, but still usable                                |
+| DS4 digitizer emulation            |    ❌    | In progress...                                                                       |
+| Sound                              |    ❌    | -                                                                                    |
+| Any configuration                  |    ❌    | -                                                                                    |
 
 ## Installation
 
