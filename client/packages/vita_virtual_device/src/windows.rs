@@ -291,8 +291,8 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
     fn f32_to_i16(value: f32, min_value: f32, max_value: f32) -> i16 {
         let clamped_value = value.clamp(min_value, max_value);
         let normalized_value = (clamped_value - min_value) / (max_value - min_value);
-        let scaled_value = normalized_value * 65535.0 - 32768.0;
-        scaled_value as i16
+        let scaled_value = normalized_value * 65536.0 - 32768.0;
+        scaled_value.round() as i16
     }
 
     fn send_report(&mut self, report: vita_reports::MainReport) -> crate::Result<()> {
