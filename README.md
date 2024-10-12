@@ -21,19 +21,17 @@ This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 
 ## What works
 
-| Feature                            | Support | Details                                                                              |
-| ---------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Buttons                            |    ✅    | -                                                                                    |
-| Sticks                             |    ✅    | -                                                                                    |
-| L1 and R1                          |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
-| Select and Start                   |    ✅    | -                                                                                    |
-| Use of the front PS Vita digitizer |    ✅    | Can be used to emulate L2\L3 and R2\R3                                               |
-| Use of the back PS Vita digitizer  |    ✅    | Can be used to emulate L2\L3 and R2\R3                                               |
-| Accelerometer                      |    ✅    | A little less accurate than the DS4, but still usable                                |
-| Gyroscope                          |    ✅    | A little less accurate than the DS4, but still usable                                |
-| DS4 digitizer emulation            |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                           |
-| Sound                              |    ❌    | -                                                                                    |
-| Any configuration                  |    ❌    | -                                                                                    |
+| Feature                         | Support | Details                                                                              |
+| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
+| Buttons                         |    ✅    | -                                                                                    |
+| Sticks                          |    ✅    | -                                                                                    |
+| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
+| Select and Start                |    ✅    | -                                                                                    |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
+| Sound                           |    ❌    | -                                                                                    |
+| Any configuration               |    ❌    | -                                                                                    |
 
 ## Installation
 
