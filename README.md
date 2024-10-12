@@ -11,6 +11,17 @@
     </sub>
 </center>
 
+- [VitaPad on Rust](#vitapad-on-rust)
+  - [Description](#description)
+  - [What works](#what-works)
+  - [Bugs](#bugs)
+  - [Installation](#installation)
+    - [Requirements for Windows](#requirements-for-windows)
+  - [Client compilation](#client-compilation)
+    - [Windows](#windows)
+    - [Server](#server)
+  - [Thanks](#thanks)
+
 ## Description
 
 VitaPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
