@@ -33,6 +33,11 @@ This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 | Sound                           |    ❌    | -                                                                                    |
 | Any configuration               |    ❌    | -                                                                                    |
 
+## Bugs
+
+- Rarely, a server on PS Vita can crash with an error. The causes are being investigated. Happened to me more than once in 3-4 hours of play;
+- Sometimes, the imput-lag increases a lot. This may be due to a bad WiFi connection.
+
 ## Installation
 
 The server has to be installed on the PS Vita and the client on the PC.
