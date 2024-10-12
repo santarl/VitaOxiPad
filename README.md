@@ -31,7 +31,7 @@ This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 | Use of the back PS Vita digitizer  |    ✅    | Can be used to emulate L2\L3 and R2\R3                                               |
 | Accelerometer                      |    ✅    | A little less accurate than the DS4, but still usable                                |
 | Gyroscope                          |    ✅    | A little less accurate than the DS4, but still usable                                |
-| DS4 digitizer emulation            |    ❌    | In progress...                                                                       |
+| DS4 digitizer emulation            |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                           |
 | Sound                              |    ❌    | -                                                                                    |
 | Any configuration                  |    ❌    | -                                                                                    |
 
