@@ -95,9 +95,30 @@ You can check the finished binary by running in it:
 
 ### Server
 
-1. Make sure that you have [`cmake`](https://cmake.org) installed.
-2. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm)).
-3. Build the project with the following commands:
+1. Make sure that you have [`cmake`](https://cmake.org) installed;
+2. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
+
+  Sometimes, for whatever reason, `flatbuffers` are not installed in the VitaSDK (`fatal error: flatbuffers/flatbuffers.h: No such file or directory`).
+
+  You can install it manually via vdpm. Do this after installing the VitaSDK via vdpm:
+
+  ```bash
+  ./vdpm flatbuffers
+  ```
+
+3. Install [`flatc`](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
+
+  ```bash
+  git clone https://github.com/google/flatbuffers.git && cd flatbuffers
+  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
+  make -j
+  ./flattests # this is quick, and should print "ALL TESTS PASSED"
+  sudo make install
+  sudo ldconfig
+  flatc --version
+  ```
+
+4. Build the project with the following commands:
 
   ```bash
   cmake -S server -B build
