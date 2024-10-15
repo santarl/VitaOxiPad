@@ -85,9 +85,8 @@ int main() {
     vita2d_start_drawing();
     vita2d_clear_screen();
     vita2d_pgf_draw_text(debug_font, 2, 20, text_color, 1.0,
-                         "VitaPad v1.3-mod\nbuild " __DATE__ ", " __TIME__);
-    vita2d_pgf_draw_text(debug_font, 480, 20, text_color, 1.0,
-                         "|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|\n\n|");
+                         "VitaPad on Rust\nbuild " __DATE__ ", " __TIME__);
+
     if (events & NetEvent::NET_CONNECT) {
       connected_to_network = true;
       sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &info);
