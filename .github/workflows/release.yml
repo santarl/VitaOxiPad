@@ -60,11 +60,13 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers make wget cmake
+          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-i686-gcc mingw-w64-x86_64-rust mingw-w64-i686-rust mingw-w64-x86_64-flatbuffers make wget cmake
 
       - name: Install dependencies
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers mingw-w64-x86_64-cargo-c make wget cmake
+          pacman -S --noconfirm mingw-w64-x86_64-rust mingw-w64-i686-rust mingw-w64-x86_64-flatbuffers mingw-w64-x86_64-cargo-c mingw-w64-i686-cargo-c make wget cmake
+          wget https://repo.msys2.org/mingw/mingw32/mingw-w64-i686-flatbuffers-23.5.26-2-any.pkg.tar.zst
+          pacman -U --noconfirm mingw-w64-i686-flatbuffers-23.5.26-2-any.pkg.tar.zst
 
       - name: Build Windows x64 Client
         run: |
@@ -79,6 +81,19 @@ jobs:
           name: VitaPad-x64.exe
           path: ./client/target/release/VitaPad-x64.exe
 
+      - name: Build Windows x32 Client
+        run: |
+          export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw32/bin:${PATH}"
+          cd ./client
+          CARGO_TARGET_ARCH="i686" cargo build --release --bin cli
+          cp ./target/release/cli.exe ./target/release/VitaPad-x32.exe
+
+      - name: Upload Windows x32 binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaPad-x32.exe
+          path: ./client/target/release/VitaPad-x32.exe
+
   create_release:
     needs: [build_vita_server, build_windows_client]
     runs-on: ubuntu-latest
@@ -92,7 +107,13 @@ jobs:
       - name: Download VitaPad-x64.exe artifact
         uses: actions/download-artifact@v4
         with:
-          name: cli.exe
+          name: VitaPad-x64.exe
+          path: ./release
+
+      - name: Download VitaPad-x32.exe artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaPad-x32.exe
           path: ./release
 
       - name: Upload development release
@@ -105,5 +126,6 @@ jobs:
           files: |
             ./release/VitaPad.vpk
             ./release/VitaPad-x64.exe
+            ./release/VitaPad-x32.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
