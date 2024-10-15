@@ -66,17 +66,17 @@ jobs:
         run: |
           pacman -S --noconfirm mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers mingw-w64-x86_64-cargo-c make wget cmake
 
-      - name: Build Windows Client
+      - name: Build Windows x64 Client
         run: |
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin:${PATH}"
           cd ./client
           cargo build --release --bin cli
           cp ./target/release/cli.exe ./target/release/VitaPad-x64.exe
 
-      - name: Upload CLI Binary as artifact
+      - name: Upload Windows x64 binary as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: cli.exe
+          name: VitaPad-x64.exe
           path: ./client/target/release/VitaPad-x64.exe
 
   create_release:
@@ -89,7 +89,7 @@ jobs:
           name: VitaPad.vpk
           path: ./release
 
-      - name: Download cli.exe artifact
+      - name: Download VitaPad-x64.exe artifact
         uses: actions/download-artifact@v4
         with:
           name: cli.exe
@@ -104,6 +104,6 @@ jobs:
           prerelease: true
           files: |
             ./release/VitaPad.vpk
-            ./release/cli.exe
+            ./release/VitaPad-x64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
