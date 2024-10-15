@@ -71,12 +71,13 @@ jobs:
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin:${PATH}"
           cd ./client
           cargo build --release --bin cli
+          cp ./target/release/cli.exe ./target/release/VitaPad-x64.exe
 
       - name: Upload CLI Binary as artifact
         uses: actions/upload-artifact@v4
         with:
           name: cli.exe
-          path: ./client/target/release/cli.exe
+          path: ./client/target/release/VitaPad-x64.exe
 
   create_release:
     needs: [build_vita_server, build_windows_client]
