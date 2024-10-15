@@ -3632,8 +3632,6 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 name = "vigem-client"
 version = "0.1.5"
 source = "git+https://github.com/santarl/vigem_client_rust/#2835ba918fee88bea8d4682e8106812d8ad49bf6"
-version = "0.1.4"
-source = "git+https://github.com/musikid/vigem-client.git?branch=ds4_new_api#57d3f2f82108528fd31d841b526591f6e7f1cd86"
 dependencies = [
  "winapi",
 ]
