@@ -1,17 +1,10 @@
-# VitaPad on Rust
+# VitaPad <img align="right" width="128" height="128" src="./server/sce_sys/icon0.png" />
 
-<center>
-    <img src="./server/sce_sys/icon0.png" width="128" height="128" />
-    <p>Turn your PS Vita into a gamepad for your PC!</p>
-    <sub>
-        Based on<br>
-        <a href="https://github.com/Rinnegatamante/VitaPad">VitaPad</a> by <a href="https://github.com/Rinnegatamante">Rinnegatamante</a>
-        <br>and<br>
-        <a href="https://github.com/saidsay-so/VitaPad">Rust-based VitaPad</a> by <a href="https://github.com/saidsay-so">saidsay-so</a>
-    </sub>
-</center>
+Turn your PS Vita into a gamepad for your PC!</p>
 
-- [VitaPad on Rust](#vitapad-on-rust)
+Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) and [Rust-based VitaPad by saidsay-so](https://github.com/saidsay-so/VitaPad).
+
+- [VitaPad ](#vitapad-)
   - [Description](#description)
   - [What works](#what-works)
   - [Bugs](#bugs)
