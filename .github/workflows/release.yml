@@ -5,10 +5,20 @@ on:
     branches:
       - main
       - dev
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README.md'
+      - 'gyro_accel_tester'
   pull_request:
     branches:
       - main
       - dev
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README.md'
+      - 'gyro_accel_tester'
 
 jobs:
   build_vita_server:
@@ -60,7 +70,26 @@ jobs:
         with:
           msystem: UCRT64
           update: true
-          install: git mingw-w64-ucrt-x86_64-gcc mingw-w64-i686-gcc mingw-w64-x86_64-rust mingw-w64-i686-rust mingw-w64-x86_64-flatbuffers make wget cmake
+          install: >
+            git
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-i686-gcc
+            mingw-w64-x86_64-rust
+            mingw-w64-i686-rust
+            mingw-w64-x86_64-flatbuffers
+            make
+            wget
+            cmake
+
+      - name: Cache Cargo registry and build
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
       - name: Install dependencies
         run: |
@@ -122,8 +151,6 @@ jobs:
         with:
           name: Development Build
           tag_name: "latest"
-          target_commitish: ${{ github.sha }}
-          overwrite: true
           prerelease: true
           files: |
             ./release/VitaPad.vpk
