@@ -21,6 +21,18 @@ on:
       - 'gyro_accel_tester'
 
 jobs:
+  create_dev_release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create Development release
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+
   build_vita_server:
     runs-on: ubuntu-latest
     steps:
@@ -82,7 +94,7 @@ jobs:
             cmake
 
       - name: Cache Cargo registry and build
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
