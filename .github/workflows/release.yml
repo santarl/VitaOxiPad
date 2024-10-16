@@ -122,6 +122,8 @@ jobs:
         with:
           name: Development Build
           tag_name: "latest"
+          target_commitish: ${{ github.sha }}
+          overwrite: true
           prerelease: true
           files: |
             ./release/VitaPad.vpk
