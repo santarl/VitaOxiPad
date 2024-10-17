@@ -16,12 +16,18 @@ use vita_virtual_device::{VitaDevice, VitaVirtualDevice};
 /// over the network.
 #[derive(FromArgs)]
 struct Args {
-    #[argh(option, short = 'p')]
     /// port to connect to
     /// (default: 5000)
+    #[argh(option, short = 'p')]
     port: Option<u16>,
+
+    /// buttons and touchpads config
+    /// (default: standart)
+    #[argh(option, short = 'c')]
+    config: Option<String>,
+
+    /// polling interval in microseconds (minimum = 4000)
     #[argh(option)]
-    /// polling interval in microseconds
     polling_interval: Option<u64>,
 
     /// enable debug mode
@@ -131,10 +137,8 @@ fn main() -> color_eyre::Result<()> {
 
     let mut last_time = SystemTime::now();
 
-    let mut device = VitaDevice::create().wrap_err(
-        "Failed to create virtual device, \
-        please check that you have permissions on uinput device",
-    )?;
+    let mut device = VitaDevice::create(args.config.as_deref().unwrap_or("standart"))
+        .wrap_err("Failed to create virtual device, please check uinput permissions")?;
 
     let identfiers = device.identifiers().map(|ids| ids.join(", ".as_ref()));
     log::info!("Virtual device created");

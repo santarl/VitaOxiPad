@@ -34,8 +34,41 @@ This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 | Select and Start                |    ✅    | -                                                                                    |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
 | DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
 | Sound                           |    ❌    | -                                                                                    |
-| Any configuration               |    ❌    | -                                                                                    |
+
+## Uses and options
+
+```bash
+$ VitaPad-x64.exe --help
+Usage: VitaPad-x64.exe <ip> [-p <port>] [-c <config>] [--polling-interval <polling-interval>] [-d]
+
+Create a virtual controller and fetch its data from a Vita over the network.
+
+Positional Arguments:
+  ip                IP address of the Vita to connect to
+
+Options:
+  -p, --port        port to connect to (default: 5000)
+  -c, --config      buttons and touchpads config (default: standart)
+  --polling-interval
+                    polling interval in microseconds (minimum = 4000)
+  -d, --debug       enable debug mode
+  --help            display usage information
+```
+
+### Configurations
+
+There are currently 4 configurations that can be selected at client startup:
+
+- `standart` (default): **Rear** PS Vita digitizer emulates **L2\R2**, **front** PS Vita digitizer emulates **L3\R3**;
+- `alt_triggers`: **Rear** PS Vita digitizer emulates **L1\R1**, front PS Vita digitizer emulates L3\R3, PS Vita triggers emulates L2\R2;
+- `rear_touchpad`: **Rear** PS Vita digitizer emulates **DualShock 4 digitizer**,
+  **front upper** PS Vita digitizer area emulates **L2\R2** and **front lower** PS Vita digitizer area emulates **L3\R3**;
+- `front_touchpad`: **Front** PS Vita digitizer emulates **DualShock 4 digitizer**,
+  **rear upper** PS Vita digitizer area emulates **L2\R2** and **rear lower** PS Vita digitizer area emulates **L3\R3**;
+
+To better understand the emulation behavior, you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita.
 
 ## Bugs
 

@@ -17,6 +17,8 @@ pub enum Error {
     PluginTargetFailed(#[source] vigem_client::Error),
     #[error("Sending report failed")]
     SendReportFailed(#[source] vigem_client::Error),
+    #[error("Invalid configuration: {0}")]
+    InvalidConfig(String),
 }
 
 #[derive(Clone, Debug, Copy, Deserialize, Serialize)]
@@ -151,10 +153,10 @@ pub struct Config {
     pub trigger_config: TriggerConfig,
 }
 
-// Touch coordinates are in the range [0, 1919] x [108, 887] for the back touchpad
-// and [0, 1919] x [0, 1087] for the front touchpad
+// Touch coordinates are in the range [0, 0] x [1920, 887] for the back touchpad
+// and [0, 0] x [1920, 1087] for the front touchpad
 const FRONT_TOUCHPAD_RECT: (Point, Point) = (Point(0, 0), Point(1920, 1087));
-const BACK_TOUCHPAD_RECT: (Point, Point) = (Point(0, 108), Point(1920, 887));
+const REAR_TOUCHPAD_RECT: (Point, Point) = (Point(0, 0), Point(1920, 887));
 
 impl Config {
     #[inline]
@@ -163,64 +165,155 @@ impl Config {
     }
 
     #[inline]
-    pub fn back_l2_r2_front_touchpad() -> Self {
+    pub fn rear_rl2_front_rl3() -> Self {
         Config {
             rear_touch_config: Some(TouchConfig::zones([
                 TouchZone::new(
                     (
-                        BACK_TOUCHPAD_RECT.0,
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y()),
-                    ),
-                    Some(TouchAction::Button(DS4Buttons::TRIGGER_LEFT)),
-                ),
-                TouchZone::new(
-                    (
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.0.y()),
-                        BACK_TOUCHPAD_RECT.1,
-                    ),
-                    Some(TouchAction::Button(DS4Buttons::TRIGGER_RIGHT)),
-                ),
-            ])),
-            front_touch_config: Some(TouchConfig::Touchpad),
-            trigger_config: TriggerConfig::Shoulder,
-        }
-    }
-
-    #[inline]
-    pub fn back_l2_l3_r2_r3_front_touchpad() -> Self {
-        Config {
-            rear_touch_config: Some(TouchConfig::zones([
-                TouchZone::new(
-                    (
-                        BACK_TOUCHPAD_RECT.0,
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y() / 2),
+                        REAR_TOUCHPAD_RECT.0,
+                        Point((REAR_TOUCHPAD_RECT.1).0 / 2, (REAR_TOUCHPAD_RECT.1).1),
                     ),
                     Some(TouchAction::Button(DS4Buttons::SHOULDER_LEFT)),
                 ),
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.0.y()),
-                        Point(BACK_TOUCHPAD_RECT.1.x(), BACK_TOUCHPAD_RECT.1.y() / 2),
+                        Point((REAR_TOUCHPAD_RECT.1).0 / 2, (REAR_TOUCHPAD_RECT.0).0),
+                        REAR_TOUCHPAD_RECT.1,
                     ),
                     Some(TouchAction::Button(DS4Buttons::SHOULDER_RIGHT)),
                 ),
+            ])),
+            front_touch_config: Some(TouchConfig::zones([
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.0.x(), BACK_TOUCHPAD_RECT.1.y() / 2),
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y()),
+                        FRONT_TOUCHPAD_RECT.0,
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.1).1),
                     ),
                     Some(TouchAction::Button(DS4Buttons::THUMB_LEFT)),
                 ),
                 TouchZone::new(
                     (
-                        Point(BACK_TOUCHPAD_RECT.1.x() / 2, BACK_TOUCHPAD_RECT.1.y() / 2),
-                        BACK_TOUCHPAD_RECT.1,
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.0).0),
+                        FRONT_TOUCHPAD_RECT.1,
                     ),
                     Some(TouchAction::Button(DS4Buttons::THUMB_RIGHT)),
                 ),
             ])),
+            trigger_config: TriggerConfig::Trigger,
+        }
+    }
 
+    #[inline]
+    pub fn rear_rl1_front_rl3_vitatriggers_rl2() -> Self {
+        Config {
+            rear_touch_config: Some(TouchConfig::zones([
+                TouchZone::new(
+                    (
+                        REAR_TOUCHPAD_RECT.0,
+                        Point((REAR_TOUCHPAD_RECT.1).0 / 2, (REAR_TOUCHPAD_RECT.1).1),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::TRIGGER_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point((REAR_TOUCHPAD_RECT.1).0 / 2, (REAR_TOUCHPAD_RECT.0).0),
+                        REAR_TOUCHPAD_RECT.1,
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::TRIGGER_RIGHT)),
+                ),
+            ])),
+            front_touch_config: Some(TouchConfig::zones([
+                TouchZone::new(
+                    (
+                        FRONT_TOUCHPAD_RECT.0,
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.1).1),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point((FRONT_TOUCHPAD_RECT.1).0 / 2, (FRONT_TOUCHPAD_RECT.0).0),
+                        FRONT_TOUCHPAD_RECT.1,
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_RIGHT)),
+                ),
+            ])),
+            trigger_config: TriggerConfig::Shoulder,
+        }
+    }
+
+    #[inline]
+    pub fn front_top_rl2_bottom_rl3_rear_touchpad() -> Self {
+        Config {
+            front_touch_config: Some(TouchConfig::zones([
+                TouchZone::new(
+                    (
+                        FRONT_TOUCHPAD_RECT.0,
+                        Point(FRONT_TOUCHPAD_RECT.1.x() / 2, FRONT_TOUCHPAD_RECT.1.y() / 2),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(FRONT_TOUCHPAD_RECT.1.x() / 2, FRONT_TOUCHPAD_RECT.0.y()),
+                        Point(FRONT_TOUCHPAD_RECT.1.x(), FRONT_TOUCHPAD_RECT.1.y() / 2),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_RIGHT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(FRONT_TOUCHPAD_RECT.0.x(), FRONT_TOUCHPAD_RECT.1.y() / 2),
+                        Point(FRONT_TOUCHPAD_RECT.1.x() / 2, FRONT_TOUCHPAD_RECT.1.y()),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(FRONT_TOUCHPAD_RECT.1.x() / 2, FRONT_TOUCHPAD_RECT.1.y() / 2),
+                        FRONT_TOUCHPAD_RECT.1,
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_RIGHT)),
+                ),
+            ])),
+            rear_touch_config: Some(TouchConfig::Touchpad),
+            trigger_config: TriggerConfig::Trigger,
+        }
+    }
+
+    #[inline]
+    pub fn rear_top_rl2_bottom_rl3_front_touchpad() -> Self {
+        Config {
             front_touch_config: Some(TouchConfig::Touchpad),
+            rear_touch_config: Some(TouchConfig::zones([
+                TouchZone::new(
+                    (
+                        REAR_TOUCHPAD_RECT.0,
+                        Point(REAR_TOUCHPAD_RECT.1.x() / 2, REAR_TOUCHPAD_RECT.1.y() / 2),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(REAR_TOUCHPAD_RECT.1.x() / 2, REAR_TOUCHPAD_RECT.0.y()),
+                        Point(REAR_TOUCHPAD_RECT.1.x(), REAR_TOUCHPAD_RECT.1.y() / 2),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::SHOULDER_RIGHT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(REAR_TOUCHPAD_RECT.0.x(), REAR_TOUCHPAD_RECT.1.y() / 2),
+                        Point(REAR_TOUCHPAD_RECT.1.x() / 2, REAR_TOUCHPAD_RECT.1.y()),
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_LEFT)),
+                ),
+                TouchZone::new(
+                    (
+                        Point(REAR_TOUCHPAD_RECT.1.x() / 2, REAR_TOUCHPAD_RECT.1.y() / 2),
+                        REAR_TOUCHPAD_RECT.1,
+                    ),
+                    Some(TouchAction::Button(DS4Buttons::THUMB_RIGHT)),
+                ),
+            ])),
             trigger_config: TriggerConfig::Trigger,
         }
     }
@@ -243,7 +336,7 @@ pub struct VitaDevice {
 }
 
 impl VitaDevice {
-    pub fn create() -> crate::Result<Self> {
+    pub fn create(config_name: &str) -> crate::Result<Self> {
         let client = Client::connect().map_err(Error::ConnectionFailed)?;
         let mut ds4_target = DualShock4Wired::new(client, TargetId::DUALSHOCK4_WIRED);
 
@@ -252,9 +345,18 @@ impl VitaDevice {
         // Wait for the device to be ready, because the ioctl doesn't seem to work
         std::thread::sleep(Duration::from_millis(100));
 
+        // Select the configuration depending on the name
+        let config = match config_name {
+            "standart" => Config::rear_rl2_front_rl3(),
+            "alt_triggers" => Config::rear_rl1_front_rl3_vitatriggers_rl2(),
+            "rear_touchpad" => Config::front_top_rl2_bottom_rl3_rear_touchpad(),
+            "front_touchpad" => Config::rear_top_rl2_bottom_rl3_front_touchpad(),
+            _ => return Err(crate::Error::Windows(Error::InvalidConfig(config_name.to_string()))),
+        };
+
         Ok(VitaDevice {
             ds4_target,
-            config: Config::back_l2_l3_r2_r3_front_touchpad(),
+            config: config,
         })
     }
 }
