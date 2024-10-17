@@ -479,11 +479,11 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
                 .front_touch
                 .reports
                 .iter()
-                .rev()
-                .take(2)
-                // Convert the coordinates to the range for the dualshock 4 touchpad (1920x942) from the vita touchpad (1920x1087)
+                // Convert the coordinates to the range for the dualshock 4 touchpad (1920x942) from the vita touchpad
                 .map(|report| {
-                    DS4TouchPoint::new(report.x as u16, (report.y * (942 / 1087)) as u16)
+                    DS4TouchPoint::new(
+                        report.x as u16,
+                        (report.y as f32 * (942.0 / FRONT_TOUCHPAD_RECT.1.y() as f32)) as u16)
                 });
             let report = DS4TouchReport::new(0, points.next(), points.next());
             Some(report)
@@ -492,11 +492,12 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
                 .back_touch
                 .reports
                 .iter()
-                .rev()
-                .take(2)
-                // Convert the coordinates to the range for the dualshock 4 touchpad (1920x942) from the vita rear touchpad (1920x887)
+                // Convert the coordinates to the range for the dualshock 4 touchpad (1920x942) from the vita rear touchpad
                 .map(|report| {
-                    DS4TouchPoint::new(report.x as u16, (report.y * (942 / (887 - 108))) as u16)
+                    DS4TouchPoint::new(
+                        report.x as u16,
+                        (report.y as f32 * (942.0 / REAR_TOUCHPAD_RECT.1.y() as f32)) as u16
+                    )
                 });
             let report = DS4TouchReport::new(0, points.next(), points.next());
             Some(report)
