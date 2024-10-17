@@ -288,6 +288,7 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
         Ok(())
     }
 
+    #[inline]
     fn f32_to_i16(value: f32, min_value: f32, max_value: f32) -> i16 {
         let clamped_value = value.clamp(min_value, max_value);
         let normalized_value = (clamped_value - min_value) / (max_value - min_value);
