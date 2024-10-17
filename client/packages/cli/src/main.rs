@@ -23,6 +23,11 @@ struct Args {
     #[argh(option)]
     /// polling interval in microseconds
     polling_interval: Option<u64>,
+
+    /// enable debug mode
+    #[argh(switch, short = 'd')]
+    debug: bool,
+
     /// IP address of the Vita to connect to
     #[argh(positional)]
     ip: String,
@@ -45,9 +50,14 @@ fn main() -> color_eyre::Result<()> {
     const MIN_POLLING_RATE: u64 = (1 * 1000 / 250) * 1000;
 
     color_eyre::install()?;
-    pretty_env_logger::init();
 
     let args: Args = argh::from_env();
+
+    if args.debug {
+        std::env::set_var("RUST_LOG", "debug");
+    }
+    pretty_env_logger::init();
+
     let remote_port = args.port.unwrap_or(NET_PORT);
     let polling_interval = args
         .polling_interval
