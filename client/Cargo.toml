@@ -6,5 +6,4 @@ members = [
     "packages/protocol",
     "packages/vita_reports",
     "packages/vita_virtual_device",
-    "packages/gui/src-tauri",
 ]
