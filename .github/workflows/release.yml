@@ -121,6 +121,8 @@ jobs:
         run: |
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin:${PATH}"
           cd ./client
+          cargo check --all-targets
+          cargo test --all-targets
           cargo build --release --bin cli
           cp ./target/release/cli.exe ./target/release/VitaOxiPad-x64.exe
 
@@ -134,6 +136,8 @@ jobs:
         run: |
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw32/bin:${PATH}"
           cd ./client
+          cargo check --all-targets
+          cargo test --all-targets
           CARGO_TARGET_ARCH="i686" cargo build --release --bin cli
           cp ./target/release/cli.exe ./target/release/VitaOxiPad-x32.exe
 
