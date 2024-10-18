@@ -7,6 +7,7 @@ use std::{
 use argh::FromArgs;
 use color_eyre::eyre::WrapErr;
 use polling::{Event, Poller};
+use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
 use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
 use protocol::connection::Connection;
@@ -16,13 +17,11 @@ use vita_virtual_device::{VitaDevice, VitaVirtualDevice};
 /// over the network.
 #[derive(FromArgs)]
 struct Args {
-    /// port to connect to
-    /// (default: 5000)
+    /// port to connect to (default: 5000)
     #[argh(option, short = 'p')]
     port: Option<u16>,
 
-    /// buttons and touchpads config
-    /// (default: standart)
+    /// buttons and touchpads config (default: standart)
     #[argh(option, short = 'c')]
     config: Option<String>,
 
@@ -36,7 +35,11 @@ struct Args {
 
     /// IP address of the Vita to connect to
     #[argh(positional)]
-    ip: String,
+    ip: Option<String>,
+
+    /// show version information
+    #[argh(switch, short = 'v')]
+    version: bool,
 }
 
 fn filter_udp_nonblocking_error(
@@ -50,19 +53,38 @@ fn filter_udp_nonblocking_error(
 }
 
 fn main() -> color_eyre::Result<()> {
-    const NET_PORT: u16 = 5000;
-    const TIMEOUT: Duration = Duration::from_secs(25);
-    const BUFFER_SIZE: usize = 2048;
-    const MIN_POLLING_RATE: u64 = (1 * 1000 / 250) * 1000;
-
     color_eyre::install()?;
-
     let args: Args = argh::from_env();
+
+    // Show version
+    if args.version {
+        let naive_datetime = NaiveDateTime::parse_from_str(env!("BUILD_TIMESTAMP"), "%Y-%m-%dT%H:%M:%S%.fZ")
+            .expect("Failed to parse source timestamp");
+        let datetime_local: DateTime<Local> = Local.from_utc_datetime(&naive_datetime);
+        let human_readable_time = datetime_local.format("%Y-%m-%d %H:%M:%S").to_string();
+        println!("\nVitaPad Client version {}", env!("CARGO_PKG_VERSION"));
+        println!("Commit {} {}", env!("GIT_BRANCH"), env!("GIT_COMMIT"));
+        println!("Built time {}", human_readable_time);
+        return Ok(());
+    }
 
     if args.debug {
         std::env::set_var("RUST_LOG", "debug");
     }
     pretty_env_logger::init();
+
+    let ip_str = match &args.ip {
+        Some(ip) => ip,
+        _none => {
+            eprintln!("Error: IP address is required.");
+            return Ok(());
+        }
+    };
+    
+    const NET_PORT: u16 = 5000;
+    const TIMEOUT: Duration = Duration::from_secs(25);
+    const BUFFER_SIZE: usize = 2048;
+    const MIN_POLLING_RATE: u64 = (1 * 1000 / 250) * 1000;
 
     let remote_port = args.port.unwrap_or(NET_PORT);
     let polling_interval = args
@@ -71,8 +93,8 @@ fn main() -> color_eyre::Result<()> {
         .unwrap_or(MIN_POLLING_RATE);
 
     let addr = SocketAddr::V4(SocketAddrV4::new(
-        args.ip.parse().wrap_err("invalid IPv4 address")?,
-        remote_port,
+        ip_str.parse().wrap_err("invalid IPv4 address")?,
+        remote_port
     ));
     let mut conn = Connection::new();
 

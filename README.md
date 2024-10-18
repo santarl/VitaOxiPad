@@ -56,6 +56,7 @@ Options:
   --polling-interval
                     polling interval in microseconds (minimum = 4000)
   -d, --debug       enable debug mode
+  -v, --version     show version information
   --help            display usage information
 ```
 
