@@ -21,17 +21,26 @@ on:
       - 'gyro_accel_tester'
 
 jobs:
-  create_dev_release:
+  update_release_tags:
     runs-on: ubuntu-latest
     steps:
-    - name: Create Development release
-      if: ${{ github.event_name != 'pull_request' }}
+    - name: Create development latest release
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev' }}
+      uses: "slord399/action-automatic-releases@v1.0.1"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "dev_latest"
+        prerelease: true
+        title: "Development latest build"
+
+    - name: Create latest stable release
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
       uses: "slord399/action-automatic-releases@v1.0.1"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
         prerelease: true
-        title: "Development Build"
+        title: "Latest stable build"
 
   build_vita_server:
     runs-on: ubuntu-latest
@@ -134,7 +143,7 @@ jobs:
           name: VitaOxiPad-x32.exe
           path: ./client/target/release/VitaOxiPad-x32.exe
 
-  create_release:
+  upload_release:
     needs: [build_vita_server, build_windows_client]
     runs-on: ubuntu-latest
     steps:
@@ -156,11 +165,25 @@ jobs:
           name: VitaOxiPad-x32.exe
           path: ./release
 
-      - name: Upload development release
-        if: ${{ github.event_name != 'pull_request' }}
+      - name: Upload latest development release
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev'}}
         uses: softprops/action-gh-release@v2
         with:
-          name: Development Build
+          name: Development latest build
+          tag_name: "dev_latest"
+          prerelease: true
+          files: |
+            ./release/VitaOxiPad.vpk
+            ./release/VitaOxiPad-x64.exe
+            ./release/VitaOxiPad-x32.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload latest stable release
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Latest stable build
           tag_name: "latest"
           prerelease: true
           files: |
