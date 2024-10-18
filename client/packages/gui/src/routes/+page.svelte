@@ -29,7 +29,7 @@
 		</form>
 	</section>
 	<section class="flex flex-col items-center justify-center">
-		<h1 class="text-4xl">VitaPad</h1>
+		<h1 class="text-4xl">VitaOxiPad</h1>
 		<p class="text-xl">Connect to your Vita</p>
 	</section>
 </div>

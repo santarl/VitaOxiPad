@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.15)
 
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   if(DEFINED ENV{VITASDK})
@@ -9,11 +9,11 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
 endif()
 
 
-project(VitaPad)
+project(VitaOxiPad)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
-set(VITA_APP_NAME "VitaPad")
-set(VITA_TITLEID  "VPAD00001")
-set(VITA_VERSION  "01.03")
+set(VITA_APP_NAME "VitaOxiPad")
+set(VITA_TITLEID  "VOXIPAD01")
+set(VITA_VERSION  "01.00")
 
 # Vita's IP to send over FTP
 if(DEFINED ENV{VITA_IP})

@@ -1,10 +1,10 @@
-# VitaPad <img align="right" width="128" height="128" src="./server/sce_sys/icon0.png" />
+# VitaOxiPad <img align="right" width="128" height="128" src="./server/sce_sys/icon0.png" />
 
 Turn your PS Vita into a gamepad for your PC!</p>
 
 Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) and [Rust-based VitaPad by saidsay-so](https://github.com/saidsay-so/VitaPad).
 
-- [VitaPad ](#vitapad-)
+- [VitaOxiPad ](#vitaoxipad-)
   - [Description](#description)
   - [What works](#what-works)
   - [Uses and options](#uses-and-options)
@@ -16,10 +16,11 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [Windows](#windows)
     - [Server](#server)
   - [Thanks](#thanks)
+  - [Why Oxi?](#why-oxi)
 
 ## Description
 
-VitaPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
+VitaOxiPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
 
 The server part is written in C, the client part is written in Rust.
 
@@ -42,8 +43,8 @@ This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 ## Uses and options
 
 ```bash
-$ VitaPad-x64.exe --help
-Usage: VitaPad-x64.exe <ip> [-p <port>] [-c <config>] [--polling-interval <polling-interval>] [-d]
+$ VitaOxiPad-x64.exe --help
+Usage: VitaOxiPad-x64.exe <ip> [-p <port>] [-c <config>] [--polling-interval <polling-interval>] [-d]
 
 Create a virtual controller and fetch its data from a Vita over the network.
 
@@ -105,8 +106,8 @@ pacman -S mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers make git wget cmake
 Clone the repository and log into it:
 
 ```bash
-git clone --recurse-submodules https://github.com/DvaMishkiLapa/VitaPad.git
-cd ./VitaPad
+git clone --recurse-submodules https://github.com/DvaMishkiLapa/VitaOxiPad.git
+cd ./VitaOxiPad
 ```
 
 Build the client side:
@@ -154,7 +155,7 @@ You can check the finished binary by running in it:
   cmake --build build
   ```
 
-Then, install the generated `VitaPad.vpk` file on your PS Vita.
+Then, install the generated `VitaOxiPad.vpk` file on your PS Vita.
 
 ## Thanks
 
@@ -163,3 +164,9 @@ Then, install the generated `VitaPad.vpk` file on your PS Vita.
 - [saidsay-so](https://github.com/saidsay-so) for [the improved Rust VitaPad version](https://github.com/saidsay-so/VitaPad);
 - [santarl](https://github.com/santarl) for advice and help with accelerometer, gyroscope and also adding DualShock 4 digitizer emulation;
 - [CasualX](https://github.com/CasualX) for [ViGEm client in Rust](https://github.com/CasualX/vigem-client).
+
+## Why Oxi?
+
+Now there are many projects with the name VitaPad. It's very confusing.
+
+Oxi - oxidation, the process that causes **rust**ing.

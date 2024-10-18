@@ -60,16 +60,15 @@ jobs:
           ./install-all.sh
           ./vdpm flatbuffers
 
-      - name: Build VitaPad
+      - name: Build VitaOxiPad
         run: |
-          cmake -S server -B build -D CMAKE_BUILD_TYPE=Release
-          cmake --build build
+          cmake -S server -B build -D CMAKE_BUILD_TYPE=Debug && cmake --build build
 
       - name: Upload VPK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VitaPad.vpk
-          path: build/VitaPad.vpk
+          name: VitaOxiPad.vpk
+          path: ./build/VitaOxiPad.vpk
 
   build_windows_client:
     runs-on: windows-latest
@@ -114,47 +113,47 @@ jobs:
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin:${PATH}"
           cd ./client
           cargo build --release --bin cli
-          cp ./target/release/cli.exe ./target/release/VitaPad-x64.exe
+          cp ./target/release/cli.exe ./target/release/VitaOxiPad-x64.exe
 
       - name: Upload Windows x64 binary as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VitaPad-x64.exe
-          path: ./client/target/release/VitaPad-x64.exe
+          name: VitaOxiPad-x64.exe
+          path: ./client/target/release/VitaOxiPad-x64.exe
 
       - name: Build Windows x32 Client
         run: |
           export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw32/bin:${PATH}"
           cd ./client
           CARGO_TARGET_ARCH="i686" cargo build --release --bin cli
-          cp ./target/release/cli.exe ./target/release/VitaPad-x32.exe
+          cp ./target/release/cli.exe ./target/release/VitaOxiPad-x32.exe
 
       - name: Upload Windows x32 binary as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VitaPad-x32.exe
-          path: ./client/target/release/VitaPad-x32.exe
+          name: VitaOxiPad-x32.exe
+          path: ./client/target/release/VitaOxiPad-x32.exe
 
   create_release:
     needs: [build_vita_server, build_windows_client]
     runs-on: ubuntu-latest
     steps:
-      - name: Download VitaPad.vpk artifact
+      - name: Download VitaOxiPad.vpk artifact
         uses: actions/download-artifact@v4
         with:
-          name: VitaPad.vpk
+          name: VitaOxiPad.vpk
           path: ./release
 
-      - name: Download VitaPad-x64.exe artifact
+      - name: Download VitaOxiPad-x64.exe artifact
         uses: actions/download-artifact@v4
         with:
-          name: VitaPad-x64.exe
+          name: VitaOxiPad-x64.exe
           path: ./release
 
-      - name: Download VitaPad-x32.exe artifact
+      - name: Download VitaOxiPad-x32.exe artifact
         uses: actions/download-artifact@v4
         with:
-          name: VitaPad-x32.exe
+          name: VitaOxiPad-x32.exe
           path: ./release
 
       - name: Upload development release
@@ -165,8 +164,8 @@ jobs:
           tag_name: "latest"
           prerelease: true
           files: |
-            ./release/VitaPad.vpk
-            ./release/VitaPad-x64.exe
-            ./release/VitaPad-x32.exe
+            ./release/VitaOxiPad.vpk
+            ./release/VitaOxiPad-x64.exe
+            ./release/VitaOxiPad-x32.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
