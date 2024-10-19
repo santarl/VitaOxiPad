@@ -63,14 +63,14 @@ Options:
 
 ### Configurations
 
-There are currently 4 configurations that can be selected at client startup:
+There are currently 4 DualShock 4 configurations emulations that can be selected at client startup:
 
-- `standart` (default): **Rear** PS Vita digitizer emulates **L2\R2**, **front** PS Vita digitizer emulates **L3\R3**;
-- `alt_triggers`: **Rear** PS Vita digitizer emulates **L1\R1**, front PS Vita digitizer emulates L3\R3, PS Vita triggers emulates L2\R2;
-- `rear_touchpad`: **Rear** PS Vita digitizer emulates **DualShock 4 digitizer**,
-  **front upper** PS Vita digitizer area emulates **L2\R2** and **front lower** PS Vita digitizer area emulates **L3\R3**;
-- `front_touchpad`: **Front** PS Vita digitizer emulates **DualShock 4 digitizer**,
-  **rear upper** PS Vita digitizer area emulates **L2\R2** and **rear lower** PS Vita digitizer area emulates **L3\R3**;
+| Configurations name | PS Vita L1\R1 |        PS Vita front digitizer         |         PS Vita rear digitizer         |
+| ------------------- | :-----------: | :------------------------------------: | :------------------------------------: |
+| `standart`          |     L1\R1     |                 L3\R3                  |                 L2\R2                  |
+| `alt_triggers`      |     L2\R2     |                 L3\R3                  |                 L1\R1                  |
+| `rear_touchpad`     |     L1\R1     | upper area - L2\R2, lower area - L3\R3 |         DualShock 4 digitizer          |
+| `front_touchpad`    |     L1\R1     |         DualShock 4 digitizer          | upper area - L2\R2, lower area - L3\R3 |
 
 To better understand the emulation behavior, you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita.
 
