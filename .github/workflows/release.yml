@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - dev
+      - virustotal
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
@@ -14,18 +15,22 @@ on:
     branches:
       - main
       - dev
+      - virustotal
     paths-ignore:
       - '**/*.md'
       - 'docs/**'
       - 'README.md'
       - 'gyro_accel_tester'
+  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   update_release_tags:
     runs-on: ubuntu-latest
     steps:
     - name: Create development latest release
-      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev' }}
+      if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/virustotal' }}
       uses: "slord399/action-automatic-releases@v1.0.1"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -170,29 +175,44 @@ jobs:
           path: ./release
 
       - name: Upload latest development release
-        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev'}}
-        uses: softprops/action-gh-release@v2
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/virustotal'}}
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: Development latest build
-          tag_name: "dev_latest"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: dev_latest
+          overwrite: true
+          file_glob: true
           prerelease: true
-          files: |
-            ./release/VitaOxiPad.vpk
-            ./release/VitaOxiPad-x64.exe
-            ./release/VitaOxiPad-x32.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload latest stable release
         if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main'}}
-        uses: softprops/action-gh-release@v2
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: Latest stable build
-          tag_name: "latest"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: latest
+          overwrite: true
+          file_glob: true
           prerelease: true
-          files: |
-            ./release/VitaOxiPad.vpk
-            ./release/VitaOxiPad-x64.exe
-            ./release/VitaOxiPad-x32.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check VirusTotal secret availability
+        id: secret-check
+        shell: bash
+        run: |
+          if [ "${{ secrets.VT_API_KEY }}" != '' ]; then
+            echo "vt_available=true" >> $GITHUB_OUTPUT;
+          else
+            echo "vt_available=false" >> $GITHUB_OUTPUT;
+          fi
+
+      - name: VirusTotal Windows binary files scan
+        if: ${{steps.secret-check.outputs.vt_available == 'true' && github.event_name != 'pull_request' }}
+        uses: cssnr/virustotal-action@v1.2.0
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            vt_api_key: ${{ secrets.VT_API_KEY }}
+            update_release: true
+            file_globs: |
+              ./release/VitaOxiPad-x64.exe
+              ./release/VitaOxiPad-x32.exe
