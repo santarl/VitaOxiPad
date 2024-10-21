@@ -131,11 +131,12 @@ public:
   }
 
   void add_to_buffer(uint8_t const *data, size_t size) {
-    buffer_.insert(buffer_.end(), data, data + size);
-
-    if (buffer_.size() > MAX_BUFFER_ACCEPTABLE_SIZE) {
+    if (buffer_.size() + size > MAX_BUFFER_ACCEPTABLE_SIZE) {
+      SCE_DBG_LOG_ERROR("Buffer overflow, clearing buffer for client: %s", ip_);
       buffer_.clear();
       throw ClientException("Buffer size exceeded");
+    } else {
+      buffer_.insert(buffer_.end(), data, data + size);
     }
   }
 
@@ -143,9 +144,11 @@ public:
     typedef void (Client::*BufferHandler)(const void *);
 
     flatbuffers::Verifier verifier(buffer_.data(), buffer_.size());
-
-    if (!NetProtocol::VerifySizePrefixedPacketBuffer(verifier))
+    if (!NetProtocol::VerifySizePrefixedPacketBuffer(verifier)) {
+      SCE_DBG_LOG_ERROR("Invalid Flatbuffer packet from %s", ip_);
+      buffer_.clear();
       return false;
+    }
 
     auto data = NetProtocol::GetSizePrefixedPacket(buffer_.data());
     SCE_DBG_LOG_TRACE("Received flatbuffer packet from %s", ip());
