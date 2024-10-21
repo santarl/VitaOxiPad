@@ -43,14 +43,17 @@ int main() {
   // Initializing network stuffs
   sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
   char vita_ip[INET_ADDRSTRLEN];
+  std::vector<uint8_t> net_init_memory(NET_INIT_SIZE);
+  SceNetInitParam initparam = {net_init_memory.data(), NET_INIT_SIZE, 0};
   int ret = sceNetShowNetstat();
   if ((unsigned)ret == SCE_NET_ERROR_ENOTINIT) {
-    SceNetInitParam initparam;
-    initparam.memory = malloc(NET_INIT_SIZE);
-    initparam.size = NET_INIT_SIZE;
-    initparam.flags = 0;
-    ret = sceNetInit(&initparam);
+      ret = sceNetInit(&initparam);
+      if (ret < 0) {
+          SCE_DBG_LOG_ERROR("Network initialization failed: %s", sce_net_strerror(ret));
+          return -1;
+      }
   }
+
   sceNetCtlInit();
   SceNetCtlInfo info;
 
