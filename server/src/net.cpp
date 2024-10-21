@@ -12,6 +12,8 @@ constexpr size_t MAX_EPOLL_EVENTS = 10;
 constexpr time_t MAX_HEARTBEAT_INTERVAL = 25;
 constexpr time_t SECOND_IN_MICROS = 1000 * 1000;
 
+char conn_client_ip[INET_ADDRSTRLEN] = "N/A";
+
 static int send_all(int fd, const void *buf, unsigned int size) {
   const char *buf_ptr = static_cast<const char *>(buf);
   int bytes_sent = 0;
@@ -239,6 +241,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
 
           if (client) {
             SCE_DBG_LOG_INFO("New client connected: %s", client->ip());
+            snprintf(conn_client_ip, INET_ADDRSTRLEN, "%s", client->ip());
           }
 
           continue;

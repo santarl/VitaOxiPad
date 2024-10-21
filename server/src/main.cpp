@@ -106,9 +106,14 @@ int main() {
                            "Not connected\nto a network");
     }
 
-    vita2d_pgf_draw_textf(debug_font, 2, 542, text_color, 1.0, "Status: %s",
-                          events & NetEvent::PC_CONNECT ? "Connected"
-                                                        : "Not connected");
+    char status_text[64];
+    if (events & NetEvent::PC_CONNECT) {
+      snprintf(status_text, sizeof(status_text), "Status: Connected (%s)", conn_client_ip);
+    } else {
+      snprintf(status_text, sizeof(status_text), "Status: Not connected");
+    }
+    vita2d_pgf_draw_text(debug_font, 2, 542, text_color, 1.0, status_text);
+  
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
     vita2d_swap_buffers();

@@ -20,6 +20,8 @@ enum NetEvent {
   NET_DISCONNECT = 8,
 };
 
+extern char conn_client_ip[INET_ADDRSTRLEN];
+
 constexpr const char *sce_net_strerror(unsigned int error_code) {
   switch (error_code) {
   case SCE_NET_ERROR_RESOLVER_EALIGNMENT:
