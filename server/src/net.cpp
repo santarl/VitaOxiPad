@@ -74,6 +74,10 @@ static void send_handshake_response(Client &client, uint16_t port,
 }
 
 static void disconnect_client(std::optional<Client> &client, SceUID ev_flag) {
+  if (client) {
+    SCE_DBG_LOG_INFO("Flushing buffer for client %s before disconnection", client->ip());
+    client->shrink_buffer();
+  }
   sceKernelSetEventFlag(ev_flag, NetEvent::PC_DISCONNECT);
   if (!client)
     return;
