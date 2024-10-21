@@ -22,7 +22,6 @@
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
 
 vita2d_pgf *debug_font;
-uint32_t text_color;
 
 int main() {
   // Enabling analog, motion and touch support
@@ -38,7 +37,9 @@ int main() {
   vita2d_init();
   vita2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
   debug_font = vita2d_load_default_pgf();
-  uint32_t text_color = RGBA8(0xFF, 0xFF, 0xFF, 0xFF);
+  uint32_t common_text_color = RGBA8(0xFF, 0xFF, 0xFF, 0xFF);  // White color
+  uint32_t error_text_color = RGBA8(0xFF, 0x00, 0x00, 0xFF);   // Bright red color
+  uint32_t done_text_color = RGBA8(0x00, 0xFF, 0x00, 0xFF);    // Bright green color
 
   // Initializing network stuffs
   sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
@@ -87,7 +88,7 @@ int main() {
   do {
     vita2d_start_drawing();
     vita2d_clear_screen();
-    vita2d_pgf_draw_text(debug_font, 2, 20, text_color, 1.0,
+    vita2d_pgf_draw_text(debug_font, 2, 20, common_text_color, 1.0,
                          "VitaOxiPad v1.0 \nbuild " __DATE__ ", " __TIME__);
 
     if (events & NetEvent::NET_CONNECT) {
@@ -99,21 +100,22 @@ int main() {
     }
 
     if (connected_to_network) {
-      vita2d_pgf_draw_textf(debug_font, 740, 20, text_color, 1.0,
+      vita2d_pgf_draw_textf(debug_font, 740, 20, common_text_color, 1.0,
                             "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
     } else {
-      vita2d_pgf_draw_text(debug_font, 740, 20, text_color, 1.0,
+      vita2d_pgf_draw_text(debug_font, 740, 20, error_text_color, 1.0,
                            "Not connected\nto a network");
     }
 
     char status_text[64];
     if (events & NetEvent::PC_CONNECT) {
       snprintf(status_text, sizeof(status_text), "Status: Connected (%s)", conn_client_ip);
+      vita2d_pgf_draw_text(debug_font, 2, 542, done_text_color, 1.0, status_text);
     } else {
       snprintf(status_text, sizeof(status_text), "Status: Not connected");
+      vita2d_pgf_draw_text(debug_font, 2, 542, error_text_color, 1.0, status_text);
     }
-    vita2d_pgf_draw_text(debug_font, 2, 542, text_color, 1.0, status_text);
-  
+
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
     vita2d_swap_buffers();
