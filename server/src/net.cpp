@@ -1,4 +1,5 @@
 #include <psp2/kernel/threadmgr.h>
+#include <psp2/kernel/processmgr.h> 
 
 #include <assert.h>
 #include <common.h>
@@ -188,6 +189,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   while ((n = sceNetEpollWaitCB(epoll, events, MAX_EPOLL_EVENTS, timeout)) >=
          0) {
     sceNetCtlCheckCallback();
+    sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
     unsigned int event;
     if (sceKernelPollEventFlag(
             connect_state, NetCtlEvents::Connected | NetCtlEvents::Disconnected,
