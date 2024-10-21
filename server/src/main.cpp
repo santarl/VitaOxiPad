@@ -107,13 +107,12 @@ int main() {
                            "Not connected\nto a network");
     }
 
-    char status_text[64];
     if (events & NetEvent::PC_CONNECT) {
-      snprintf(status_text, sizeof(status_text), "Status: Connected (%s)", conn_client_ip);
-      vita2d_pgf_draw_text(debug_font, 2, 542, done_text_color, 1.0, status_text);
+      vita2d_pgf_draw_textf(debug_font, 2, 542, done_text_color, 1.0,
+                            "Status: Connected (%s)", conn_client_ip);
     } else {
-      snprintf(status_text, sizeof(status_text), "Status: Not connected");
-      vita2d_pgf_draw_text(debug_font, 2, 542, error_text_color, 1.0, status_text);
+      vita2d_pgf_draw_text(debug_font, 2, 542, error_text_color, 1.0,
+                           "Status: Not connected");
     }
 
     vita2d_end_drawing();
