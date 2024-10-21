@@ -14,7 +14,7 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [Requirements for Windows](#requirements-for-windows)
   - [Client compilation](#client-compilation)
     - [Windows](#windows)
-    - [Server](#server)
+  - [PS Vita server compilation](#ps-vita-server-compilation)
   - [Thanks](#thanks)
   - [Why Oxi?](#why-oxi)
 
@@ -22,7 +22,7 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
 
 VitaOxiPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
 
-The server part is written in C, the client part is written in Rust.
+The server part is written in C++, the client part is written in Rust.
 
 This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
 
@@ -93,9 +93,10 @@ The server has to be installed on the PS Vita and the client on the PC.
 
 To compile on Windows you will need
 - Make and Cmake;
-- Rust (Cargo).
+- Flatbuffers (flatc);
+- Rust (cargo).
 
-You can use [MSYS2](https://www.msys2.org/), which provides this in a convenient way.
+You can use [MSYS2](https://www.msys2.org), which provides this in a convenient way.
 
 Dependencies you will need for **MSYS2 MINGW64**:
 
@@ -123,7 +124,7 @@ You can check the finished binary by running in it:
  ./target/release/cli.exe your_PS_Vita_IP
 ```
 
-### Server
+## PS Vita server compilation
 
 1. Make sure that you have [`cmake`](https://cmake.org) installed;
 2. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
