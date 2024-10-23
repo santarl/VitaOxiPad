@@ -89,7 +89,7 @@ int main() {
     vita2d_start_drawing();
     vita2d_clear_screen();
     vita2d_pgf_draw_text(debug_font, 2, 20, common_text_color, 1.0,
-                         "VitaOxiPad v1.0 \nbuild " __DATE__ ", " __TIME__);
+                         "VitaOxiPad v1.1.0 \nbuild " __DATE__ ", " __TIME__);
 
     if (events & NetEvent::NET_CONNECT) {
       connected_to_network = true;
