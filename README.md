@@ -18,6 +18,10 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
   - [Thanks](#thanks)
   - [Why Oxi?](#why-oxi)
 
+<div align="center">
+  <img src="./demo/demo.gif" width="60%" height="auto" alt="demo" />
+</div>
+
 ## Description
 
 VitaOxiPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
