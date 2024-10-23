@@ -10,6 +10,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - 'gyro_accel_tester'
+      - 'demo'
   pull_request:
     branches:
       - main
@@ -19,9 +20,7 @@ on:
       - 'docs/**'
       - 'README.md'
       - 'gyro_accel_tester'
-  workflow_dispatch:
-  release:
-    types: [published]
+      - 'demo'
 
 jobs:
   update_release_tags:
