@@ -28,21 +28,20 @@ VitaOxiPad is a [client-server application](https://en.wikipedia.org/wiki/Client
 
 The server part is written in C++, the client part is written in Rust.
 
-This will NOT work with [DS4Windows](https://github.com/Ryochan7/DS4Windows).
-
 ## What works
 
-| Feature                         | Support | Details                                                                              |
-| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Buttons                         |    ✅    | -                                                                                    |
-| Sticks                          |    ✅    | -                                                                                    |
-| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
-| Select and Start                |    ✅    | -                                                                                    |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
-| Sound                           |    ❌    | -                                                                                    |
+| Feature                                                      | Support | Details                                                                              |
+| ------------------------------------------------------------ | :-----: | ------------------------------------------------------------------------------------ |
+| Buttons                                                      |    ✅    | -                                                                                    |
+| Sticks                                                       |    ✅    | -                                                                                    |
+| L1 and R1                                                    |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
+| L2/R2 and L3/R3 emulation                                    |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
+| Select and Start                                             |    ✅    | -                                                                                    |
+| Accelerometer and gyroscope                                  |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
+| DualShock 4 digitizer emulation                              |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
+| Any configuration                                            |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
+| Sound                                                        |    ❌    | -                                                                                    |
+| [DS4Windows](https://github.com/Ryochan7/DS4Windows) support |    ❌    | Undefined in the program                                                             |
 
 ## Uses and options
 
