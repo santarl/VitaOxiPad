@@ -143,13 +143,6 @@ public:
   bool handle_data() {
     typedef void (Client::*BufferHandler)(const void *);
 
-    flatbuffers::Verifier verifier(buffer_.data(), buffer_.size());
-    if (!NetProtocol::VerifySizePrefixedPacketBuffer(verifier)) {
-      SCE_DBG_LOG_ERROR("Invalid Flatbuffer packet from %s", ip_);
-      buffer_.clear();
-      return false;
-    }
-
     auto data = NetProtocol::GetSizePrefixedPacket(buffer_.data());
     SCE_DBG_LOG_TRACE("Received flatbuffer packet from %s", ip());
 
@@ -162,6 +155,12 @@ public:
     auto handler_entry = handlers.find(data->content_type());
     if (handler_entry == handlers.end())
       return false;
+    flatbuffers::Verifier verifier(buffer_.data(), buffer_.size());
+    if (!NetProtocol::VerifySizePrefixedPacketBuffer(verifier)) {
+      SCE_DBG_LOG_ERROR("Invalid Flatbuffer packet from %s", ip_);
+      buffer_.clear();
+      return false;
+    }
     auto [_, handler] = *handler_entry;
 
     SCE_DBG_LOG_TRACE("Calling %s handler for %s",
