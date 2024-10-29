@@ -74,12 +74,19 @@ jobs:
       - name: Build VitaOxiPad
         run: |
           cmake -S server -B build -D CMAKE_BUILD_TYPE=Debug && cmake --build build
+          cp ./build/VitaOxiPad ./build/VitaOxiPad.elf
 
       - name: Upload VPK as artifact
         uses: actions/upload-artifact@v4
         with:
           name: VitaOxiPad.vpk
           path: ./build/VitaOxiPad.vpk
+
+      - name: Upload ELF as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaOxiPad.elf
+          path: ./build/VitaOxiPad.elf
 
   build_windows_client:
     runs-on: windows-latest
@@ -157,6 +164,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: VitaOxiPad.vpk
+          path: ./release
+
+      - name: Download VitaOxiPad.elf artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaOxiPad.elf
           path: ./release
 
       - name: Download VitaOxiPad-x64.exe artifact
