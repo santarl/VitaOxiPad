@@ -100,11 +100,20 @@ vita_create_vpk(${VITA_APP_NAME}.vpk ${VITA_TITLEID} ${VITA_APP_NAME}.self
 # Send the VPK directly to the PS Vita
 
 if (VITA_IP)
-  add_custom_target(ftp_send
-    "unzip" -o ${VITA_APP_NAME}.vpk -d ${VITA_APP_NAME}-extracted
-    COMMAND "curl" --ftp-method nocwd -T ${VITA_APP_NAME}-extracted/eboot.bin "ftp://${VITA_IP}:1337/ux0:/app/${VITA_TITLEID}/"
-    # COMMAND "echo" destroy | nc ${VITA_IP} 1338
-    # COMMAND "echo" launch ${VITA_TITLEID} | nc ${VITA_IP} 1338
+  add_custom_target(send
+    COMMAND "echo" destroy | nc ${VITA_IP} 1338
+    COMMAND unzip -o ${VITA_APP_NAME}.vpk eboot.bin -d ${CMAKE_BINARY_DIR}
+    COMMAND "curl" --ftp-method nocwd -T ${CMAKE_BINARY_DIR}/eboot.bin "ftp://${VITA_IP}:1337/ux0:/app/${VITA_TITLEID}/"
+    COMMAND "echo" launch ${VITA_TITLEID} | nc ${VITA_IP} 1338
     DEPENDS ${VITA_APP_NAME}.vpk
   )
 endif()
+
+if(DEFINED ENV{VITA_IP})
+  set(PARSECOREPATH $ENV{PARSECOREPATH})
+endif()
+
+add_custom_target(dump
+  COMMAND ${CMAKE_SOURCE_DIR}/get_dump.sh ${VITA_IP}
+  COMMAND python3 ${PARSECOREPATH} coredump ${CMAKE_PROJECT_NAME}
+)
