@@ -54,8 +54,8 @@ static void handle_ingoing_data(Client &client) {
 }
 
 static void send_handshake_response(Client &client, uint16_t port,
-                                    uint32_t heartbeat_interval) {
-  flatbuffers::FlatBufferBuilder builder;
+                                    uint32_t heartbeat_interval, flatbuffers::FlatBufferBuilder& builder) {
+  builder.Clear();
   auto handshake_confirm = NetProtocol::CreateHandshake(
       builder, NetProtocol::Endpoint::Server, port, heartbeat_interval);
   auto packet =
@@ -199,6 +199,9 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   static SceNetEpollEvent events[MAX_EPOLL_EVENTS];
   int n;
 
+  static flatbuffers::FlatBufferBuilder pad_data(512);
+  static flatbuffers::FlatBufferBuilder handshake_data(128);
+
   while (g_net_thread_running.load()) {
     sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
     n = sceNetEpollWait(epoll, events, MAX_EPOLL_EVENTS, timeout);
@@ -279,7 +282,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
         switch (client->state()) {
         case Client::State::WaitingForServerConfirm: {
           try {
-            send_handshake_response(*client, NET_PORT, MAX_HEARTBEAT_INTERVAL);
+            send_handshake_response(*client, NET_PORT, MAX_HEARTBEAT_INTERVAL, handshake_data);
             SCE_DBG_LOG_INFO("Sent handshake response to %s", client->ip());
 
             SceNetEpollEvent reinit_ev = {};
