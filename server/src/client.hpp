@@ -224,8 +224,8 @@ public:
 
   void shrink_buffer() { buffer_.shrink_to_fit(); }
 
-  SceNetSockaddr data_conn_info() const {
-    return reinterpret_cast<SceNetSockaddr const &>(data_conn_info_);
+  SceNetSockaddrIn data_conn_info() const {
+    return data_conn_info_;
   }
   void set_data_conn_info(SceNetSockaddr info) {
     data_conn_info_ = reinterpret_cast<SceNetSockaddrIn &>(info);

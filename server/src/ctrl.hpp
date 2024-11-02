@@ -3,5 +3,5 @@
 
 #include <netprotocol_generated.h>
 
-flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol();
+void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder);
 #endif // __CTRL_H__
