@@ -44,7 +44,7 @@ The server part is written in C++, the client part is written in Rust.
 | Sound                           |    ❌    | Probably will never be realized                                                      |
 
 [*] - Moonlight support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
-This option can be found in `Settings -> Device Options -> Moonlight support`.
+This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
 ## Uses and options
 
