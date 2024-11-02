@@ -61,31 +61,16 @@ add_dependencies(${VITA_APP_NAME} flatbuffers_target)
 target_link_libraries(${VITA_APP_NAME}
   stdc++
   vita2d
-  SceSysmodule_stub
   SceCtrl_stub
   SceTouch_stub
-  m
-  SceNet_stub
-  SceNetCtl_stub
-  SceAppUtil_stub
-  # SceDriverUser_stub
   SceDisplay_stub
   SceMotion_stub
   SceAppMgr_stub
-  #
   ScePgf_stub
-  jpeg
-  freetype
-  c
   ScePower_stub
   SceCommonDialog_stub
-  png16
-  z
   SceGxm_stub
   SceLibDbg_stub
-  ScePower_stub
-  flatbuffers
-  pthread
 )
 vita_create_self(${VITA_APP_NAME}.self ${VITA_APP_NAME})
 vita_create_vpk(${VITA_APP_NAME}.vpk ${VITA_TITLEID} ${VITA_APP_NAME}.self

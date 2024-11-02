@@ -1,10 +1,8 @@
 #include <assert.h>
 
 #include <psp2/ctrl.h>
-#include <psp2/kernel/threadmgr.h>
 #include <psp2/motion.h>
 #include <psp2/touch.h>
-#include <psp2/types.h>
 
 #include "ctrl.hpp"
 

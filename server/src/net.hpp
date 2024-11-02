@@ -4,10 +4,6 @@
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
 
-#include <array>
-#include <cstdint>
-#include <optional>
-#include <vector>
 #include <atomic>
 
 typedef struct {
