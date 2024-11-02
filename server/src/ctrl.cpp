@@ -35,11 +35,15 @@ convert_touch_data(flatbuffers::FlatBufferBuilder &builder,
 
 void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder) {
   builder.Clear();
+  static uint64_t last_ts = 0;
   SceCtrlData pad;
   SceMotionState motion_data;
   SceTouchData touch_data_front, touch_data_back;
 
   sceCtrlPeekBufferPositive(0, &pad, 1);
+  while (pad.timeStamp <= last_ts || pad.timeStamp <= 128) {
+    sceCtrlPeekBufferPositive(0, &pad, 1);
+  }
   auto buttons = convert_pad_data(pad);
 
   sceTouchPeek(SCE_TOUCH_PORT_FRONT, &touch_data_front, 1);
@@ -63,6 +67,5 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder) {
   auto packet = NetProtocol::CreatePacket(
       builder, NetProtocol::PacketContent::Pad, content.Union());
   builder.FinishSizePrefixed(packet);
-
-  return builder;
+  last_ts = pad.timeStamp;
 }
