@@ -6,15 +6,6 @@
 #include <psp2/net/net.h>
 #include <psp2/rtc.h>
 
-#include <algorithm>
-#include <cassert>
-#include <functional>
-#include <memory>
-#include <optional>
-#include <unordered_map>
-#include <variant>
-#include <vector>
-
 #include "heartbeat.hpp"
 
 #include <netprotocol_generated.h>

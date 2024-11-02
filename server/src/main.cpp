@@ -3,16 +3,10 @@
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/libdbg.h>
 #include <psp2/motion.h>
-#include <psp2/net/net.h>
-#include <psp2/net/netctl.h>
 #include <psp2/power.h>
 #include <psp2/sysmodule.h>
 #include <psp2/touch.h>
-#include <psp2/types.h>
 #include <vita2d.h>
-
-#include <cassert>
-#include <climits>
 
 #include "ctrl.hpp"
 #include "net.hpp"
