@@ -132,6 +132,10 @@ enum NetCtlEvents {
 
 void *netctl_cb(int state, void *arg) {
   auto data = static_cast<NetCtlCallbackData *>(arg);
+  if (!data) {
+    SCE_DBG_LOG_ERROR("netctl_cb received null data pointer");
+    return nullptr;
+  }
 
   switch (state) {
   case SCE_NETCTL_STATE_DISCONNECTED:
@@ -270,9 +274,11 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
         } catch (const net::NetException &e) {
           if (e.error_code() == SCE_NET_ECONNRESET || e.error_code() == 0) {
             disconnect_client(client, message->ev_flag_connect_state);
+            SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
           }
         } catch (const std::exception &e) {
           disconnect_client(client, message->ev_flag_connect_state);
+          SCE_DBG_LOG_DEBUG("Client disconnected: %s", client->ip());
         }
       } else if (ev_el.events & SCE_NET_EPOLLOUT) {
         if (sock_type == SocketType::SERVER) {
@@ -294,9 +300,11 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
           } catch (const net::NetException &e) {
             if (e.error_code() == SCE_NET_ECONNRESET) {
               disconnect_client(client, message->ev_flag_connect_state);
+              SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
             }
           } catch (const std::exception &e) {
             disconnect_client(client, message->ev_flag_connect_state);
+            SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
           }
 
           break;
@@ -313,6 +321,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
 
     if (client->time_since_last_heartbeat() > MAX_HEARTBEAT_INTERVAL) {
       disconnect_client(client, message->ev_flag_connect_state);
+      SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
     }
 
     if (client->state() == Client::State::Connected &&
