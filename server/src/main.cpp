@@ -23,6 +23,9 @@ constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
 
 vita2d_pgf *debug_font;
 
+std::atomic<bool> g_net_thread_running(true);
+char conn_client_ip[INET_ADDRSTRLEN] = "N/A";
+
 int main() {
   // Enabling analog, motion and touch support
   sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
@@ -84,7 +87,7 @@ int main() {
   }
   events = 0;
 
-  SceUInt TIMEOUT = (SceUInt)UINT32_MAX;
+  SceUInt THREAD_TIMEOUT = (SceUInt)(15 * 1000 * 1000);
   do {
     vita2d_start_drawing();
     vita2d_clear_screen();
@@ -122,7 +125,19 @@ int main() {
                ev_connect,
                NetEvent::PC_CONNECT | NetEvent::PC_DISCONNECT |
                    NetEvent::NET_CONNECT | NetEvent::NET_DISCONNECT,
-               SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &events, &TIMEOUT) == 0);
+               SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &events, NULL) == 0);
+
+  g_net_thread_running.store(false);
+  sceKernelSetEventFlag(ev_connect, NetEvent::NET_DISCONNECT);
+  int wait_result = sceKernelWaitThreadEnd(net_thread_id, NULL, &THREAD_TIMEOUT);
+  if (wait_result < 0) {
+      SCE_DBG_LOG_ERROR("Error waiting for thread to end: 0x%08X", wait_result);
+  }
+  int delete_result = sceKernelDeleteThread(net_thread_id);
+  if (delete_result < 0) {
+      SCE_DBG_LOG_ERROR("Error deleting thread: 0x%08X", delete_result);
+  }
+  SCE_DBG_LOG_TRACE("NetThread stopped and deleted successfully.");
 
   sceNetCtlTerm();
   sceNetTerm();
