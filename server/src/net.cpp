@@ -12,8 +12,6 @@ constexpr size_t MAX_EPOLL_EVENTS = 10;
 constexpr time_t MAX_HEARTBEAT_INTERVAL = 25;
 constexpr time_t SECOND_IN_MICROS = 1000 * 1000;
 
-char conn_client_ip[INET_ADDRSTRLEN] = "N/A";
-
 static int send_all(int fd, const void *buf, unsigned int size) {
   const char *buf_ptr = static_cast<const char *>(buf);
   int bytes_sent = 0;
@@ -107,6 +105,7 @@ static void add_client(int server_tcp_fd, SceUID epoll,
                      sizeof(nbio));
 
     sceNetEpollControl(epoll, SCE_NET_EPOLL_CTL_ADD, client_fd, &ev);
+    snprintf(conn_client_ip, INET_ADDRSTRLEN, "%s", client->ip());
     sceKernelSetEventFlag(ev_flag_connect_state, NetEvent::PC_CONNECT);
   }
 }
@@ -192,10 +191,12 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   SceNetEpollEvent events[MAX_EPOLL_EVENTS];
   int n;
 
-  while ((n = sceNetEpollWaitCB(epoll, events, MAX_EPOLL_EVENTS, timeout)) >=
-         0) {
-    sceNetCtlCheckCallback();
+  while (g_net_thread_running.load()) {
     sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
+    n = sceNetEpollWait(epoll, events, MAX_EPOLL_EVENTS, timeout);
+    if (n < 0)
+      break;
+    sceNetCtlCheckCallback();
     unsigned int event;
     if (sceKernelPollEventFlag(
             connect_state, NetCtlEvents::Connected | NetCtlEvents::Disconnected,
@@ -318,6 +319,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   }
 
   sceNetCtlInetUnregisterCallback(cbid);
+  sceNetEpollDestroy(epoll);
 
   return 0;
 }

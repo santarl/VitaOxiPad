@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <optional>
 #include <vector>
+#include <atomic>
 
 typedef struct {
   SceUID ev_flag_connect_state;
@@ -21,6 +22,7 @@ enum NetEvent {
 };
 
 extern char conn_client_ip[INET_ADDRSTRLEN];
+extern std::atomic<bool> g_net_thread_running;
 
 constexpr const char *sce_net_strerror(unsigned int error_code) {
   switch (error_code) {
