@@ -33,16 +33,11 @@ convert_touch_data(flatbuffers::FlatBufferBuilder &builder,
   return NetProtocol::CreateTouchDataDirect(builder, &reports);
 }
 
-flatbuffers::FlatBufferBuilder get_ctrl_as_netprotocol() {
+void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder) {
+  builder.Clear();
   SceCtrlData pad;
-  SceMotionState motion_data; // TODO: Needs calibration
+  SceMotionState motion_data;
   SceTouchData touch_data_front, touch_data_back;
-
-  sceMotionSetGyroBiasCorrection(1);
-  sceMotionSetTiltCorrection(1);
-  sceMotionSetDeadband(0);
-
-  flatbuffers::FlatBufferBuilder builder(512);
 
   sceCtrlPeekBufferPositive(0, &pad, 1);
   auto buttons = convert_pad_data(pad);

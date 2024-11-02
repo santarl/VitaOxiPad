@@ -36,6 +36,11 @@ int main() {
   sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
   sceTouchEnableTouchForce(SCE_TOUCH_PORT_BACK);
 
+  // Motion stuffs
+  sceMotionSetGyroBiasCorrection(1);
+  sceMotionSetTiltCorrection(1);
+  sceMotionSetDeadband(0);
+
   // Initializing graphics stuffs
   vita2d_init();
   vita2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
