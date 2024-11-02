@@ -31,7 +31,7 @@ convert_touch_data(flatbuffers::FlatBufferBuilder &builder,
   return NetProtocol::CreateTouchDataDirect(builder, &reports);
 }
 
-void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder) {
+void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder) {
   builder.Clear();
   static uint64_t last_ts = 0;
   SceCtrlData pad;
@@ -54,7 +54,8 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder& builder) {
   NetProtocol::Vector3 accel(motion_data.acceleration.x,
                              motion_data.acceleration.y,
                              motion_data.acceleration.z);
-  NetProtocol::Vector3 gyro(motion_data.angularVelocity.x, motion_data.angularVelocity.y,
+  NetProtocol::Vector3 gyro(motion_data.angularVelocity.x,
+                            motion_data.angularVelocity.y,
                             motion_data.angularVelocity.z);
   NetProtocol::MotionData motion(gyro, accel);
 

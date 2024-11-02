@@ -35,13 +35,19 @@ int main() {
   sceMotionSetTiltCorrection(1);
   sceMotionSetDeadband(0);
 
+  // Reduce cpu and gpu frequency to save battery
+  scePowerSetArmClockFrequency(25);
+  scePowerSetBusClockFrequency(25);
+  scePowerSetGpuClockFrequency(10);
+
   // Initializing graphics stuffs
   vita2d_init();
   vita2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
   debug_font = vita2d_load_default_pgf();
-  uint32_t common_text_color = RGBA8(0xFF, 0xFF, 0xFF, 0xFF);  // White color
-  uint32_t error_text_color = RGBA8(0xFF, 0x00, 0x00, 0xFF);   // Bright red color
-  uint32_t done_text_color = RGBA8(0x00, 0xFF, 0x00, 0xFF);    // Bright green color
+  uint32_t common_text_color = RGBA8(0xFF, 0xFF, 0xFF, 0xFF); // White color
+  uint32_t error_text_color = RGBA8(0xFF, 0x00, 0x00, 0xFF); // Bright red color
+  uint32_t done_text_color =
+      RGBA8(0x00, 0xFF, 0x00, 0xFF); // Bright green color
 
   // Initializing network stuffs
   sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
@@ -50,16 +56,18 @@ int main() {
   SceNetInitParam initparam = {net_init_memory.data(), NET_INIT_SIZE, 0};
   int ret = sceNetShowNetstat();
   if ((unsigned)ret == SCE_NET_ERROR_ENOTINIT) {
-      ret = sceNetInit(&initparam);
-      if (ret < 0) {
-          SCE_DBG_LOG_ERROR("Network initialization failed: %s", sce_net_strerror(ret));
-          return -1;
-      }
+    ret = sceNetInit(&initparam);
+    if (ret < 0) {
+      SCE_DBG_LOG_ERROR("Network initialization failed: %s",
+                        sce_net_strerror(ret));
+      return -1;
+    }
   }
 
   sceNetCtlInit();
   SceNetCtlInfo info;
 
+  // Creating events and network thread
   auto ev_connect = sceKernelCreateEventFlag("ev_con", 0, 0, nullptr);
   NetThreadMessage net_message = {ev_connect};
   // Open the net thread with an event flag in argument to write the
@@ -72,11 +80,6 @@ int main() {
   }
   sceKernelStartThread(net_thread_id, sizeof(net_message), &net_message);
 
-  // Reduce cpu and gpu frequency to save battery
-  scePowerSetArmClockFrequency(25);
-  scePowerSetBusClockFrequency(25);
-  scePowerSetGpuClockFrequency(10);
-
   unsigned int events;
   sceNetCtlInetGetState(reinterpret_cast<int *>(&events));
   bool connected_to_network = events == SCE_NETCTL_STATE_CONNECTED;
@@ -86,7 +89,11 @@ int main() {
   }
   events = 0;
 
+  // Stop timeout network thread
   SceUInt THREAD_TIMEOUT = (SceUInt)(15 * 1000 * 1000);
+
+  // Main loop for events
+  // Loop is executed if the NetEvent state changes
   do {
     vita2d_start_drawing();
     vita2d_clear_screen();
@@ -103,7 +110,8 @@ int main() {
 
     if (connected_to_network) {
       vita2d_pgf_draw_textf(debug_font, 740, 20, common_text_color, 1.0,
-                            "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
+                            "Listening on:\nIP: %s\nPort: %d", vita_ip,
+                            NET_PORT);
     } else {
       vita2d_pgf_draw_text(debug_font, 740, 20, error_text_color, 1.0,
                            "Not connected\nto a network");
@@ -126,15 +134,17 @@ int main() {
                    NetEvent::NET_CONNECT | NetEvent::NET_DISCONNECT,
                SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &events, NULL) == 0);
 
+  // Turn on network thread stop signal and wait for its normal termination
   g_net_thread_running.store(false);
   sceKernelSetEventFlag(ev_connect, NetEvent::NET_DISCONNECT);
-  int wait_result = sceKernelWaitThreadEnd(net_thread_id, NULL, &THREAD_TIMEOUT);
+  int wait_result =
+      sceKernelWaitThreadEnd(net_thread_id, NULL, &THREAD_TIMEOUT);
   if (wait_result < 0) {
-      SCE_DBG_LOG_ERROR("Error waiting for thread to end: 0x%08X", wait_result);
+    SCE_DBG_LOG_ERROR("Error waiting for thread to end: 0x%08X", wait_result);
   }
   int delete_result = sceKernelDeleteThread(net_thread_id);
   if (delete_result < 0) {
-      SCE_DBG_LOG_ERROR("Error deleting thread: 0x%08X", delete_result);
+    SCE_DBG_LOG_ERROR("Error deleting thread: 0x%08X", delete_result);
   }
   SCE_DBG_LOG_TRACE("NetThread stopped and deleted successfully.");
 
