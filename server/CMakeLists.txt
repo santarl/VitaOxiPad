@@ -102,6 +102,7 @@ vita_create_vpk(${VITA_APP_NAME}.vpk ${VITA_TITLEID} ${VITA_APP_NAME}.self
 if (VITA_IP)
   add_custom_target(send
     COMMAND "echo" destroy | nc ${VITA_IP} 1338
+    COMMAND "sleep" 1s
     COMMAND unzip -o ${VITA_APP_NAME}.vpk eboot.bin -d ${CMAKE_BINARY_DIR}
     COMMAND "curl" --ftp-method nocwd -T ${CMAKE_BINARY_DIR}/eboot.bin "ftp://${VITA_IP}:1337/ux0:/app/${VITA_TITLEID}/"
     COMMAND "echo" launch ${VITA_TITLEID} | nc ${VITA_IP} 1338
