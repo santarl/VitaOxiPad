@@ -14,43 +14,22 @@ constexpr unsigned int MIN_POLLING_INTERVAL_MICROS = (1 * 1000 / 144) * 1000;
 
 class TimeHelper {
 public:
-  TimeHelper() : last_time() { sceRtcGetCurrentClockLocalTime(&last_time); }
-
-  void update() { sceRtcGetCurrentClockLocalTime(&last_time); }
-
+  TimeHelper() { update(); }
+  void update() { last_time_micros_ = get_current_time_micros(); }
   uint64_t elapsed_time_secs() const {
-    SceDateTime current_time;
-    uint64_t current_time_secs;
-    uint64_t last_time_secs;
-
-    sceRtcGetCurrentClockLocalTime(&current_time);
-    sceRtcConvertDateTimeToTime64_t(&current_time, &current_time_secs);
-    sceRtcConvertDateTimeToTime64_t(&last_time, &last_time_secs);
-
-    return current_time_secs - last_time_secs;
+    return (get_current_time_micros() - last_time_micros_) / 1'000'000;
   }
-
   uint64_t elapsed_time_micros() const {
-    constexpr uint64_t MICROSECONDS_IN_SECOND = 1E6;
-
-    SceDateTime current_time;
-    uint64_t current_time_secs;
-    uint64_t last_time_secs;
-
-    sceRtcGetCurrentClockLocalTime(&current_time);
-    sceRtcConvertDateTimeToTime64_t(&current_time, &current_time_secs);
-    sceRtcConvertDateTimeToTime64_t(&last_time, &last_time_secs);
-
-    uint64_t current_micros = current_time_secs * MICROSECONDS_IN_SECOND +
-                              sceRtcGetMicrosecond(&current_time);
-    uint64_t last_micros = last_time_secs * MICROSECONDS_IN_SECOND +
-                           sceRtcGetMicrosecond(&last_time);
-
-    return current_micros - last_micros;
+    return get_current_time_micros() - last_time_micros_;
   }
 
 private:
-  SceDateTime last_time;
+  uint64_t get_current_time_micros() const {
+    SceKernelSysClock sys_clock;
+    sceKernelGetProcessTime(&sys_clock);
+    return sys_clock;
+  }
+  uint64_t last_time_micros_;
 };
 
 class EpollSocket {
