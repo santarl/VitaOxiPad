@@ -21,25 +21,25 @@ NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {
 flatbuffers::Offset<NetProtocol::TouchData>
 convert_touch_data(flatbuffers::FlatBufferBuilder &builder,
                    const SceTouchData &data) {
-  std::vector<NetProtocol::TouchReport> reports(data.reportNum);
-  for (size_t i = 0; i < data.reportNum; i++) {
-    NetProtocol::TouchReport report(data.report[i].force, data.report[i].id,
-                                    data.report[i].x, data.report[i].y);
-    reports[i] = report;
-  }
-
+  std::vector<NetProtocol::TouchReport> reports;
+  reports.reserve(data.reportNum);
+  std::transform(data.report, data.report + data.reportNum,
+                 std::back_inserter(reports), [](const SceTouchReport &report) {
+                   return NetProtocol::TouchReport(report.force, report.id,
+                                                   report.x, report.y);
+                 });
   return NetProtocol::CreateTouchDataDirect(builder, &reports);
 }
 
 void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder) {
   builder.Clear();
-  static uint64_t last_ts = 0;
+  static uint64_t last_ts = 1024;
   SceCtrlData pad;
   SceMotionState motion_data;
   SceTouchData touch_data_front, touch_data_back;
 
   sceCtrlPeekBufferPositive(0, &pad, 1);
-  while (pad.timeStamp <= last_ts || pad.timeStamp <= 128) {
+  while (pad.timeStamp <= last_ts) {
     sceCtrlPeekBufferPositive(0, &pad, 1);
   }
   auto buttons = convert_pad_data(pad);
