@@ -5,19 +5,21 @@
 #include <psp2/net/netctl.h>
 
 #include <atomic>
+#include <mutex>
 
-typedef struct {
-  SceUID ev_flag_connect_state;
-} NetThreadMessage;
 
-enum NetEvent {
-  PC_DISCONNECT = 1,
-  PC_CONNECT = 2,
-  NET_CONNECT = 4,
-  NET_DISCONNECT = 8,
+
+struct SharedData {
+    std::atomic<uint32_t> events;
+    char client_ip[INET_ADDRSTRLEN] = "N/A";
+    std::mutex mutex;
 };
 
-extern char conn_client_ip[INET_ADDRSTRLEN];
+typedef struct {
+  SceUID ev_flag;
+  SharedData *shared_data;
+} NetThreadMessage;
+
 extern std::atomic<bool> g_net_thread_running;
 
 constexpr const char *sce_net_strerror(unsigned int error_code) {

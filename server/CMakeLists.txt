@@ -48,6 +48,7 @@ build_flatbuffers("${SRC_FLATBUFFERS}"
 include_directories(${CMAKE_BINARY_DIR}/generated)
 
 add_executable(${VITA_APP_NAME}
+  src/status.cpp
   src/ctrl.cpp
   src/main.cpp
   src/net.cpp

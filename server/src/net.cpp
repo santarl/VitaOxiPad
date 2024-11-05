@@ -5,6 +5,7 @@
 #include "client.hpp"
 #include "ctrl.hpp"
 #include "net.hpp"
+#include "events.hpp"
 
 constexpr size_t MAX_EPOLL_EVENTS = 10;
 constexpr time_t MAX_HEARTBEAT_INTERVAL = 25;
@@ -31,8 +32,7 @@ static void handle_ingoing_data(Client &client) {
 
   uint8_t buffer[BUFFER_SIZE];
   int received;
-  while ((received = sceNetRecv(client.ctrl_fd(), buffer, BUFFER_SIZE, 0)) >
-         0) {
+  while ((received = sceNetRecv(client.ctrl_fd(), buffer, BUFFER_SIZE, 0)) > 0) {
     client.add_to_buffer(buffer, received);
   }
 
@@ -78,7 +78,7 @@ static void disconnect_client(std::optional<Client> &client, SceUID ev_flag) {
                      client->ip());
     client->shrink_buffer();
   }
-  sceKernelSetEventFlag(ev_flag, NetEvent::PC_DISCONNECT);
+  sceKernelSetEventFlag(ev_flag, MainEvent::PC_DISCONNECT);
   if (!client)
     return;
 
@@ -88,7 +88,7 @@ static void disconnect_client(std::optional<Client> &client, SceUID ev_flag) {
 
 static void add_client(int server_tcp_fd, SceUID epoll,
                        std::optional<Client> &client,
-                       SceUID ev_flag_connect_state) {
+                       SceUID ev_flag) {
   SceNetSockaddrIn clientaddr;
   unsigned int addrlen = sizeof(clientaddr);
   int client_fd = sceNetAccept(
@@ -105,8 +105,7 @@ static void add_client(int server_tcp_fd, SceUID epoll,
                      sizeof(nbio));
 
     sceNetEpollControl(epoll, SCE_NET_EPOLL_CTL_ADD, client_fd, &cl_ev);
-    snprintf(conn_client_ip, INET_ADDRSTRLEN, "%s", client->ip());
-    sceKernelSetEventFlag(ev_flag_connect_state, NetEvent::PC_CONNECT);
+    sceKernelSetEventFlag(ev_flag, MainEvent::PC_CONNECT);
   }
 }
 
@@ -157,6 +156,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   assert(arglen == sizeof(NetThreadMessage));
 
   NetThreadMessage *message = static_cast<NetThreadMessage *>(argp);
+  SharedData *shared_data = message->shared_data;
 
   // Creating a TCP socket to accept heartbeat packets
   auto server_tcp_fd =
@@ -204,19 +204,23 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
 
   // Various structures
   int n; // number of events that sceNetEpollWait will return
-  static SceNetEpollEvent events[MAX_EPOLL_EVENTS]; // event storage
+  static SceNetEpollEvent events[MAX_EPOLL_EVENTS];    // event storage
   static flatbuffers::FlatBufferBuilder pad_data(512); // keystroke data storage
-  static flatbuffers::FlatBufferBuilder handshake_data(128); // response to heartbeat
+  static flatbuffers::FlatBufferBuilder handshake_data(
+      128); // response to heartbeat
 
   // Main loop of the network
-  // Ends if there was a sceNetEpollWait error or the thread was asked to stop via g_net_thread_running
+  // Ends if there was a sceNetEpollWait error or the thread was asked to stop
+  // via g_net_thread_running
   while (g_net_thread_running.load()) {
+    // Power tick for sleep disabling, update battery
     sceKernelPowerTick(SCE_KERNEL_POWER_TICK_DISABLE_AUTO_SUSPEND);
 
     // Receiving TCP events
     n = sceNetEpollWait(epoll, events, MAX_EPOLL_EVENTS, timeout);
     if (n < 0) {
-      SCE_DBG_LOG_ERROR("sceNetEpollWait error: 0x%08X (%s)", n, sce_net_strerror(n));
+      SCE_DBG_LOG_ERROR("sceNetEpollWait error: 0x%08X (%s)", n,
+                        sce_net_strerror(n));
       break;
     }
     sceNetCtlCheckCallback();
@@ -236,13 +240,13 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
         sceNetBind(server_udp_fd,
                    reinterpret_cast<SceNetSockaddr *>(&serveraddr),
                    sizeof(serveraddr));
-        sceKernelSetEventFlag(message->ev_flag_connect_state,
-                              NetEvent::NET_CONNECT);
+        sceKernelSetEventFlag(message->ev_flag,
+                              MainEvent::NET_CONNECT);
         break;
       case NetCtlEvents::Disconnected:
         SCE_DBG_LOG_INFO("Disconnected from internet");
-        sceKernelSetEventFlag(message->ev_flag_connect_state,
-                              NetEvent::NET_DISCONNECT);
+        sceKernelSetEventFlag(message->ev_flag,
+                              MainEvent::NET_DISCONNECT);
         client.reset();
         timeout = SECOND_IN_MICROS;
         break;
@@ -256,19 +260,25 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
 
       if (ev_el.events & SCE_NET_EPOLLHUP || ev_el.events & SCE_NET_EPOLLERR) {
         if (sock_type == SocketType::CLIENT) {
-          disconnect_client(client, message->ev_flag_connect_state);
+          disconnect_client(client, message->ev_flag);
           SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
         }
       } else if (ev_el.events & SCE_NET_EPOLLIN) {
         if (sock_type == SocketType::SERVER) {
           if (!client) {
             add_client(server_tcp_fd, epoll, client,
-                       message->ev_flag_connect_state);
+                       message->ev_flag);
           } else {
             refuse_client(server_tcp_fd);
           }
 
           if (client) {
+            std::lock_guard<std::mutex> lock(shared_data->mutex);
+            snprintf(shared_data->client_ip, INET_ADDRSTRLEN, "%s",
+                     client->ip());
+            shared_data->events |= MainEvent::PC_CONNECT;
+            sceKernelSetEventFlag(message->ev_flag,
+                                  MainEvent::PC_CONNECT);
             SCE_DBG_LOG_INFO("New client connected: %s", client->ip());
           }
 
@@ -285,11 +295,11 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
           handle_ingoing_data(*client);
         } catch (const net::NetException &e) {
           if (e.error_code() == SCE_NET_ECONNRESET || e.error_code() == 0) {
-            disconnect_client(client, message->ev_flag_connect_state);
+            disconnect_client(client, message->ev_flag);
             SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
           }
         } catch (const std::exception &e) {
-          disconnect_client(client, message->ev_flag_connect_state);
+          disconnect_client(client, message->ev_flag);
           SCE_DBG_LOG_DEBUG("Client disconnected: %s", client->ip());
         }
       } else if (ev_el.events & SCE_NET_EPOLLOUT) {
@@ -314,11 +324,11 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
                                &reinit_ev);
           } catch (const net::NetException &e) {
             if (e.error_code() == SCE_NET_ECONNRESET) {
-              disconnect_client(client, message->ev_flag_connect_state);
+              disconnect_client(client, message->ev_flag);
               SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
             }
           } catch (const std::exception &e) {
-            disconnect_client(client, message->ev_flag_connect_state);
+            disconnect_client(client, message->ev_flag);
             SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
           }
 
@@ -335,7 +345,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
       continue;
 
     if (client->time_since_last_heartbeat() > MAX_HEARTBEAT_INTERVAL) {
-      disconnect_client(client, message->ev_flag_connect_state);
+      disconnect_client(client, message->ev_flag);
       SCE_DBG_LOG_INFO("Client disconnected: %s", client->ip());
     }
 
