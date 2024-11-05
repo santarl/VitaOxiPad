@@ -38,8 +38,7 @@ int main() {
   // Enabling analog, motion and touch support
   sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
   sceMotionStartSampling();
-  sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT,
-                           SCE_TOUCH_SAMPLING_STATE_START);
+  sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
   sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
   sceTouchEnableTouchForce(SCE_TOUCH_PORT_FRONT);
   sceTouchEnableTouchForce(SCE_TOUCH_PORT_BACK);
@@ -73,8 +72,7 @@ int main() {
   if ((unsigned)ret == SCE_NET_ERROR_ENOTINIT) {
     ret = sceNetInit(&initparam);
     if (ret < 0) {
-      SCE_DBG_LOG_ERROR("Network initialization failed: %s",
-                        sce_net_strerror(ret));
+      SCE_DBG_LOG_ERROR("Network initialization failed: %s", sce_net_strerror(ret));
       return -1;
     }
   }
@@ -90,18 +88,15 @@ int main() {
   status_shared_data.battery_level = scePowerGetBatteryLifePercent();
   status_shared_data.charger_connected = scePowerIsBatteryCharging();
   StatusThreadMessage status_message = {ev_flag, &status_shared_data};
-  SceUID status_thread_uid =
-      sceKernelCreateThread("StatusThread", status_thread, 0x10000100, 0x10000,
-                            0, SCE_KERNEL_CPU_MASK_USER_1, NULL);
-  sceKernelStartThread(status_thread_uid, sizeof(StatusThreadMessage),
-                       &status_message);
+  SceUID status_thread_uid = sceKernelCreateThread("StatusThread", status_thread, 0x10000100,
+                                                   0x10000, 0, SCE_KERNEL_CPU_MASK_USER_1, NULL);
+  sceKernelStartThread(status_thread_uid, sizeof(StatusThreadMessage), &status_message);
 
   // Creating events and network thread
   SharedData shared_data;
   NetThreadMessage net_message = {ev_flag, &shared_data};
-  SceUID net_thread_uid =
-      sceKernelCreateThread("NetThread", &net_thread, 0x10000100, 0x10000, 0,
-                            SCE_KERNEL_CPU_MASK_USER_2, nullptr);
+  SceUID net_thread_uid = sceKernelCreateThread("NetThread", &net_thread, 0x10000100, 0x10000, 0,
+                                                SCE_KERNEL_CPU_MASK_USER_2, nullptr);
   if (net_thread_uid < 0) {
     SCE_DBG_LOG_ERROR("Error creating thread: 0x%08X", net_thread_uid);
     return -1;
@@ -136,11 +131,9 @@ int main() {
 
     if (connected_to_network) {
       vita2d_pgf_draw_textf(debug_font, 750, 20, common_color, 1.0,
-                            "Listening on:\nIP: %s\nPort: %d", vita_ip,
-                            NET_PORT);
+                            "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
     } else {
-      vita2d_pgf_draw_text(debug_font, 750, 20, error_color, 1.0,
-                           "Not connected\nto a network");
+      vita2d_pgf_draw_text(debug_font, 750, 20, error_color, 1.0, "Not connected\nto a network");
     }
 
     if (events & MainEvent::PC_CONNECT) {
@@ -149,24 +142,20 @@ int main() {
       pc_connect_state = false;
     }
     if (pc_connect_state) {
-      vita2d_pgf_draw_textf(debug_font, 2, 540, done_color, 1.0,
-                            "Status: Connected (%s)", shared_data.client_ip);
+      vita2d_pgf_draw_textf(debug_font, 2, 540, done_color, 1.0, "Status: Connected (%s)",
+                            shared_data.client_ip);
     } else {
-      vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0,
-                           "Status: Not connected");
+      vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0, "Status: Not connected");
     }
 
-    if (status_shared_data.battery_level >= 70 ||
-        status_shared_data.charger_connected) {
+    if (status_shared_data.battery_level >= 70 || status_shared_data.charger_connected) {
       need_color = done_color;
-    } else if (status_shared_data.battery_level < 70 &&
-               status_shared_data.battery_level > 30) {
+    } else if (status_shared_data.battery_level < 70 && status_shared_data.battery_level > 30) {
       need_color = common_color;
     } else {
       need_color = error_color;
     }
-    vita2d_pgf_draw_textf(debug_font, 785, 520, need_color, 1.0,
-                          "Battery: %s%d%%",
+    vita2d_pgf_draw_textf(debug_font, 785, 520, need_color, 1.0, "Battery: %s%d%%",
                           status_shared_data.charger_connected ? "+" : "",
                           status_shared_data.battery_level);
 
@@ -178,15 +167,13 @@ int main() {
     } else {
       need_color = error_color;
     }
-    vita2d_pgf_draw_textf(debug_font, 785, 540, need_color, 1.0,
-                          "WiFi signal: %d%%",
+    vita2d_pgf_draw_textf(debug_font, 785, 540, need_color, 1.0, "WiFi signal: %d%%",
                           status_shared_data.wifi_signal_strength);
 
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
     vita2d_swap_buffers();
-  } while (sceKernelWaitEventFlag(ev_flag, 0xFFFFFFFF,
-                                  SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR,
+  } while (sceKernelWaitEventFlag(ev_flag, 0xFFFFFFFF, SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR,
                                   &events, NULL) == 0);
 
   // Turn on network thread stop signal and wait for its normal termination

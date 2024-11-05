@@ -4,8 +4,8 @@
 
 #include "client.hpp"
 #include "ctrl.hpp"
-#include "net.hpp"
 #include "events.hpp"
+#include "net.hpp"
 
 constexpr size_t MAX_EPOLL_EVENTS = 10;
 constexpr time_t MAX_HEARTBEAT_INTERVAL = 25;
@@ -51,19 +51,16 @@ static void handle_ingoing_data(Client &client) {
   }
 }
 
-static void send_handshake_response(Client &client, uint16_t port,
-                                    uint32_t heartbeat_interval,
+static void send_handshake_response(Client &client, uint16_t port, uint32_t heartbeat_interval,
                                     flatbuffers::FlatBufferBuilder &builder) {
   builder.Clear();
-  auto handshake_confirm = NetProtocol::CreateHandshake(
-      builder, NetProtocol::Endpoint::Server, port, heartbeat_interval);
-  auto packet =
-      NetProtocol::CreatePacket(builder, NetProtocol::PacketContent::Handshake,
-                                handshake_confirm.Union());
+  auto handshake_confirm = NetProtocol::CreateHandshake(builder, NetProtocol::Endpoint::Server,
+                                                        port, heartbeat_interval);
+  auto packet = NetProtocol::CreatePacket(builder, NetProtocol::PacketContent::Handshake,
+                                          handshake_confirm.Union());
   builder.FinishSizePrefixed(packet);
 
-  int sent =
-      send_all(client.ctrl_fd(), builder.GetBufferPointer(), builder.GetSize());
+  int sent = send_all(client.ctrl_fd(), builder.GetBufferPointer(), builder.GetSize());
 
   if (sent <= 0) {
     throw net::NetException(sent);
@@ -74,8 +71,7 @@ static void send_handshake_response(Client &client, uint16_t port,
 
 static void disconnect_client(std::optional<Client> &client, SceUID ev_flag) {
   if (client) {
-    SCE_DBG_LOG_INFO("Flushing buffer for client %s before disconnection",
-                     client->ip());
+    SCE_DBG_LOG_INFO("Flushing buffer for client %s before disconnection", client->ip());
     client->shrink_buffer();
   }
   sceKernelSetEventFlag(ev_flag, MainEvent::PC_DISCONNECT);
@@ -86,23 +82,20 @@ static void disconnect_client(std::optional<Client> &client, SceUID ev_flag) {
   client.reset();
 }
 
-static void add_client(int server_tcp_fd, SceUID epoll,
-                       std::optional<Client> &client,
+static void add_client(int server_tcp_fd, SceUID epoll, std::optional<Client> &client,
                        SceUID ev_flag) {
   SceNetSockaddrIn clientaddr;
   unsigned int addrlen = sizeof(clientaddr);
-  int client_fd = sceNetAccept(
-      server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&clientaddr), &addrlen);
+  int client_fd =
+      sceNetAccept(server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&clientaddr), &addrlen);
   if (client_fd >= 0) {
     client.emplace(client_fd, epoll);
 
     SceNetEpollEvent cl_ev = {};
-    cl_ev.events = SCE_NET_EPOLLIN | SCE_NET_EPOLLOUT | SCE_NET_EPOLLHUP |
-                   SCE_NET_EPOLLERR;
+    cl_ev.events = SCE_NET_EPOLLIN | SCE_NET_EPOLLOUT | SCE_NET_EPOLLHUP | SCE_NET_EPOLLERR;
     cl_ev.data.u32 = static_cast<decltype(cl_ev.data.u32)>(SocketType::CLIENT);
     auto nbio = 1;
-    sceNetSetsockopt(client_fd, SCE_NET_SOL_SOCKET, SCE_NET_SO_NBIO, &nbio,
-                     sizeof(nbio));
+    sceNetSetsockopt(client_fd, SCE_NET_SOL_SOCKET, SCE_NET_SO_NBIO, &nbio, sizeof(nbio));
 
     sceNetEpollControl(epoll, SCE_NET_EPOLL_CTL_ADD, client_fd, &cl_ev);
     sceKernelSetEventFlag(ev_flag, MainEvent::PC_CONNECT);
@@ -112,8 +105,7 @@ static void add_client(int server_tcp_fd, SceUID epoll,
 static void refuse_client(int server_tcp_fd) {
   SceNetSockaddrIn clientaddr;
   auto clientaddr_size = sizeof(clientaddr);
-  auto client_fd = sceNetAccept(server_tcp_fd,
-                                reinterpret_cast<SceNetSockaddr *>(&clientaddr),
+  auto client_fd = sceNetAccept(server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&clientaddr),
                                 &clientaddr_size);
   if (client_fd >= 0) {
     sceNetSocketClose(client_fd);
@@ -159,24 +151,19 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
   SharedData *shared_data = message->shared_data;
 
   // Creating a TCP socket to accept heartbeat packets
-  auto server_tcp_fd =
-      sceNetSocket("SERVER_SOCKET", SCE_NET_AF_INET, SCE_NET_SOCK_STREAM, 0);
+  auto server_tcp_fd = sceNetSocket("SERVER_SOCKET", SCE_NET_AF_INET, SCE_NET_SOCK_STREAM, 0);
   SceNetSockaddrIn serveraddr;
   serveraddr.sin_family = SCE_NET_AF_INET;
   serveraddr.sin_addr.s_addr = sceNetHtonl(SCE_NET_INADDR_ANY);
   serveraddr.sin_port = sceNetHtons(NET_PORT);
-  sceNetBind(server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr),
-             sizeof(serveraddr));
+  sceNetBind(server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr), sizeof(serveraddr));
   auto nbio = 1;
-  sceNetSetsockopt(server_tcp_fd, SCE_NET_SOL_SOCKET, SCE_NET_SO_NBIO, &nbio,
-                   sizeof(nbio));
+  sceNetSetsockopt(server_tcp_fd, SCE_NET_SOL_SOCKET, SCE_NET_SO_NBIO, &nbio, sizeof(nbio));
   sceNetListen(server_tcp_fd, 1);
 
   // Creating a UDP socket to send data to client
-  auto server_udp_fd =
-      sceNetSocket("SERVER_UDP_SOCKET", SCE_NET_AF_INET, SCE_NET_SOCK_DGRAM, 0);
-  sceNetBind(server_udp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr),
-             sizeof(serveraddr));
+  auto server_udp_fd = sceNetSocket("SERVER_UDP_SOCKET", SCE_NET_AF_INET, SCE_NET_SOCK_DGRAM, 0);
+  sceNetBind(server_udp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr), sizeof(serveraddr));
 
   std::optional<Client> client;
 
@@ -204,10 +191,9 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
 
   // Various structures
   int n; // number of events that sceNetEpollWait will return
-  static SceNetEpollEvent events[MAX_EPOLL_EVENTS];    // event storage
-  static flatbuffers::FlatBufferBuilder pad_data(512); // keystroke data storage
-  static flatbuffers::FlatBufferBuilder handshake_data(
-      128); // response to heartbeat
+  static SceNetEpollEvent events[MAX_EPOLL_EVENTS];          // event storage
+  static flatbuffers::FlatBufferBuilder pad_data(512);       // keystroke data storage
+  static flatbuffers::FlatBufferBuilder handshake_data(128); // response to heartbeat
 
   // Main loop of the network
   // Ends if there was a sceNetEpollWait error or the thread was asked to stop
@@ -219,34 +205,28 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
     // Receiving TCP events
     n = sceNetEpollWait(epoll, events, MAX_EPOLL_EVENTS, timeout);
     if (n < 0) {
-      SCE_DBG_LOG_ERROR("sceNetEpollWait error: 0x%08X (%s)", n,
-                        sce_net_strerror(n));
+      SCE_DBG_LOG_ERROR("sceNetEpollWait error: 0x%08X (%s)", n, sce_net_strerror(n));
       break;
     }
     sceNetCtlCheckCallback();
 
     // Checking network status change events
     unsigned int event;
-    if (sceKernelPollEventFlag(
-            connect_state, NetCtlEvents::Connected | NetCtlEvents::Disconnected,
-            SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &event) == 0) {
+    if (sceKernelPollEventFlag(connect_state, NetCtlEvents::Connected | NetCtlEvents::Disconnected,
+                               SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &event) == 0) {
       switch (event) {
       case NetCtlEvents::Connected:
         SCE_DBG_LOG_INFO("Connected to internet");
-        sceNetBind(server_tcp_fd,
-                   reinterpret_cast<SceNetSockaddr *>(&serveraddr),
+        sceNetBind(server_tcp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr),
                    sizeof(serveraddr));
         sceNetListen(server_tcp_fd, 1);
-        sceNetBind(server_udp_fd,
-                   reinterpret_cast<SceNetSockaddr *>(&serveraddr),
+        sceNetBind(server_udp_fd, reinterpret_cast<SceNetSockaddr *>(&serveraddr),
                    sizeof(serveraddr));
-        sceKernelSetEventFlag(message->ev_flag,
-                              MainEvent::NET_CONNECT);
+        sceKernelSetEventFlag(message->ev_flag, MainEvent::NET_CONNECT);
         break;
       case NetCtlEvents::Disconnected:
         SCE_DBG_LOG_INFO("Disconnected from internet");
-        sceKernelSetEventFlag(message->ev_flag,
-                              MainEvent::NET_DISCONNECT);
+        sceKernelSetEventFlag(message->ev_flag, MainEvent::NET_DISCONNECT);
         client.reset();
         timeout = SECOND_IN_MICROS;
         break;
@@ -266,19 +246,16 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
       } else if (ev_el.events & SCE_NET_EPOLLIN) {
         if (sock_type == SocketType::SERVER) {
           if (!client) {
-            add_client(server_tcp_fd, epoll, client,
-                       message->ev_flag);
+            add_client(server_tcp_fd, epoll, client, message->ev_flag);
           } else {
             refuse_client(server_tcp_fd);
           }
 
           if (client) {
             std::lock_guard<std::mutex> lock(shared_data->mutex);
-            snprintf(shared_data->client_ip, INET_ADDRSTRLEN, "%s",
-                     client->ip());
+            snprintf(shared_data->client_ip, INET_ADDRSTRLEN, "%s", client->ip());
             shared_data->events |= MainEvent::PC_CONNECT;
-            sceKernelSetEventFlag(message->ev_flag,
-                                  MainEvent::PC_CONNECT);
+            sceKernelSetEventFlag(message->ev_flag, MainEvent::PC_CONNECT);
             SCE_DBG_LOG_INFO("New client connected: %s", client->ip());
           }
 
@@ -311,17 +288,13 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
         switch (client->state()) {
         case Client::State::WaitingForServerConfirm: {
           try {
-            send_handshake_response(*client, NET_PORT, MAX_HEARTBEAT_INTERVAL,
-                                    handshake_data);
+            send_handshake_response(*client, NET_PORT, MAX_HEARTBEAT_INTERVAL, handshake_data);
             SCE_DBG_LOG_INFO("Sent handshake response to %s", client->ip());
 
             SceNetEpollEvent reinit_ev = {};
-            reinit_ev.events =
-                SCE_NET_EPOLLIN | SCE_NET_EPOLLHUP | SCE_NET_EPOLLERR;
-            reinit_ev.data.u32 =
-                static_cast<decltype(reinit_ev.data.u32)>(SocketType::CLIENT);
-            sceNetEpollControl(epoll, SCE_NET_EPOLL_CTL_MOD, client->ctrl_fd(),
-                               &reinit_ev);
+            reinit_ev.events = SCE_NET_EPOLLIN | SCE_NET_EPOLLHUP | SCE_NET_EPOLLERR;
+            reinit_ev.data.u32 = static_cast<decltype(reinit_ev.data.u32)>(SocketType::CLIENT);
+            sceNetEpollControl(epoll, SCE_NET_EPOLL_CTL_MOD, client->ctrl_fd(), &reinit_ev);
           } catch (const net::NetException &e) {
             if (e.error_code() == SCE_NET_ECONNRESET) {
               disconnect_client(client, message->ev_flag);
@@ -350,20 +323,16 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
     }
 
     // Sending push data if the client is connected
-    if (client->state() == Client::State::Connected &&
-        client->is_polling_time_elapsed()) {
+    if (client->state() == Client::State::Connected && client->is_polling_time_elapsed()) {
       if (server_udp_fd >= 0) {
         get_ctrl_as_netprotocol(pad_data);
         client->update_sent_data_time();
         auto client_addr = client->data_conn_info();
-        SceNetSockaddr *need_client_addr =
-            reinterpret_cast<SceNetSockaddr *>(&client_addr);
-        int res = sceNetSendto(server_udp_fd, pad_data.GetBufferPointer(),
-                               pad_data.GetSize(), 0, need_client_addr,
-                               sizeof(client_addr));
+        SceNetSockaddr *need_client_addr = reinterpret_cast<SceNetSockaddr *>(&client_addr);
+        int res = sceNetSendto(server_udp_fd, pad_data.GetBufferPointer(), pad_data.GetSize(), 0,
+                               need_client_addr, sizeof(client_addr));
         if (res < 0) {
-          SCE_DBG_LOG_ERROR("sceNetSendto error: 0x%08X (%s)", res,
-                            sce_net_strerror(res));
+          SCE_DBG_LOG_ERROR("sceNetSendto error: 0x%08X (%s)", res, sce_net_strerror(res));
           continue;
         }
       } else {

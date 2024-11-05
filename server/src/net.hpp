@@ -7,12 +7,10 @@
 #include <atomic>
 #include <mutex>
 
-
-
 struct SharedData {
-    std::atomic<uint32_t> events;
-    char client_ip[INET_ADDRSTRLEN] = "N/A";
-    std::mutex mutex;
+  std::atomic<uint32_t> events;
+  char client_ip[INET_ADDRSTRLEN] = "N/A";
+  std::mutex mutex;
 };
 
 typedef struct {

@@ -45,8 +45,7 @@ int status_thread(unsigned int arglen, void *argp) {
     // Updating the Wi-Fi signal strength
     unsigned int current_wifi_signal_strength = 0;
     SceNetCtlInfo wifi_info;
-    int ret =
-        sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_RSSI_PERCENTAGE, &wifi_info);
+    int ret = sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_RSSI_PERCENTAGE, &wifi_info);
     if (ret == 0) {
       current_wifi_signal_strength = wifi_info.rssi_percentage;
     }
