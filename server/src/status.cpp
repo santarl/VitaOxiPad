@@ -1,17 +1,15 @@
-#include "status.hpp"
 
 #include <psp2/net/netctl.h>
 #include <psp2/power.h>
 
+#include "status.hpp"
 #include <assert.h>
 
-std::atomic<bool> g_status_thread_running = true;
-
 int status_thread(unsigned int arglen, void *argp) {
-  assert(arglen == sizeof(StatusThreadMessage));
+  assert(arglen == sizeof(ThreadMessage));
 
-  StatusThreadMessage *message = static_cast<StatusThreadMessage *>(argp);
-  StatusSharedData *shared_data = message->shared_data;
+  ThreadMessage *message = static_cast<ThreadMessage *>(argp);
+  SharedData *shared_data = message->shared_data;
 
   int previous_battery_level = 0;
   bool previous_charger_connected = scePowerIsBatteryCharging();
@@ -27,7 +25,7 @@ int status_thread(unsigned int arglen, void *argp) {
         shared_data->battery_level = current_battery_level;
         shared_data->events |= MainEvent::BATTERY_LEVEL;
       }
-      sceKernelSetEventFlag(message->event_flag, MainEvent::BATTERY_LEVEL);
+      sceKernelSetEventFlag(message->ev_flag, MainEvent::BATTERY_LEVEL);
     }
 
     // Updating the status of the charger
@@ -39,7 +37,7 @@ int status_thread(unsigned int arglen, void *argp) {
         shared_data->charger_connected = current_charger_connected;
         shared_data->events |= MainEvent::STATUS_CHARGER;
       }
-      sceKernelSetEventFlag(message->event_flag, MainEvent::STATUS_CHARGER);
+      sceKernelSetEventFlag(message->ev_flag, MainEvent::STATUS_CHARGER);
     }
 
     // Updating the Wi-Fi signal strength
@@ -57,7 +55,7 @@ int status_thread(unsigned int arglen, void *argp) {
         shared_data->wifi_signal_strength = current_wifi_signal_strength;
         shared_data->events |= MainEvent::WIFI_SIGNAL;
       }
-      sceKernelSetEventFlag(message->event_flag, MainEvent::WIFI_SIGNAL);
+      sceKernelSetEventFlag(message->ev_flag, MainEvent::WIFI_SIGNAL);
     }
 
     sceKernelDelayThread(1 * 1000 * 1000);

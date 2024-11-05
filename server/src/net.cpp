@@ -145,9 +145,9 @@ void *netctl_cb(int state, void *arg) {
 }
 
 int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
-  assert(arglen == sizeof(NetThreadMessage));
+  assert(arglen == sizeof(ThreadMessage));
 
-  NetThreadMessage *message = static_cast<NetThreadMessage *>(argp);
+  ThreadMessage *message = static_cast<ThreadMessage *>(argp);
   SharedData *shared_data = message->shared_data;
 
   // Creating a TCP socket to accept heartbeat packets

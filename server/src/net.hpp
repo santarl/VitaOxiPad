@@ -5,18 +5,8 @@
 #include <psp2/net/netctl.h>
 
 #include <atomic>
-#include <mutex>
 
-struct SharedData {
-  std::atomic<uint32_t> events;
-  char client_ip[INET_ADDRSTRLEN] = "N/A";
-  std::mutex mutex;
-};
-
-typedef struct {
-  SceUID ev_flag;
-  SharedData *shared_data;
-} NetThreadMessage;
+#include "events.hpp"
 
 extern std::atomic<bool> g_net_thread_running;
 

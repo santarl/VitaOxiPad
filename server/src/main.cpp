@@ -20,6 +20,7 @@ constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
 vita2d_pgf *debug_font;
 
 std::atomic<bool> g_net_thread_running(true);
+std::atomic<bool> g_status_thread_running(true);
 
 int stop_thread(SceUID thread_uid, SceUInt timeout) {
   int wait_result = sceKernelWaitThreadEnd(thread_uid, NULL, &timeout);
@@ -51,7 +52,7 @@ int main() {
   // Reduce CPU and GPU frequency to save battery
   scePowerSetArmClockFrequency(41);
   scePowerSetBusClockFrequency(55);
-  scePowerSetGpuClockFrequency(44);
+  scePowerSetGpuClockFrequency(41);
   scePowerSetGpuXbarClockFrequency(83);
 
   // Initializing graphics stuffs
@@ -80,28 +81,26 @@ int main() {
   sceNetCtlInit();
   SceNetCtlInfo info;
 
+  SharedData shared_data;
   SceUID ev_flag = sceKernelCreateEventFlag("main_event_flag", 0, 0, NULL);
+  shared_data.events = 0;
+  shared_data.battery_level = scePowerGetBatteryLifePercent();
+  shared_data.charger_connected = scePowerIsBatteryCharging();
+  ThreadMessage message = {ev_flag, &shared_data};
 
   // Creating events and status thread
-  StatusSharedData status_shared_data;
-  status_shared_data.events = 0;
-  status_shared_data.battery_level = scePowerGetBatteryLifePercent();
-  status_shared_data.charger_connected = scePowerIsBatteryCharging();
-  StatusThreadMessage status_message = {ev_flag, &status_shared_data};
   SceUID status_thread_uid = sceKernelCreateThread("StatusThread", status_thread, 0x10000100,
                                                    0x10000, 0, SCE_KERNEL_CPU_MASK_USER_1, NULL);
-  sceKernelStartThread(status_thread_uid, sizeof(StatusThreadMessage), &status_message);
+  sceKernelStartThread(status_thread_uid, sizeof(ThreadMessage), &message);
 
   // Creating events and network thread
-  SharedData shared_data;
-  NetThreadMessage net_message = {ev_flag, &shared_data};
   SceUID net_thread_uid = sceKernelCreateThread("NetThread", &net_thread, 0x10000100, 0x10000, 0,
                                                 SCE_KERNEL_CPU_MASK_USER_2, nullptr);
   if (net_thread_uid < 0) {
     SCE_DBG_LOG_ERROR("Error creating thread: 0x%08X", net_thread_uid);
     return -1;
   }
-  sceKernelStartThread(net_thread_uid, sizeof(net_message), &net_message);
+  sceKernelStartThread(net_thread_uid, sizeof(ThreadMessage), &message);
 
   uint32_t events;
   sceNetCtlInetGetState(reinterpret_cast<int *>(&events));
@@ -148,27 +147,25 @@ int main() {
       vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0, "Status: Not connected");
     }
 
-    if (status_shared_data.battery_level >= 70 || status_shared_data.charger_connected) {
+    if (shared_data.battery_level >= 70 || shared_data.charger_connected) {
       need_color = done_color;
-    } else if (status_shared_data.battery_level < 70 && status_shared_data.battery_level > 30) {
+    } else if (shared_data.battery_level < 70 && shared_data.battery_level > 30) {
       need_color = common_color;
     } else {
       need_color = error_color;
     }
     vita2d_pgf_draw_textf(debug_font, 785, 520, need_color, 1.0, "Battery: %s%d%%",
-                          status_shared_data.charger_connected ? "+" : "",
-                          status_shared_data.battery_level);
+                          shared_data.charger_connected ? "+" : "", shared_data.battery_level);
 
-    if (status_shared_data.wifi_signal_strength >= 70) {
+    if (shared_data.wifi_signal_strength >= 70) {
       need_color = done_color;
-    } else if (status_shared_data.wifi_signal_strength < 70 &&
-               status_shared_data.wifi_signal_strength > 30) {
+    } else if (shared_data.wifi_signal_strength < 70 && shared_data.wifi_signal_strength > 30) {
       need_color = common_color;
     } else {
       need_color = error_color;
     }
     vita2d_pgf_draw_textf(debug_font, 785, 540, need_color, 1.0, "WiFi signal: %d%%",
-                          status_shared_data.wifi_signal_strength);
+                          shared_data.wifi_signal_strength);
 
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
@@ -179,6 +176,7 @@ int main() {
   // Turn on network thread stop signal and wait for its normal termination
   SceUInt THREAD_TIMEOUT = (SceUInt)(15 * 1000 * 1000);
   g_net_thread_running.store(false);
+  g_status_thread_running.store(false);
   sceKernelSetEventFlag(ev_flag, MainEvent::NET_DISCONNECT);
   SCE_DBG_LOG_TRACE("StatusThread stop...");
   stop_thread(status_thread_uid, THREAD_TIMEOUT);

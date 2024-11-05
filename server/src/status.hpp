@@ -8,20 +8,11 @@
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
 
+#include <atomic>
+
 #include "events.hpp"
 
-struct StatusSharedData {
-  std::atomic<uint32_t> events;
-  int battery_level = 0;
-  bool charger_connected = false;
-  unsigned int wifi_signal_strength = 0;
-  std::mutex mutex;
-};
-
-typedef struct {
-  SceUID event_flag;
-  StatusSharedData *shared_data;
-} StatusThreadMessage;
+extern std::atomic<bool> g_status_thread_running;
 
 int status_thread(unsigned int arglen, void *argp);
 
