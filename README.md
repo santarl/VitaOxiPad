@@ -40,10 +40,10 @@ The server part is written in C++, the client part is written in Rust.
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
 | DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
-| DS4Windows support              |    ✅    | You need to enable Moonlight support[*]                                              |
+| DS4Windows support              |    ✅    | You need to enable Virtual Controller Support[*]                                     |
 | Sound                           |    ❌    | Probably will never be realized                                                      |
 
-[*] - Moonlight support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
+[*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
 ## Uses and options
