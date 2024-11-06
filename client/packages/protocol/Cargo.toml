@@ -5,10 +5,10 @@ edition = "2021"
 
 [dependencies]
 flatbuffers_structs = { path = "../flatbuffers_structs" }
-thiserror = "1.0.64"
+thiserror = "1.0.68"
 vita_reports = { path = "../vita_reports" }
 tokio-util = { version = "0.7.12", optional = true, features = ["codec"] }
-bytes = { version = "1.7.2", optional = true }
+bytes = { version = "1.8.0", optional = true }
 
 [features]
 codec = ["dep:tokio-util", "dep:bytes"]
