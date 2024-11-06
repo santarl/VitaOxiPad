@@ -9,7 +9,6 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
   - [What works](#what-works)
   - [Uses and options](#uses-and-options)
     - [Configurations](#configurations)
-  - [Bugs](#bugs)
   - [Installation](#installation)
     - [Requirements for Windows](#requirements-for-windows)
   - [Client compilation](#client-compilation)
@@ -79,11 +78,6 @@ There are currently 4 DualShock 4 configurations emulations that can be selected
 | `front_touchpad`    |     L1\R1     |         DualShock 4 digitizer          | upper area - L2\R2, lower area - L3\R3 |
 
 To better understand the emulation behavior, you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita.
-
-## Bugs
-
-- Rarely, a server on PS Vita can crash with an error. The causes are being investigated. Happened to me more than once in 3-4 hours of play;
-- Sometimes, the imput-lag increases a lot. This may be due to a bad WiFi connection.
 
 ## Installation
 
