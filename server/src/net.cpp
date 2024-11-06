@@ -325,7 +325,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
     // Sending push data if the client is connected
     if (client->state() == Client::State::Connected && client->is_polling_time_elapsed()) {
       if (server_udp_fd >= 0) {
-        get_ctrl_as_netprotocol(pad_data);
+        get_ctrl_as_netprotocol(pad_data, shared_data);
         client->update_sent_data_time();
         auto client_addr = client->data_conn_info();
         SceNetSockaddr *need_client_addr = reinterpret_cast<SceNetSockaddr *>(&client_addr);

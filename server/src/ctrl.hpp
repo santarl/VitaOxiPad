@@ -3,5 +3,7 @@
 
 #include <netprotocol_generated.h>
 
-void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder);
+#include "events.hpp"
+
+void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder, SharedData *shared_data);
 #endif // __CTRL_H__

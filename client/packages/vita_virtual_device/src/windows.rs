@@ -2,6 +2,7 @@ use rstar::{primitives::Rectangle, RTree, AABB};
 use serde::{Deserialize, Serialize};
 use vigem_client::{
     Client, DS4Buttons, DS4ReportExBuilder, DS4TouchPoint, DS4TouchReport, DpadDirection,
+    DS4Status, BatteryStatus,
     DualShock4Wired, TargetId,
 };
 
@@ -530,6 +531,9 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             .accel_z(accel_y_i16)
             .trigger_l(pwr_trigger_l)
             .trigger_r(pwr_trigger_r)
+            .status(DS4Status::with_battery_status(
+                BatteryStatus::Charging((report.charge_percent / 10).min(10))
+            ))
             .build();
 
         self.ds4_target

@@ -27,7 +27,7 @@ convert_touch_data(flatbuffers::FlatBufferBuilder &builder, const SceTouchData &
   return NetProtocol::CreateTouchDataDirect(builder, &reports);
 }
 
-void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder) {
+void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder, SharedData *shared_data) {
   builder.Clear();
   static uint64_t last_ts = 1024;
   SceCtrlData pad;
@@ -53,8 +53,11 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder) {
                             motion_data.angularVelocity.z);
   NetProtocol::MotionData motion(gyro, accel);
 
-  auto content = NetProtocol::CreatePad(builder, &buttons, pad.lx, pad.ly, pad.rx, pad.ry,
-                                        data_front, data_back, &motion, pad.timeStamp);
+  int charge_percent = shared_data->battery_level;
+
+  auto content =
+      NetProtocol::CreatePad(builder, &buttons, pad.lx, pad.ly, pad.rx, pad.ry, data_front,
+                             data_back, &motion, pad.timeStamp, charge_percent);
 
   auto packet =
       NetProtocol::CreatePacket(builder, NetProtocol::PacketContent::Pad, content.Union());

@@ -74,13 +74,14 @@ table Pad
     back_touch: TouchData;
     motion: MotionData;
     timestamp: ulong;
+    charge_percent: ubyte;
 }
 
 // Packet
 union PacketContent {
-   Config,
-   Handshake,
-   Pad 
+    Config,
+    Handshake,
+    Pad
 }
 
 table Packet {

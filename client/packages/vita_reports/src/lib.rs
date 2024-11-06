@@ -118,6 +118,7 @@ pub struct MainReport {
     pub back_touch: TouchData,
     pub motion: MotionData,
     pub timestamp: u64,
+    pub charge_percent: u8,
 }
 
 impl<'a> TryFrom<flatbuffers_structs::net_protocol::Pad<'a>> for MainReport {
@@ -143,6 +144,7 @@ impl<'a> TryFrom<flatbuffers_structs::net_protocol::Pad<'a>> for MainReport {
             ly: packet.ly(),
             rx: packet.rx(),
             ry: packet.ry(),
+            charge_percent: packet.charge_percent(),
         })
     }
 }
