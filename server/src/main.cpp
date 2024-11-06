@@ -132,7 +132,7 @@ int main() {
       vita2d_pgf_draw_textf(debug_font, 750, 20, common_color, 1.0,
                             "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
     } else {
-      vita2d_pgf_draw_text(debug_font, 750, 20, error_color, 1.0, "Not connected\nto a network");
+      vita2d_pgf_draw_text(debug_font, 750, 20, error_color, 1.0, "Not connected\nto a network :(");
     }
 
     if (events & MainEvent::PC_CONNECT) {
@@ -144,25 +144,23 @@ int main() {
       vita2d_pgf_draw_textf(debug_font, 2, 540, done_color, 1.0, "Status: Connected (%s)",
                             shared_data.client_ip);
     } else {
-      vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0, "Status: Not connected");
+      vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0, "Status: Not connected :(");
     }
 
-    if (shared_data.battery_level >= 70 || shared_data.charger_connected) {
+    if (shared_data.charger_connected) {
       need_color = done_color;
-    } else if (shared_data.battery_level < 70 && shared_data.battery_level > 30) {
-      need_color = common_color;
-    } else {
+    } else if (shared_data.battery_level < 30) {
       need_color = error_color;
+    } else {
+      need_color = common_color;
     }
     vita2d_pgf_draw_textf(debug_font, 785, 520, need_color, 1.0, "Battery: %s%d%%",
                           shared_data.charger_connected ? "+" : "", shared_data.battery_level);
 
-    if (shared_data.wifi_signal_strength >= 70) {
-      need_color = done_color;
-    } else if (shared_data.wifi_signal_strength < 70 && shared_data.wifi_signal_strength > 30) {
-      need_color = common_color;
-    } else {
+    if (shared_data.wifi_signal_strength < 50) {
       need_color = error_color;
+    } else {
+      need_color = common_color;
     }
     vita2d_pgf_draw_textf(debug_font, 785, 540, need_color, 1.0, "WiFi signal: %d%%",
                           shared_data.wifi_signal_strength);
