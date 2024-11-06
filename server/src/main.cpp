@@ -89,7 +89,7 @@ int main() {
   ThreadMessage message = {ev_flag, &shared_data};
 
   // Creating events and status thread
-  SceUID status_thread_uid = sceKernelCreateThread("StatusThread", status_thread, 0x10000100,
+  SceUID status_thread_uid = sceKernelCreateThread("StatusThread", &status_thread, 0x10000100,
                                                    0x10000, 0, SCE_KERNEL_CPU_MASK_USER_1, NULL);
   sceKernelStartThread(status_thread_uid, sizeof(ThreadMessage), &message);
 
