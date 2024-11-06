@@ -6,16 +6,19 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
 
 - [VitaOxiPad ](#vitaoxipad-)
   - [Description](#description)
-  - [What works](#what-works)
+  - [Installation](#installation)
   - [Uses and options](#uses-and-options)
     - [Configurations](#configurations)
-  - [Installation](#installation)
-    - [Requirements for Windows](#requirements-for-windows)
+  - [What works](#what-works)
   - [Client compilation](#client-compilation)
     - [Windows](#windows)
   - [PS Vita server compilation](#ps-vita-server-compilation)
+  - [FAQ](#faq)
+    - [Q1: Why Oxi?](#q1-why-oxi)
+    - [Q2: Why isn't my PS Vita connecting to the PC?](#q2-why-isnt-my-ps-vita-connecting-to-the-pc)
+    - [Q3: I'm experiencing input lag. What can I do?](#q3-im-experiencing-input-lag-what-can-i-do)
+    - [Q4: How do I update VitaOxiPad?](#q4-how-do-i-update-vitaoxipad)
   - [Thanks](#thanks)
-  - [Why Oxi?](#why-oxi)
 
 <div align="center">
   <img src="./demo/demo.gif" width="60%" height="auto" alt="demo" />
@@ -23,27 +26,25 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
 
 ## Description
 
-VitaOxiPad is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4. The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
+**VitaOxiPad** is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4.
+The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
 
-The server part is written in C++, the client part is written in Rust.
+The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
+This allows to support a large number of Windows games without any fixes.
 
-## What works
+## Installation
 
-| Feature                         | Support | Details                                                                              |
-| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Buttons                         |    ✅    | -                                                                                    |
-| Sticks                          |    ✅    | -                                                                                    |
-| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
-| Select and Start                |    ✅    | -                                                                                    |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
-| DS4Windows support              |    ✅    | You need to enable Virtual Controller Support[*]                                     |
-| Sound                           |    ❌    | Probably will never be realized                                                      |
+To set up VitaOxiPad, follow these steps:
 
-[*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
-This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
+1. **Install the Server on PS Vita:**
+   - Ensure your PS Vita is set up for homebrew applications.
+   - Download the `VitaOxiPad.vpk` file.
+   - Use VitaShell or another package manager to install the `.vpk` on your PS Vita.
+
+2. **Install the Client on Windows PC:**
+   - Download the latest `VitaOxiPad-x64.exe` of `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases).
+   - Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC.
+   - Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
 
 ## Uses and options
 
@@ -79,13 +80,24 @@ There are currently 4 DualShock 4 configurations emulations that can be selected
 
 To better understand the emulation behavior, you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita.
 
-## Installation
+## What works
 
-The server has to be installed on the PS Vita and the client on the PC.
+| Feature                         | Support | Details                                                                              |
+| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
+| Buttons                         |    ✅    | -                                                                                    |
+| Sticks                          |    ✅    | -                                                                                    |
+| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
+| Select and Start                |    ✅    | -                                                                                    |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
+| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                         |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
+| DS4Windows support              |    ✅    | You need to enable Virtual Controller Support[*]                                     |
+| Sound                           |    ❌    | Probably will never be realized                                                      |
 
-### Requirements for Windows
-
-- [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases)
+[*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
+This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
 ## Client compilation 
 
@@ -158,6 +170,27 @@ You can check the finished binary by running in it:
 
 Then, install the generated `VitaOxiPad.vpk` file on your PS Vita.
 
+## FAQ
+
+### Q1: Why Oxi?
+
+**A:** Now there are many projects with the name VitaPad. It's very confusing.
+In this implementation, the client application was written using **Rust**.
+**Oxi** - **oxi**dation, the process that causes **rust**ing.
+
+### Q2: Why isn't my PS Vita connecting to the PC?
+
+**A:** Ensure both devices are on the same WiFi network and that the IP address entered in the client is correct.
+
+### Q3: I'm experiencing input lag. What can I do?
+
+**A:** Input lag might be due to a poor WiFi connection. Try moving closer to the router or reducing network congestion.
+
+### Q4: How do I update VitaOxiPad?
+
+**A:** Check the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases) for the latest version and follow the installation instructions provided.
+Or you can use [VitaDB-Downloader](https://github.com/Rinnegatamante/VitaDB-Downloader) on your PS Vita.
+
 ## Thanks
 
 - Thanks to all the people who contributed to [VitaSDK](https://vitasdk.org), [Vitadev Package manager](https://github.com/vitasdk/vdpm) and [ViGEm Bus Driver](https://github.com/nefarius/ViGEmBus);
@@ -166,9 +199,3 @@ Then, install the generated `VitaOxiPad.vpk` file on your PS Vita.
 - [santarl](https://github.com/santarl) for advice and help with accelerometer, gyroscope and also adding DualShock 4 digitizer emulation;
 - [gl33ntwine](https://github.com/v-atamanenko) for creating [the awesome article](https://gl33ntwine.com/posts/develop-for-vita) for those new to development for the PS Vita;
 - [CasualX](https://github.com/CasualX) for [ViGEm client in Rust](https://github.com/CasualX/vigem-client).
-
-## Why Oxi?
-
-Now there are many projects with the name VitaPad. It's very confusing.
-
-Oxi - oxidation, the process that causes **rust**ing.
