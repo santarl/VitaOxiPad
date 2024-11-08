@@ -44,7 +44,7 @@ To set up VitaOxiPad, follow these steps:
    - Use VitaShell or another package manager to install the `.vpk` on your PS Vita.
 
 2. **Install the Client on Windows PC:**
-   - Download the latest `VitaOxiPad-x64.exe` of `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases).
+   - Download the latest `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases).
    - Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC.
    - Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
 
@@ -128,6 +128,7 @@ To better understand the emulation behavior, you can run [3D Controller Overlay]
 | Select and Start                |    ✅    | -                                                                                    |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
 | DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer             |
 | Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                         |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
 | DS4Windows support              |    ✅    | You need to enable Virtual Controller Support[*]                                     |

@@ -1,11 +1,13 @@
 use rstar::{primitives::Rectangle, RTree, AABB};
 use serde::{Deserialize, Serialize};
 use vigem_client::{
-    Client, DS4Buttons, DS4ReportExBuilder, DS4TouchPoint, DS4TouchReport, DpadDirection,
+    Client, DS4Buttons, DS4ReportExBuilder,
+    DS4SpecialButtons, DS4TouchPoint, DS4TouchReport, DpadDirection,
     DS4Status, BatteryStatus,
     DualShock4Wired, TargetId,
 };
 
+use std::time::Instant;
 use std::{ffi::OsString, time::Duration};
 
 use crate::VitaVirtualDevice;
@@ -334,6 +336,8 @@ impl Default for Config {
 pub struct VitaDevice {
     ds4_target: DualShock4Wired<Client>,
     config: Config,
+    touch_state: bool,
+    touch_start_time: Option<Instant>,
 }
 
 impl VitaDevice {
@@ -358,6 +362,8 @@ impl VitaDevice {
         Ok(VitaDevice {
             ds4_target,
             config: config,
+            touch_state: false,
+            touch_start_time: None,
         })
     }
 }
@@ -475,7 +481,9 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             }
         }
 
+        let mut is_touching = false;
         let touchpad = if let Some(TouchConfig::Touchpad) = self.config.front_touch_config {
+            is_touching = !report.front_touch.reports.is_empty();
             let mut points = report
                 .front_touch
                 .reports
@@ -489,6 +497,7 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             let report = DS4TouchReport::new(0, points.next(), points.next());
             Some(report)
         } else if let Some(TouchConfig::Touchpad) = self.config.rear_touch_config {
+            is_touching = !report.back_touch.reports.is_empty();
             let mut points = report
                 .back_touch
                 .reports
@@ -505,6 +514,21 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
         } else {
             None
         };
+        let mut special_buttons = DS4SpecialButtons::new();
+
+        if is_touching && !self.touch_state {
+            self.touch_start_time = Some(Instant::now());
+        } else if !is_touching && self.touch_state {
+            if let Some(start_time) = self.touch_start_time {
+                let duration = Instant::now().duration_since(start_time);
+                if duration < Duration::from_millis(150) {
+                    special_buttons = special_buttons.touchpad(true);
+                }
+            }
+            self.touch_start_time = None;
+        }
+
+        self.touch_state = is_touching;
 
         // Convert the vita accel range [-4.0, 4.0] to the dualshock 4 range [-32768, 32768]
         let accel_x_i16 = Self::f32_to_i16(-report.motion.accelerometer.x, -4.0, 4.0); //inverted
@@ -534,6 +558,7 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
             .status(DS4Status::with_battery_status(
                 BatteryStatus::Charging((report.charge_percent / 10).min(10))
             ))
+            .special(special_buttons)
             .build();
 
         self.ds4_target
