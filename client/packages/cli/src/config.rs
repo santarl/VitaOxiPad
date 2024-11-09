@@ -3,6 +3,7 @@ use config::{Config as ConfigLoader, File, Environment};
 use std::path::Path;
 use color_eyre::eyre::{eyre};
 use std::fs;
+use std::env;
 
 #[derive(Deserialize, Default)]
 pub struct Config {
@@ -31,7 +32,10 @@ pub fn load_config(file_path: &str) -> color_eyre::Result<Config> {
         // Validate the TOML file
         validate_toml(file_path)?;
 
-        // Add the source
+        // Notify that config file is found
+        println!("Using config file: {}", file_path);
+
+        // Add the source for the config file
         settings = settings.add_source(File::with_name(file_path));
     } else {
         println!("Config file does not exist: {}. Using default configuration.", file_path);
@@ -40,8 +44,15 @@ pub fn load_config(file_path: &str) -> color_eyre::Result<Config> {
     // Add the source for environment variables
     settings = settings.add_source(Environment::with_prefix("VITAOXIPAD"));
 
+    // Check if environment variables are found
+    if env::vars().any(|(key, _)| key.starts_with("VITAOXIPAD_")) {
+        println!("Environment variables found. They will take precedence over the config file.");
+    }
+
     // Build the settings and deserialize
-    settings.build()?.try_deserialize().map_err(|e| eyre!(e))
+    let config = settings.build()?.try_deserialize().map_err(|e| eyre!(e))?;
+
+    Ok(config)
 }
 
 pub fn print_sample_config() {
