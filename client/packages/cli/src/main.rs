@@ -23,7 +23,7 @@ struct Args {
 
     /// buttons and touchpads config (default: standart)
     #[argh(option, short = 'c')]
-    config: Option<String>,
+    configuration: Option<String>,
 
     /// polling interval in microseconds (minimum = 4000)
     #[argh(option)]
@@ -159,7 +159,7 @@ fn main() -> color_eyre::Result<()> {
 
     let mut last_time = SystemTime::now();
 
-    let mut device = VitaDevice::create(args.config.as_deref().unwrap_or("standart"))
+    let mut device = VitaDevice::create(args.configuration.as_deref().unwrap_or("standart"))
         .wrap_err("Failed to create virtual device, please check uinput permissions")?;
 
     let identfiers = device.identifiers().map(|ids| ids.join(", ".as_ref()));
