@@ -26,3 +26,30 @@ pub fn load_config(file_path: &str) -> color_eyre::Result<Config> {
     // Build the settings and deserialize
     settings.build()?.try_deserialize().map_err(|e| eyre!(e))
 }
+
+pub fn print_sample_config() {
+    println!(r#"
+# Sample Configuration file for the VitaOxiPad
+# Refer ReadMe for all available options
+
+# The IP address to bind to
+ip = "192.168.0.100"
+
+# The port to listen on
+port = 5000
+
+# Path to another configuration file (if needed)
+# Touchpad config to use:
+# - standart
+# - alt_triggers
+# - rear_touchpad
+# - front_touchpad
+config = "standart"
+
+# Polling interval in seconds
+polling_interval = 4000
+
+# Enable or disable debug mode
+debug = false
+"#);
+}

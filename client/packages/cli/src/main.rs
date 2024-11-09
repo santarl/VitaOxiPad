@@ -42,6 +42,10 @@ struct Args {
     /// show version information
     #[argh(switch, short = 'v')]
     version: bool,
+
+    /// print sample configuration
+    #[argh(switch, short = 's')]
+    sample_config: bool,
 }
 
 fn filter_udp_nonblocking_error(
@@ -63,8 +67,14 @@ fn main() -> color_eyre::Result<()> {
 
     let mut args: Args = argh::from_env();
 
+    // Show sample configuration
+    if args.sample_config {
+        config::print_sample_config();
+        return Ok(());
+    }
+
      // Override command-line arguments with config values if they are not provided
-     if args.port.is_none() {
+    if args.port.is_none() {
         args.port = config.port;
     }
     if args.configuration.is_none() {
