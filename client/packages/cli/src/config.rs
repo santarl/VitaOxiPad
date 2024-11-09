@@ -1,7 +1,8 @@
 use serde::Deserialize;
-use config::{Config as ConfigLoader, File};
+use config::{Config as ConfigLoader, File, Environment};
 use std::path::Path;
 use color_eyre::eyre::{eyre};
+use std::fs;
 
 #[derive(Deserialize, Default)]
 pub struct Config {
@@ -12,16 +13,32 @@ pub struct Config {
     pub debug: Option<bool>,
 }
 
+pub fn validate_toml(file_path: &str) -> color_eyre::Result<()> {
+    let content = fs::read_to_string(file_path)
+        .map_err(|e| eyre!("Failed to read config file: {}", e))?;
+    
+    toml::de::from_str::<Config>(&content)
+        .map_err(|e| eyre!("TOML validation error: {}", e))?;
+    
+    Ok(())
+}
+
 pub fn load_config(file_path: &str) -> color_eyre::Result<Config> {
-    let mut settings = ConfigLoader::builder(); // Use builder instead of new
+    let mut settings = ConfigLoader::builder();
 
     // Check if the file exists before adding it as a source
-    if !Path::new(file_path).exists() {
-        return Err(eyre!(format!("Config file does not exist: {}", file_path)));
+    if Path::new(file_path).exists() {
+        // Validate the TOML file
+        validate_toml(file_path)?;
+
+        // Add the source
+        settings = settings.add_source(File::with_name(file_path));
+    } else {
+        println!("Config file does not exist: {}. Using default configuration.", file_path);
     }
 
-    // Add the source
-    settings = settings.add_source(File::with_name(file_path));
+    // Add the source for environment variables
+    settings = settings.add_source(Environment::with_prefix("VITAOXIPAD"));
 
     // Build the settings and deserialize
     settings.build()?.try_deserialize().map_err(|e| eyre!(e))

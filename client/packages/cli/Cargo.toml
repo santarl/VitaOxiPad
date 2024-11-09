@@ -16,6 +16,7 @@ vita_reports = { version = "0.1.0", path = "../vita_reports" }
 vita_virtual_device = { version = "0.1.0", path = "../vita_virtual_device" }
 serde = { version = "1.0.214", features = ["derive"] }
 config = "0.14.1"
+toml = "0.8.19"
 
 [build-dependencies]
 build-data = "0.2.1"

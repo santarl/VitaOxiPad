@@ -63,7 +63,8 @@ fn main() -> color_eyre::Result<()> {
 
     // Load configuration from a file
     let config_file = "config.toml";
-    let config = config::load_config(config_file).unwrap_or_default();
+    // let config = config::load_config(config_file).unwrap_or_default();
+    let config = config::load_config(config_file).wrap_err("Failed to load configuration")?;
 
     let mut args: Args = argh::from_env();
 

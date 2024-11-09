@@ -239,6 +239,7 @@ dependencies = [
  "pretty_env_logger",
  "protocol",
  "serde",
+ "toml",
  "vita_reports",
  "vita_virtual_device",
 ]
