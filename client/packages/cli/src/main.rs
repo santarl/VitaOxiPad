@@ -13,6 +13,8 @@ use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
 use protocol::connection::Connection;
 use vita_virtual_device::{VitaDevice, VitaVirtualDevice};
 
+mod config;
+
 /// Create a virtual controller and fetch its data from a Vita
 /// over the network.
 #[derive(FromArgs)]
@@ -54,7 +56,27 @@ fn filter_udp_nonblocking_error(
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    let args: Args = argh::from_env();
+
+    // Load configuration from a file
+    let config_file = "config.toml";
+    let config = config::load_config(config_file).unwrap_or_default();
+
+    let mut args: Args = argh::from_env();
+
+     // Override command-line arguments with config values if they are not provided
+     if args.port.is_none() {
+        args.port = config.port;
+    }
+    if args.configuration.is_none() {
+        args.configuration = config.configuration;
+    }
+    if args.polling_interval.is_none() {
+        args.polling_interval = config.polling_interval;
+    }
+    if args.ip.is_none() {
+        args.ip = config.ip;
+    }    
+    args.debug = config.debug.unwrap_or(false);
 
     // Show version
     if args.version {
