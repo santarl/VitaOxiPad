@@ -1,9 +1,10 @@
 use serde::Deserialize;
 use config::{Config as ConfigLoader, File, Environment};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use color_eyre::eyre::{eyre};
 use std::fs;
 use std::env;
+use home::home_dir;  // Import home crate
 
 #[derive(Deserialize)]
 pub struct Config {
@@ -36,21 +37,57 @@ pub fn validate_toml(file_path: &str) -> color_eyre::Result<()> {
     Ok(())
 }
 
-pub fn load_config(file_path: &str) -> color_eyre::Result<Config> {
+fn get_config_file_paths() -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+
+    // Check for config.toml in the app directory (current working directory)
+    paths.push(Path::new("config.toml").to_path_buf());
+
+    // Check for vitaoxipad.toml in the user's home directory
+    if let Some(home) = home_dir() {
+        // Common paths
+        paths.push(home.join("vitaoxipad.toml"));
+        paths.push(home.join("vitaoxipad").join("config.toml"));
+
+        // Linux specific paths
+        paths.push(home.join(".vitaoxipad"));            // .vitaoxipad directory
+        paths.push(home.join(".config").join("vitaoxipad.toml"));  // .config/vitaoxipad.toml
+
+        // Additional paths in Documents folder (for Windows and others)
+        paths.push(home.join("Documents").join("vitaoxipad.toml"));
+        paths.push(home.join("Documents").join("vitaoxipad").join("config.toml")); // VitaOxiPad subfolder in Documents
+        paths.push(home.join("Documents").join("vitaoxipad").join("vitaoxipad.toml")); // VitaOxiPad subfolder in Documents
+    }
+
+    // Windows specific path (vitaoxipad.toml in C:\Users\[username]\vitaoxipad)
+    if let Some(user_dir) = env::var("USERPROFILE").ok() {
+        paths.push(Path::new(&user_dir).join("vitaoxipad").join("vitaoxipad.toml"));
+    }
+
+    paths
+}
+
+
+pub fn load_config() -> color_eyre::Result<Config> {
     let mut settings = ConfigLoader::builder();
 
-    // Check if the file exists before adding it as a source
-    if Path::new(file_path).exists() {
-        // Validate the TOML file
-        validate_toml(file_path)?;
+    let config_paths = get_config_file_paths();
+    let mut config_file_found = false;
 
-        // Notify that config file is found
-        println!("Using config file: {}", file_path);
+    // Check each possible config file path
+    for path in config_paths {
+        if path.exists() {
+            // Validate the TOML file
+            validate_toml(path.to_str().unwrap())?;
+            println!("Using config file: {}", path.display());
+            settings = settings.add_source(File::from(path));
+            config_file_found = true;
+            break;
+        }
+    }
 
-        // Add the source for the config file
-        settings = settings.add_source(File::with_name(file_path));
-    } else {
-        println!("Config file does not exist: {}. Using default configuration.", file_path);
+    if !config_file_found {
+        println!("No config file found. Using default configuration.");
     }
 
     // Add the source for environment variables
