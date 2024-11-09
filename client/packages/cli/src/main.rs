@@ -74,20 +74,12 @@ fn main() -> color_eyre::Result<()> {
         return Ok(());
     }
 
-     // Override command-line arguments with config values if they are not provided
-    if args.port.is_none() {
-        args.port = config.port;
-    }
-    if args.configuration.is_none() {
-        args.configuration = config.configuration;
-    }
-    if args.polling_interval.is_none() {
-        args.polling_interval = config.polling_interval;
-    }
-    if args.ip.is_none() {
-        args.ip = config.ip;
-    }    
+    args.port = args.port.or(config.port);
+    args.configuration = args.configuration.or(config.configuration);
+    args.polling_interval = args.polling_interval.or(config.polling_interval);
+    args.ip = args.ip.or(config.ip);
     args.debug = config.debug.unwrap_or(false);
+    
 
     // Show version
     if args.version {

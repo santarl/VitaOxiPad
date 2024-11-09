@@ -5,13 +5,25 @@ use color_eyre::eyre::{eyre};
 use std::fs;
 use std::env;
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize)]
 pub struct Config {
     pub ip: Option<String>,
     pub port: Option<u16>,
     pub configuration: Option<String>,
     pub polling_interval: Option<u64>,
     pub debug: Option<bool>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            ip: Some("192.168.0.100".to_string()),
+            port: Some(5000),
+            configuration: Some("standart".to_string()),
+            polling_interval: Some(4000),
+            debug: Some(false),
+        }
+    }
 }
 
 pub fn validate_toml(file_path: &str) -> color_eyre::Result<()> {
@@ -74,7 +86,7 @@ port = 5000
 # - front_touchpad
 config = "standart"
 
-# Polling interval in seconds
+# Polling interval in microseconds
 polling_interval = 4000
 
 # Enable or disable debug mode
