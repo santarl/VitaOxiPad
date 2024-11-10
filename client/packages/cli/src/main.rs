@@ -43,7 +43,7 @@ struct Args {
     #[argh(switch, short = 'v')]
     version: bool,
 
-    /// print sample configuration
+    /// print sample config file
     #[argh(switch, short = 's')]
     sample_config: bool,
 }
