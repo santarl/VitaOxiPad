@@ -6,7 +6,7 @@ use std::{
 
 use argh::FromArgs;
 use color_eyre::eyre::WrapErr;
-use polling::{Event, Poller};
+use polling::{Event, Events, Poller};
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone};
 
 use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
@@ -215,11 +215,13 @@ fn main() -> color_eyre::Result<()> {
     }
 
     let poller = Poller::new().wrap_err("Failed to create poller")?;
-    poller
-        .add_with_mode(&pad_socket, Event::readable(1), polling::PollMode::Level)
-        .wrap_err("Failed to add socket to poller")?;
+    unsafe {
+        poller
+            .add_with_mode(&pad_socket, Event::readable(1), polling::PollMode::Level)
+    }
+    .wrap_err("Failed to add socket to poller")?;
 
-    let mut events = Vec::new();
+    let mut events = Events::new();
     let mut last_timestamp = 0;
     loop {
         log::trace!("Polling");
