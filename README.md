@@ -75,9 +75,9 @@ Options:
 
 VitaOxiPad searches for the config file in the following locations:
 
-    Current Executable Directory: config.toml
-    User's Home Directory: ~/vitaoxipad.toml or ~/.config/vitaoxipad.toml
-    Windows Path: C:\Users\%username%\vitaoxipad\vitaoxipad.toml
+- **Current Executable Directory**: `config.toml`
+- **User's Home Directory**: `~/vitaoxipad.toml` or `~/.config/vitaoxipad.toml`
+- **Windows Path**: `C:\Users\%username%\vitaoxipad\vitaoxipad.toml`
 
 If no config file is found, default settings will be used.
 
@@ -89,7 +89,8 @@ To create a config file, run the following command:
 ```bash
 VitaOxiPad-x64.exe --sample-config > vitaoxipad.toml
 ```
-This will create a vitaoxipad.toml file in the current directory with sample configuration options.
+
+This will create a `vitaoxipad.toml` file in the current directory with sample configuration options.
 
 ### Using a Static IP
 
@@ -99,7 +100,7 @@ This setup enables VitaOxiPad to run without the need to specify the IP address 
 To set this up, the vitaoxipad.toml file should be edited to include the static IP address in the ip_address field:
 
 ```toml
-ip = "STATIC_IP_ADDRESS"
+ip = "PSVITA_STATIC_IP_ADDRESS"
 ```
 
 Now, you can launch VitaOxiPad without any flags, and it will automatically use the IP address specified in the configuration file.
@@ -137,14 +138,15 @@ To better understand the emulation behavior, you can run [3D Controller Overlay]
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
-## Client compilation 
+## Client compilation
 
 ### Windows
 
 To compile on Windows you will need
-- Make and Cmake;
-- Flatbuffers (flatc);
-- Rust (cargo).
+
+- [Make](https://www.gnu.org/software/make) and [Cmake](https://cmake.org);
+- [Flatbuffers (flatc)](https://github.com/google/flatbuffers);
+- [Rust](https://www.rust-lang.org/learn) ([cargo](https://doc.rust-lang.org/cargo)).
 
 You can use [MSYS2](https://www.msys2.org), which provides this in a convenient way.
 
@@ -177,7 +179,7 @@ You can check the finished binary by running in it:
 ## PS Vita server compilation
 
 1. Make sure that you have [`cmake`](https://cmake.org) installed;
-2. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
+1. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
 
   Sometimes, for whatever reason, `flatbuffers` are not installed in the VitaSDK (`fatal error: flatbuffers/flatbuffers.h: No such file or directory`).
 
@@ -187,7 +189,7 @@ You can check the finished binary by running in it:
   ./vdpm flatbuffers
   ```
 
-3. Install [`flatc`](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
+1. Install [`flatc`](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
 
   ```bash
   git clone https://github.com/google/flatbuffers.git && cd flatbuffers
@@ -199,7 +201,7 @@ You can check the finished binary by running in it:
   flatc --version
   ```
 
-4. Build the project with the following commands:
+1. Build the project with the following commands:
 
   ```bash
   cmake -S server -B build
