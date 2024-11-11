@@ -21,7 +21,7 @@ impl Default for Config {
             ip: Some("192.168.0.100".to_string()),
             port: Some(5000),
             configuration: Some("standart".to_string()),
-            polling_interval: Some(4000),
+            polling_interval: Some(6000),
             debug: Some(false),
         }
     }
@@ -123,7 +123,7 @@ port = 5000
 config = "standart"
 
 # Polling interval in microseconds
-polling_interval = 4000
+polling_interval = 6000
 
 # Enable or disable debug mode
 debug = false"#);

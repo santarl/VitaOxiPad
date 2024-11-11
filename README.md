@@ -63,7 +63,7 @@ Options:
   -p, --port        port to connect to (default: 5000)
   -c, --config      buttons and touchpads config (default: standart)
   --polling-interval
-                    polling interval in microseconds (minimum = 4000)
+                    polling interval in microseconds (minimum = 6000)
   -d, --debug       enable debug mode
   -v, --version     show version information
   -s, --sample-config

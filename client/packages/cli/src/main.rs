@@ -27,7 +27,7 @@ struct Args {
     #[argh(option, short = 'c')]
     configuration: Option<String>,
 
-    /// polling interval in microseconds (minimum = 4000)
+    /// polling interval in microseconds (minimum = 6000)
     #[argh(option)]
     polling_interval: Option<u64>,
 
