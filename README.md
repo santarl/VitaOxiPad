@@ -8,6 +8,8 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
   - [Description](#description)
   - [Installation](#installation)
   - [Uses and options](#uses-and-options)
+    - [Saving Configs](#saving-configs)
+    - [Using a Static IP](#using-a-static-ip)
     - [Configurations](#configurations)
   - [What works](#what-works)
   - [Client compilation](#client-compilation)
@@ -64,8 +66,43 @@ Options:
                     polling interval in microseconds (minimum = 4000)
   -d, --debug       enable debug mode
   -v, --version     show version information
+  -s, --sample-config
+                    print sample config file
   --help            display usage information
 ```
+
+### Saving Configs
+
+VitaOxiPad searches for the config file in the following locations:
+
+    Current Executable Directory: config.toml
+    User's Home Directory: ~/vitaoxipad.toml or ~/.config/vitaoxipad.toml
+    Windows Path: C:\Users\%username%\vitaoxipad\vitaoxipad.toml
+
+If no config file is found, default settings will be used.
+
+With the `--sample-config` feature, you can generate a sample configuration file for VitaOxiPad.
+This output can be redirected to a `vitaoxipad.toml` file, allowing you to save your configuration options and avoid the need to specify flags each time you run the application.
+
+To create a config file, run the following command:
+
+```bash
+VitaOxiPad-x64.exe --sample-config > vitaoxipad.toml
+```
+This will create a vitaoxipad.toml file in the current directory with sample configuration options.
+
+### Using a Static IP
+
+If your router allows it, A static IP can be assigned to the PS Vita in the Wi-Fi router settings, allowing this IP address to be saved in the vitaoxipad.toml configuration file.
+This setup enables VitaOxiPad to run without the need to specify the IP address as a flag each time.
+
+To set this up, the vitaoxipad.toml file should be edited to include the static IP address in the ip_address field:
+
+```toml
+ip = "STATIC_IP_ADDRESS"
+```
+
+Now, you can launch VitaOxiPad without any flags, and it will automatically use the IP address specified in the configuration file.
 
 ### Configurations
 

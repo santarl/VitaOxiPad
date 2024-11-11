@@ -13,6 +13,8 @@ use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
 use protocol::connection::Connection;
 use vita_virtual_device::{VitaDevice, VitaVirtualDevice};
 
+mod config;
+
 /// Create a virtual controller and fetch its data from a Vita
 /// over the network.
 #[derive(FromArgs)]
@@ -23,7 +25,7 @@ struct Args {
 
     /// buttons and touchpads config (default: standart)
     #[argh(option, short = 'c')]
-    config: Option<String>,
+    configuration: Option<String>,
 
     /// polling interval in microseconds (minimum = 4000)
     #[argh(option)]
@@ -40,6 +42,10 @@ struct Args {
     /// show version information
     #[argh(switch, short = 'v')]
     version: bool,
+
+    /// print sample config file
+    #[argh(switch, short = 's')]
+    sample_config: bool,
 }
 
 fn filter_udp_nonblocking_error(
@@ -54,7 +60,28 @@ fn filter_udp_nonblocking_error(
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
-    let args: Args = argh::from_env();
+
+    let config;
+
+    let mut args: Args = argh::from_env();
+    
+    // Do not load existing config while printing sample config
+    if !args.sample_config {
+        // Load existing config if any
+        config = config::load_config().wrap_err("Failed to load configuration")?;
+    } else {
+        // Show sample configuration
+        config::print_sample_config();
+        return Ok(());
+    }
+    
+
+    args.port = args.port.or(config.port);
+    args.configuration = args.configuration.or(config.configuration);
+    args.polling_interval = args.polling_interval.or(config.polling_interval);
+    args.ip = args.ip.or(config.ip);
+    args.debug = config.debug.unwrap_or(false);
+    
 
     // Show version
     if args.version {
@@ -159,7 +186,7 @@ fn main() -> color_eyre::Result<()> {
 
     let mut last_time = SystemTime::now();
 
-    let mut device = VitaDevice::create(args.config.as_deref().unwrap_or("standart"))
+    let mut device = VitaDevice::create(args.configuration.as_deref().unwrap_or("standart"))
         .wrap_err("Failed to create virtual device, please check uinput permissions")?;
 
     let identfiers = device.identifiers().map(|ids| ids.join(", ".as_ref()));
