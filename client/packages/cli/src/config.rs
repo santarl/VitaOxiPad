@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use config::{Config as ConfigLoader, File, Environment};
 use std::path::{Path, PathBuf};
-use color_eyre::eyre::{eyre};
+use color_eyre::eyre::eyre;
 use std::fs;
 use std::env;
 use home::home_dir;  // Import home crate

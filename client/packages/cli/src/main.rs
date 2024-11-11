@@ -74,16 +74,13 @@ fn main() -> color_eyre::Result<()> {
         config::print_sample_config();
         return Ok(());
     }
-    
 
     args.port = args.port.or(config.port);
     args.configuration = args.configuration.or(config.configuration);
     args.polling_interval = args.polling_interval.or(config.polling_interval);
     args.ip = args.ip.or(config.ip);
-    args.debug = config.debug.unwrap_or(false);
-    
+    args.debug = args.debug || config.debug.unwrap_or(false);
 
-    // Show version
     if args.version {
         let naive_datetime = NaiveDateTime::parse_from_str(env!("BUILD_TIMESTAMP"), "%Y-%m-%dT%H:%M:%S%.fZ")
             .expect("Failed to parse source timestamp");
@@ -96,7 +93,7 @@ fn main() -> color_eyre::Result<()> {
     }
 
     if args.debug {
-        std::env::set_var("RUST_LOG", "debug");
+        std::env::set_var("RUST_LOG", "trace");
     }
     pretty_env_logger::init();
 
