@@ -189,16 +189,16 @@ You can check the finished binary by running in it:
   ./vdpm flatbuffers
   ```
 
-1. Install [`flatc`](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
+1. Install [`flatc` v24.3.25](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
 
   ```bash
-  git clone https://github.com/google/flatbuffers.git && cd flatbuffers
+  git clone --branch v24.3.25 https://github.com/google/flatbuffers.git && cd flatbuffers
   cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
   make -j
   ./flattests # this is quick, and should print "ALL TESTS PASSED"
   sudo make install
   sudo ldconfig
-  flatc --version
+  flatc --version # "flatc version 24.3.25"
   ```
 
 1. Build the project with the following commands:
