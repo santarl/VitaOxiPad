@@ -105,8 +105,7 @@ pub fn load_config() -> color_eyre::Result<Config> {
 }
 
 pub fn print_sample_config() {
-    println!(r#"
-# Sample Configuration file for the VitaOxiPad
+    println!(r#"# Sample Configuration file for the VitaOxiPad
 # Refer ReadMe for all available options
 
 # The IP address to bind to
@@ -127,6 +126,5 @@ config = "standart"
 polling_interval = 4000
 
 # Enable or disable debug mode
-debug = false
-"#);
+debug = false"#);
 }

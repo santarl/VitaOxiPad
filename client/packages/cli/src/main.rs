@@ -61,15 +61,20 @@ fn filter_udp_nonblocking_error(
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
-    let config = config::load_config().wrap_err("Failed to load configuration")?;
+    let config;
 
     let mut args: Args = argh::from_env();
-
-    // Show sample configuration
-    if args.sample_config {
+    
+    // Do not load existing config while printing sample config
+    if !args.sample_config {
+        // Load existing config if any
+        config = config::load_config().wrap_err("Failed to load configuration")?;
+    } else {
+        // Show sample configuration
         config::print_sample_config();
         return Ok(());
     }
+    
 
     args.port = args.port.or(config.port);
     args.configuration = args.configuration.or(config.configuration);
