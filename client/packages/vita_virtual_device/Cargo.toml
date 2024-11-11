@@ -7,14 +7,14 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
-derive_builder = "0.12.0"
-rstar = { version = "0.11.0", features = ["serde"] }
+derive_builder = "0.20.2"
+rstar = { version = "0.12.2", features = ["serde"] }
 serde = { version = "1.0.214", features = ["serde_derive"] }
-thiserror = "1.0.69"
+thiserror = "2.0.3"
 vita_reports = { version = "0.1.0", path = "../vita_reports" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-input-linux = "0.6.1"
+input-linux = "0.7.1"
 
 [target.'cfg(windows)'.dependencies]
 vigem-client = { git = "https://github.com/santarl/vigem_client_rust/" }
