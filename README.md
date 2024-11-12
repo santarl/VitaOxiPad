@@ -1,6 +1,6 @@
 # VitaOxiPad <img align="right" width="128" height="128" src="./server/sce_sys/icon0.png" />
 
-Turn your PS Vita into a gamepad for your PC!</p>
+Turns your PS Vita into (almost) a DualShock 4!
 
 Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) and [Rust-based VitaPad by saidsay-so](https://github.com/saidsay-so/VitaPad).
 
@@ -122,11 +122,10 @@ To better understand the emulation behavior, you can run [3D Controller Overlay]
 
 | Feature                         | Support | Details                                                                              |
 | ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Buttons                         |    ✅    | -                                                                                    |
-| Sticks                          |    ✅    | -                                                                                    |
+| Dpad, Sticks, buttons           |    ✅    | -                                                                                    |
+| Select and Start                |    ✅    | -                                                                                    |
 | L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
 | L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
-| Select and Start                |    ✅    | -                                                                                    |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
 | DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
 | DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer             |
