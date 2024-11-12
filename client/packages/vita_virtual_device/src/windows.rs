@@ -1,14 +1,15 @@
+use std::time::Instant;
+use std::{ffi::OsString, time::Duration};
+
 use vigem_client::{
     BatteryStatus, Client, DS4Buttons, DS4ReportExBuilder, DS4SpecialButtons, DS4Status,
     DS4TouchPoint, DS4TouchReport, DpadDirection as VigemDpadDirection, DualShock4Wired, TargetId,
 };
 
-use crate::{
-    f32_to_i16, Button, Config, ConfigBuilder, DpadDirection, Point, TouchAction, TouchConfig,
-    TriggerConfig, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT,
-};
-use std::time::Instant;
-use std::{ffi::OsString, time::Duration};
+use crate::virtual_button::{Button, DpadDirection};
+use crate::virtual_config::{Config, ConfigBuilder, TouchConfig, TriggerConfig};
+use crate::virtual_touch::{Point, TouchAction};
+use crate::{f32_to_i16, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT};
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -308,9 +309,9 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
         let accel_z_i16 = f32_to_i16(-report.motion.accelerometer.z, -4.0, 4.0); //inverted
 
         // Convert the vita gyro range [-35.0, 35.0] to the dualshock 4 range [-32768, 32768]
-        let gyro_x_i16 =  f32_to_i16(report.motion.gyro.x, -35.0, 35.0);
-        let gyro_y_i16 =  f32_to_i16(-report.motion.gyro.y, -35.0, 35.0); //inverted
-        let gyro_z_i16 =  f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
+        let gyro_x_i16 = f32_to_i16(report.motion.gyro.x, -35.0, 35.0);
+        let gyro_y_i16 = f32_to_i16(-report.motion.gyro.y, -35.0, 35.0); //inverted
+        let gyro_z_i16 = f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
 
         let report = DS4ReportExBuilder::new()
             .thumb_lx(report.lx)

@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use rstar::{primitives::Rectangle, AABB};
+use serde::{Deserialize, Serialize};
 
 use crate::virtual_button::{Button, DpadDirection};
 
