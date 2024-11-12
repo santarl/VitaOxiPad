@@ -2,6 +2,9 @@ use rstar::{primitives::Rectangle, RTree, AABB};
 use serde::{Deserialize, Serialize};
 use std::ffi::OsString;
 
+mod virtual_button;
+pub use virtual_button::{Button, DpadDirection};
+
 // Error handling that includes platform-specific errors
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -26,35 +29,6 @@ pub trait VitaVirtualDevice<ConfigSetter: ?Sized>: Sized {
     fn identifiers(&self) -> Option<&[OsString]>;
     fn set_config(&mut self, config: ConfigSetter) -> Result<()>;
     fn send_report(&mut self, report: vita_reports::MainReport) -> Result<()>;
-}
-
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub enum Button {
-    ThumbRight,
-    ThumbLeft,
-    Options,
-    Share,
-    TriggerRight,
-    TriggerLeft,
-    ShoulderRight,
-    ShoulderLeft,
-    Triangle,
-    Circle,
-    Cross,
-    Square,
-}
-
-#[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
-pub enum DpadDirection {
-    North,
-    NorthEast,
-    East,
-    SouthEast,
-    South,
-    SouthWest,
-    West,
-    NorthWest,
-    None,
 }
 
 /// Represents an action triggered by a touch input.
