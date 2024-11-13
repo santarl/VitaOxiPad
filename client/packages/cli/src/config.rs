@@ -120,7 +120,7 @@ port = 5000
 # - alt_triggers
 # - rear_touchpad
 # - front_touchpad
-config = "standart"
+configuration = "standart"
 
 # Polling interval in microseconds
 polling_interval = 6000
