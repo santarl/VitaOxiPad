@@ -12,6 +12,8 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [Using a Static IP](#using-a-static-ip)
     - [Configurations](#configurations)
   - [What works](#what-works)
+    - [Windows Client](#windows-client)
+    - [Linux Client](#linux-client)
   - [Client compilation](#client-compilation)
     - [Windows](#windows)
   - [PS Vita server compilation](#ps-vita-server-compilation)
@@ -120,6 +122,8 @@ To better understand the emulation behavior, you can run [3D Controller Overlay]
 
 ## What works
 
+### Windows Client
+
 | Feature                         | Support | Details                                                                              |
 | ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
 | Dpad, Sticks, buttons           |    ✅    | -                                                                                    |
@@ -136,6 +140,23 @@ To better understand the emulation behavior, you can run [3D Controller Overlay]
 
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
+
+### Linux Client
+
+Linux support is at an early stage. Don't get your hopes up for much.
+
+| Feature                         | Support | Details                                       |
+| ------------------------------- | :-----: | --------------------------------------------- |
+| Dpad, Sticks, buttons           |    ⚠️    | Press transfer only, no match for DualShock 4 |
+| Select and Start                |    ⚠️    | Press transfer only, no match for DualShock 4 |
+| L1 and R1                       |    ⚠️    | Press transfer only, no match for DualShock 4 |
+| L2/R2 and L3/R3 emulation       |    ❌    | -                                             |
+| Accelerometer and gyroscope     |    ❌    | -                                             |
+| DualShock 4 digitizer emulation |    ⚠️    | Almost non-functional                         |
+| DualShock 4 digitizer button    |    ❌    |                                               |
+| Battery                         |    ❌    | -                                             |
+| Any configuration               |    ❌    | -                                             |
+| Sound                           |    ❌    | Probably will never be realized               |
 
 ## Client compilation
 

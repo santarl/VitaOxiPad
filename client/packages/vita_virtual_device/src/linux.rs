@@ -1,3 +1,6 @@
+use std::time::Duration;
+use std::time::Instant;
+
 use std::{
     ffi::OsString,
     fs::{File, OpenOptions},
@@ -6,23 +9,90 @@ use std::{
 };
 
 use input_linux::{
+    bitmask::BitmaskTrait,
     sys::{input_event, BUS_VIRTUAL},
     AbsoluteAxis, AbsoluteEvent, AbsoluteInfo, AbsoluteInfoSetup, EventKind, EventTime, InputEvent,
     InputId, InputProperty, Key, KeyEvent, KeyState, SynchronizeEvent, UInputHandle,
 };
-use serde::{Deserialize, Serialize};
 
-use crate::VitaVirtualDevice;
+use crate::virtual_button::{Button, DpadDirection};
+use crate::virtual_config::{Config, ConfigBuilder, TouchConfig, TriggerConfig};
+use crate::virtual_touch::{Point, TouchAction};
+use crate::{f32_to_i16, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT};
 
 type TrackingId = u8;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Config {}
+#[derive(thiserror::Error, Debug)]
+#[non_exhaustive]
+pub enum Error {
+    #[error("Failed to create uinput device")]
+    DeviceCreationFailed(#[source] std::io::Error),
+    #[error("Failed to write uinput device event")]
+    WriteEventFailed(#[source] std::io::Error),
+    #[error("Invalid configuration: {0}")]
+    InvalidConfig(String),
+}
 
-impl Default for Config {
-    fn default() -> Self {
-        Self {}
+fn map_button_to_ds4(button: Button) -> Key {
+    match button {
+        Button::ThumbRight => Key::ButtonThumbr,
+        Button::ThumbLeft => Key::ButtonThumbl,
+        Button::Options => Key::ButtonSelect,
+        Button::Share => Key::ButtonStart,
+        Button::TriggerRight => Key::ButtonTR,
+        Button::TriggerLeft => Key::ButtonTL,
+        Button::ShoulderRight => Key::ButtonTR2,
+        Button::ShoulderLeft => Key::ButtonTL2,
+        Button::Triangle => Key::ButtonNorth,
+        Button::Circle => Key::ButtonEast,
+        Button::Cross => Key::ButtonSouth,
+        Button::Square => Key::ButtonWest,
     }
+}
+
+fn map_dpad_to_ds4(direction: DpadDirection) -> Key {
+    match direction {
+        DpadDirection::North => Key::ButtonDpadUp,   // Up
+        DpadDirection::South => Key::ButtonDpadDown, // Down
+        DpadDirection::West => Key::ButtonDpadLeft,  // Left
+        DpadDirection::East => Key::ButtonDpadRight, // Rrght
+        DpadDirection::NorthEast => Key::Unknown,    // Up+Left
+        DpadDirection::NorthWest => Key::Unknown,    // Up+Right
+        DpadDirection::SouthEast => Key::Unknown,    // Down+Left
+        DpadDirection::SouthWest => Key::Unknown,    // Down+Right
+        DpadDirection::None => Key::Unknown,
+    }
+}
+
+fn get_pressed_buttons(
+    report_buttons: &vita_reports::ButtonsData,
+    trigger_config: TriggerConfig,
+) -> Vec<Button> {
+    let mut buttons = vec![
+        (report_buttons.circle, Button::Circle),
+        (report_buttons.square, Button::Square),
+        (report_buttons.cross, Button::Cross),
+        (report_buttons.triangle, Button::Triangle),
+        (report_buttons.start, Button::Options),
+        (report_buttons.select, Button::Share),
+    ];
+
+    // Trigger processing depending on the configuration
+    match trigger_config {
+        TriggerConfig::Shoulder => {
+            buttons.push((report_buttons.lt, Button::ShoulderLeft));
+            buttons.push((report_buttons.rt, Button::ShoulderRight));
+        }
+        TriggerConfig::Trigger => {
+            buttons.push((report_buttons.lt, Button::TriggerLeft));
+            buttons.push((report_buttons.rt, Button::TriggerRight));
+        }
+    }
+
+    buttons
+        .into_iter()
+        .filter_map(|(pressed, button)| if pressed { Some(button) } else { None })
+        .collect()
 }
 
 pub struct VitaDevice<F: AsRawFd> {
@@ -34,33 +104,27 @@ pub struct VitaDevice<F: AsRawFd> {
     ids: Option<Vec<OsString>>,
 }
 
-#[derive(thiserror::Error, Debug)]
-#[non_exhaustive]
-pub enum Error {
-    #[error("Failed to create uinput device")]
-    DeviceCreationFailed(#[source] std::io::Error),
-    #[error("Failed to write uinput device event")]
-    WriteEventFailed(#[source] std::io::Error),
-}
-
 impl<F: AsRawFd> VitaDevice<F> {
-    pub fn new(uinput_file: F, uinput_sensor_file: F) -> std::io::Result<Self> {
+    pub fn new(uinput_file: F, uinput_sensor_file: F, config: Config) -> std::io::Result<Self> {
         let main_handle = UInputHandle::new(uinput_file);
 
         main_handle.set_evbit(EventKind::Key)?;
-        main_handle.set_keybit(Key::ButtonSouth)?;
-        main_handle.set_keybit(Key::ButtonEast)?;
-        main_handle.set_keybit(Key::ButtonNorth)?;
-        main_handle.set_keybit(Key::ButtonWest)?;
-        main_handle.set_keybit(Key::ButtonTL)?;
-        main_handle.set_keybit(Key::ButtonTR)?;
-        main_handle.set_keybit(Key::ButtonStart)?;
-        main_handle.set_keybit(Key::ButtonSelect)?;
-        main_handle.set_keybit(Key::ButtonDpadUp)?;
-        main_handle.set_keybit(Key::ButtonDpadDown)?;
-        main_handle.set_keybit(Key::ButtonDpadLeft)?;
-        main_handle.set_keybit(Key::ButtonDpadRight)?;
-
+        main_handle.set_keybit(map_button_to_ds4(Button::ThumbRight))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::ThumbLeft))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Options))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Share))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::TriggerRight))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::TriggerLeft))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::ShoulderRight))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::ShoulderLeft))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Triangle))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Circle))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Cross))?;
+        main_handle.set_keybit(map_button_to_ds4(Button::Square))?;
+        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::North))?;
+        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::South))?;
+        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::West))?;
+        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::East))?;
         main_handle.set_evbit(EventKind::Absolute)?;
 
         let joystick_abs_info = AbsoluteInfo {
@@ -93,7 +157,7 @@ impl<F: AsRawFd> VitaDevice<F> {
         let front_mt_x_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
                 minimum: 0,
-                maximum: 1919,
+                maximum: FRONT_TOUCHPAD_RECT.1 .0 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionX,
@@ -101,7 +165,7 @@ impl<F: AsRawFd> VitaDevice<F> {
         let front_mt_y_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
                 minimum: 0,
-                maximum: 1087,
+                maximum: FRONT_TOUCHPAD_RECT.1 .1 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionY,
@@ -133,8 +197,8 @@ impl<F: AsRawFd> VitaDevice<F> {
 
         let id = InputId {
             bustype: BUS_VIRTUAL,
-            vendor: 0x54c,
-            product: 0x2d2,
+            vendor: 0x054C,
+            product: 0x05C4,
             version: 2,
         };
 
@@ -202,15 +266,15 @@ impl<F: AsRawFd> VitaDevice<F> {
         let mt_x_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
                 minimum: 0,
-                maximum: 1919,
+                maximum: FRONT_TOUCHPAD_RECT.1 .0 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionX,
         };
         let mt_y_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
-                minimum: 108,
-                maximum: 889,
+                minimum: 0,
+                maximum: FRONT_TOUCHPAD_RECT.1 .1 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionY,
@@ -273,7 +337,7 @@ impl<F: AsRawFd> VitaDevice<F> {
             .map(|(main, sensor)| [main, sensor].to_vec());
 
         Ok(VitaDevice {
-            config: Config::default(),
+            config: config,
             main_handle,
             sensor_handle,
             previous_front_touches: [None; 6],
@@ -284,7 +348,20 @@ impl<F: AsRawFd> VitaDevice<F> {
 }
 
 impl VitaDevice<File> {
-    pub fn create() -> crate::Result<Self> {
+    pub fn create(config_name: &str) -> crate::Result<Self> {
+        // Select the configuration depending on the name
+        let config = match config_name {
+            "standart" => Config::rear_rl2_front_rl3(),
+            "alt_triggers" => Config::rear_rl1_front_rl3_vitatriggers_rl2(),
+            "rear_touchpad" => Config::front_top_rl2_bottom_rl3_rear_touchpad(),
+            "front_touchpad" => Config::rear_top_rl2_bottom_rl3_front_touchpad(),
+            _ => {
+                return Err(crate::Error::Linux(Error::InvalidConfig(
+                    config_name.to_string(),
+                )))
+            }
+        };
+
         let uinput_file = OpenOptions::new()
             .read(true)
             .write(true)
@@ -297,25 +374,39 @@ impl VitaDevice<File> {
             .open("/dev/uinput")
             .map_err(Error::DeviceCreationFailed)?;
 
-        let device =
-            Self::new(uinput_file, uinput_sensor_file).map_err(Error::DeviceCreationFailed)?;
+        let device = Self::new(uinput_file, uinput_sensor_file, config)
+            .map_err(Error::DeviceCreationFailed)?;
 
         Ok(device)
     }
 }
 
-impl<F: AsRawFd + Write> VitaVirtualDevice<Config> for VitaDevice<F> {
+impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
     type Config = Config;
-
-    fn get_config(&self) -> &Self::Config {
-        &self.config
-    }
 
     fn identifiers(&self) -> Option<&[OsString]> {
         self.ids.as_ref().map(|ids| ids.as_slice())
     }
 
-    fn set_config(&mut self, config: Config) -> crate::Result<()> {
+    #[inline]
+    fn get_config(&self) -> &Self::Config {
+        &self.config
+    }
+
+    #[inline]
+    fn set_config(&mut self, config: &ConfigBuilder) -> crate::Result<()> {
+        if let Some(front_touch_config) = &config.front_touch_config {
+            self.config.front_touch_config = front_touch_config.clone();
+        }
+
+        if let Some(rear_touch_config) = &config.rear_touch_config {
+            self.config.rear_touch_config = rear_touch_config.clone();
+        }
+
+        if let Some(trigger_config) = config.trigger_config {
+            self.config.trigger_config = trigger_config;
+        }
+
         Ok(())
     }
 
@@ -326,10 +417,10 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<Config> for VitaDevice<F> {
             .as_raw();
 
         macro_rules! key_event {
-            ($report:ident, $report_name:ident, $uinput_name:ident) => {
+            ($report:ident, $report_name:ident, $uinput_name:expr) => {
                 KeyEvent::new(
                     EVENT_TIME_ZERO,
-                    Key::$uinput_name,
+                    $uinput_name,
                     KeyState::pressed($report.buttons.$report_name),
                 )
             };
@@ -378,18 +469,18 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<Config> for VitaDevice<F> {
         // Main device events
 
         let buttons_events: &[InputEvent] = &[
-            key_event!(report, triangle, ButtonNorth),
-            key_event!(report, circle, ButtonEast),
-            key_event!(report, cross, ButtonSouth),
-            key_event!(report, square, ButtonWest),
-            key_event!(report, lt, ButtonTL),
-            key_event!(report, rt, ButtonTR),
-            key_event!(report, select, ButtonSelect),
-            key_event!(report, start, ButtonStart),
-            key_event!(report, up, ButtonDpadUp),
-            key_event!(report, right, ButtonDpadRight),
-            key_event!(report, down, ButtonDpadDown),
-            key_event!(report, left, ButtonDpadLeft),
+            key_event!(report, triangle, map_button_to_ds4(Button::Triangle)),
+            key_event!(report, circle, map_button_to_ds4(Button::Circle)),
+            key_event!(report, cross, map_button_to_ds4(Button::Cross)),
+            key_event!(report, square, map_button_to_ds4(Button::Square)),
+            key_event!(report, lt, map_button_to_ds4(Button::TriggerLeft)),
+            key_event!(report, rt, map_button_to_ds4(Button::TriggerRight)),
+            key_event!(report, select, map_button_to_ds4(Button::Options)),
+            key_event!(report, start, map_button_to_ds4(Button::Share)),
+            key_event!(report, up, map_dpad_to_ds4(DpadDirection::North)),
+            key_event!(report, right, map_dpad_to_ds4(DpadDirection::East)),
+            key_event!(report, down, map_dpad_to_ds4(DpadDirection::South)),
+            key_event!(report, left, map_dpad_to_ds4(DpadDirection::West)),
         ]
         .map(|ev| ev.into());
 
@@ -478,11 +569,11 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<Config> for VitaDevice<F> {
 
         let motion_events: &[InputEvent] = &[
             accel_event!(report, x, X),
-            accel_event!(report, y, Y),
-            accel_event!(report, z, Z),
+            accel_event!(report, z, Y),
+            accel_event!(report, y, Z),
             gyro_event!(report, x, RX),
-            gyro_event!(report, y, RY),
-            gyro_event!(report, z, RZ),
+            gyro_event!(report, z, RY),
+            gyro_event!(report, y, RZ),
         ]
         .map(|ev| ev.into());
 
