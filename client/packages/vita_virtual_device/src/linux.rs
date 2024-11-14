@@ -50,51 +50,6 @@ fn map_button_to_ds4(button: Button) -> Key {
     }
 }
 
-fn map_dpad_to_ds4(direction: DpadDirection) -> Key {
-    match direction {
-        DpadDirection::North => Key::ButtonDpadUp,   // Up
-        DpadDirection::South => Key::ButtonDpadDown, // Down
-        DpadDirection::West => Key::ButtonDpadLeft,  // Left
-        DpadDirection::East => Key::ButtonDpadRight, // Rrght
-        DpadDirection::NorthEast => Key::Unknown,    // Up+Left
-        DpadDirection::NorthWest => Key::Unknown,    // Up+Right
-        DpadDirection::SouthEast => Key::Unknown,    // Down+Left
-        DpadDirection::SouthWest => Key::Unknown,    // Down+Right
-        DpadDirection::None => Key::Unknown,
-    }
-}
-
-fn get_pressed_buttons(
-    report_buttons: &vita_reports::ButtonsData,
-    trigger_config: TriggerConfig,
-) -> Vec<Button> {
-    let mut buttons = vec![
-        (report_buttons.circle, Button::Circle),
-        (report_buttons.square, Button::Square),
-        (report_buttons.cross, Button::Cross),
-        (report_buttons.triangle, Button::Triangle),
-        (report_buttons.start, Button::Options),
-        (report_buttons.select, Button::Share),
-    ];
-
-    // Trigger processing depending on the configuration
-    match trigger_config {
-        TriggerConfig::Shoulder => {
-            buttons.push((report_buttons.lt, Button::ShoulderLeft));
-            buttons.push((report_buttons.rt, Button::ShoulderRight));
-        }
-        TriggerConfig::Trigger => {
-            buttons.push((report_buttons.lt, Button::TriggerLeft));
-            buttons.push((report_buttons.rt, Button::TriggerRight));
-        }
-    }
-
-    buttons
-        .into_iter()
-        .filter_map(|(pressed, button)| if pressed { Some(button) } else { None })
-        .collect()
-}
-
 pub struct VitaDevice<F: AsRawFd> {
     config: Config,
     main_handle: UInputHandle<F>,
@@ -107,6 +62,12 @@ pub struct VitaDevice<F: AsRawFd> {
 impl<F: AsRawFd> VitaDevice<F> {
     pub fn new(uinput_file: F, uinput_sensor_file: F, config: Config) -> std::io::Result<Self> {
         let main_handle = UInputHandle::new(uinput_file);
+        let id = InputId {
+            bustype: BUS_VIRTUAL,
+            vendor: 0x054C,
+            product: 0x9CC,
+            version: 0x8111,
+        };
 
         main_handle.set_evbit(EventKind::Key)?;
         main_handle.set_keybit(map_button_to_ds4(Button::ThumbRight))?;
@@ -121,10 +82,6 @@ impl<F: AsRawFd> VitaDevice<F> {
         main_handle.set_keybit(map_button_to_ds4(Button::Circle))?;
         main_handle.set_keybit(map_button_to_ds4(Button::Cross))?;
         main_handle.set_keybit(map_button_to_ds4(Button::Square))?;
-        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::North))?;
-        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::South))?;
-        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::West))?;
-        main_handle.set_keybit(map_dpad_to_ds4(DpadDirection::East))?;
         main_handle.set_evbit(EventKind::Absolute)?;
 
         let joystick_abs_info = AbsoluteInfo {
@@ -136,6 +93,15 @@ impl<F: AsRawFd> VitaDevice<F> {
             ..Default::default()
         };
 
+        let dpad_info = AbsoluteInfo {
+            fuzz: 0,
+            maximum: 1,
+            minimum: -1,
+            resolution: 3,
+            ..Default::default()
+        };
+
+        // Sticks
         let joystick_x_info = AbsoluteInfoSetup {
             info: joystick_abs_info,
             axis: AbsoluteAxis::X,
@@ -151,6 +117,16 @@ impl<F: AsRawFd> VitaDevice<F> {
         let joystick_ry_info = AbsoluteInfoSetup {
             info: joystick_abs_info,
             axis: AbsoluteAxis::RY,
+        };
+
+        // Dpad
+        let dpad_up_down = AbsoluteInfoSetup {
+            info: dpad_info,
+            axis: AbsoluteAxis::Hat0Y,
+        };
+        let dpad_left_right = AbsoluteInfoSetup {
+            info: dpad_info,
+            axis: AbsoluteAxis::Hat0X,
         };
 
         // Touchscreen (front)
@@ -195,22 +171,17 @@ impl<F: AsRawFd> VitaDevice<F> {
             axis: AbsoluteAxis::MultitouchPressure,
         }; //TODO: Query infos
 
-        let id = InputId {
-            bustype: BUS_VIRTUAL,
-            vendor: 0x054C,
-            product: 0x05C4,
-            version: 2,
-        };
-
         main_handle.create(
             &id,
-            b"PS Vita",
+            b"PS Vita VitaOxiPad",
             0,
             &[
                 joystick_x_info,
                 joystick_y_info,
                 joystick_rx_info,
                 joystick_ry_info,
+                dpad_up_down,
+                dpad_left_right,
                 front_mt_x_info,
                 front_mt_y_info,
                 front_mt_id_info,
@@ -266,7 +237,7 @@ impl<F: AsRawFd> VitaDevice<F> {
         let mt_x_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
                 minimum: 0,
-                maximum: FRONT_TOUCHPAD_RECT.1 .0 - 1,
+                maximum: REAR_TOUCHPAD_RECT.1 .0 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionX,
@@ -274,7 +245,7 @@ impl<F: AsRawFd> VitaDevice<F> {
         let mt_y_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
                 minimum: 0,
-                maximum: FRONT_TOUCHPAD_RECT.1 .1 - 1,
+                maximum: REAR_TOUCHPAD_RECT.1 .1 - 1,
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionY,
@@ -304,16 +275,9 @@ impl<F: AsRawFd> VitaDevice<F> {
             axis: AbsoluteAxis::MultitouchPressure,
         };
 
-        let id = InputId {
-            bustype: BUS_VIRTUAL,
-            vendor: 0x54c,
-            product: 0x2d3,
-            version: 2,
-        };
-
         sensor_handle.create(
             &id,
-            b"PS Vita (Sensors)",
+            b"PS Vita VitaOxiPad (Motion Sensors)",
             0,
             &[
                 accel_x_info,
@@ -426,6 +390,35 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             };
         }
 
+        macro_rules! dpad_event {
+            ($report:ident, Hat0Y) => {
+                AbsoluteEvent::new(
+                    EVENT_TIME_ZERO,
+                    AbsoluteAxis::Hat0Y,
+                    if $report.buttons.up {
+                        -1
+                    } else if $report.buttons.down {
+                        1
+                    } else {
+                        0
+                    },
+                )
+            };
+            ($report:ident, Hat0X) => {
+                AbsoluteEvent::new(
+                    EVENT_TIME_ZERO,
+                    AbsoluteAxis::Hat0X,
+                    if $report.buttons.right {
+                        1
+                    } else if $report.buttons.left {
+                        -1
+                    } else {
+                        0
+                    },
+                )
+            };
+        }
+
         macro_rules! stick_event {
             ($report:ident, $report_name:ident, $uinput_name:ident) => {
                 AbsoluteEvent::new(
@@ -477,12 +470,11 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             key_event!(report, rt, map_button_to_ds4(Button::TriggerRight)),
             key_event!(report, select, map_button_to_ds4(Button::Options)),
             key_event!(report, start, map_button_to_ds4(Button::Share)),
-            key_event!(report, up, map_dpad_to_ds4(DpadDirection::North)),
-            key_event!(report, right, map_dpad_to_ds4(DpadDirection::East)),
-            key_event!(report, down, map_dpad_to_ds4(DpadDirection::South)),
-            key_event!(report, left, map_dpad_to_ds4(DpadDirection::West)),
         ]
         .map(|ev| ev.into());
+
+        let dpad_events =
+            &[dpad_event!(report, Hat0Y), dpad_event!(report, Hat0X)].map(|ev| ev.into());
 
         let sticks_events = &[
             stick_event!(report, lx, X),
@@ -549,6 +541,7 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
         let events: Vec<input_event> = [
             buttons_events,
             sticks_events,
+            dpad_events,
             &front_touch_resets_events,
             &front_touch_events,
         ]

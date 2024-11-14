@@ -145,18 +145,18 @@ This option can be found in `Settings -> Device Options -> Virtual Controller Su
 
 Linux support is at an early stage. Don't get your hopes up for much.
 
-| Feature                         | Support | Details                                       |
-| ------------------------------- | :-----: | --------------------------------------------- |
-| Dpad, Sticks, buttons           |    ⚠️    | Press transfer only, no match for DualShock 4 |
-| Select and Start                |    ⚠️    | Press transfer only, no match for DualShock 4 |
-| L1 and R1                       |    ⚠️    | Press transfer only, no match for DualShock 4 |
-| L2/R2 and L3/R3 emulation       |    ❌    | -                                             |
-| Accelerometer and gyroscope     |    ❌    | -                                             |
-| DualShock 4 digitizer emulation |    ⚠️    | Almost non-functional                         |
-| DualShock 4 digitizer button    |    ❌    |                                               |
-| Battery                         |    ❌    | -                                             |
-| Any configuration               |    ❌    | -                                             |
-| Sound                           |    ❌    | Probably will never be realized               |
+| Feature                         | Support | Details                         |
+| ------------------------------- | :-----: | ------------------------------- |
+| Dpad, Sticks, buttons           |    ✅    | -                               |
+| Select and Start                |    ✅    | -                               |
+| L1 and R1                       |    ✅    | -                               |
+| L2/R2 and L3/R3 emulation       |    ❌    | -                               |
+| Accelerometer and gyroscope     |    ⚠️    | -                               |
+| DualShock 4 digitizer emulation |    ⚠️    | Almost non-functional           |
+| DualShock 4 digitizer button    |    ❌    |                                 |
+| Battery                         |    ❌    | -                               |
+| Any configuration               |    ❌    | -                               |
+| Sound                           |    ❌    | Probably will never be realized |
 
 ## Client compilation
 
