@@ -151,18 +151,18 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 - Touchpad `uinput` device;
 - Motion Sensors `uinput` device for accelerometer and gyroscope.
 
-| Feature                         | Support | Details                                                                                 |
-| ------------------------------- | :-----: | --------------------------------------------------------------------------------------- |
-| Dpad, Sticks, buttons           |    ✅    | -                                                                                       |
-| Select and Start                |    ✅    | -                                                                                       |
-| L1 and R1                       |    ✅    | -                                                                                       |
-| L2/R2 and L3/R3 emulation       |    ❌    | -                                                                                       |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                           |
-| DualShock 4 digitizer emulation |    ⚠️    | Emulates up to five-finger simultaneous input, is not detected as a mouse on the system |
-| DualShock 4 digitizer button    |    ❌    | -                                                                                       |
-| Battery                         |    ❌    | -                                                                                       |
-| Any configuration               |    ❌    | -                                                                                       |
-| Sound                           |    ❌    | Probably will never be realized                                                         |
+| Feature                         | Support | Details                                                                              |
+| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
+| Dpad, Sticks, buttons           |    ✅    | -                                                                                    |
+| Select and Start                |    ✅    | -                                                                                    |
+| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to six-finger simultaneous input, same as DualShock 4                    |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer             |
+| Battery                         |    ❌    | -                                                                                    |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
+| Sound                           |    ❌    | Probably will never be realized                                                      |
 
 ## Client compilation
 
