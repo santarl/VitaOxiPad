@@ -53,6 +53,7 @@ fn map_button_to_ds4(button: Button) -> Key {
 pub struct VitaDevice<F: AsRawFd> {
     config: Config,
     main_handle: UInputHandle<F>,
+    touchpad_handle: UInputHandle<F>,
     sensor_handle: UInputHandle<F>,
     previous_front_touches: [Option<TrackingId>; 6],
     previous_back_touches: [Option<TrackingId>; 4],
@@ -60,7 +61,12 @@ pub struct VitaDevice<F: AsRawFd> {
 }
 
 impl<F: AsRawFd> VitaDevice<F> {
-    pub fn new(uinput_file: F, uinput_sensor_file: F, config: Config) -> std::io::Result<Self> {
+    pub fn new(
+        uinput_file: F,
+        uinput_sensor_file: F,
+        uinput_touchpad_file: F,
+        config: Config,
+    ) -> std::io::Result<Self> {
         let main_handle = UInputHandle::new(uinput_file);
         let id = InputId {
             bustype: BUS_VIRTUAL,
@@ -129,6 +135,31 @@ impl<F: AsRawFd> VitaDevice<F> {
             axis: AbsoluteAxis::Hat0X,
         };
 
+        main_handle.create(
+            &id,
+            b"PS Vita VitaOxiPad",
+            0,
+            &[
+                joystick_x_info,
+                joystick_y_info,
+                joystick_rx_info,
+                joystick_ry_info,
+                dpad_up_down,
+                dpad_left_right,
+            ],
+        )?;
+
+        let touchpad_handle = UInputHandle::new(uinput_touchpad_file);
+
+        touchpad_handle.set_evbit(EventKind::Key)?;
+        touchpad_handle.set_evbit(EventKind::Absolute)?;
+        touchpad_handle.set_evbit(EventKind::Relative)?;
+        touchpad_handle.set_propbit(InputProperty::Pointer)?;
+        touchpad_handle.set_propbit(InputProperty::ButtonPad)?;
+        touchpad_handle.set_keybit(Key::ButtonTouch)?;
+        touchpad_handle.set_keybit(Key::ButtonToolFinger)?;
+        touchpad_handle.set_keybit(Key::ButtonLeft)?;
+
         // Touchscreen (front)
         let front_mt_x_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
@@ -145,6 +176,22 @@ impl<F: AsRawFd> VitaDevice<F> {
                 ..Default::default()
             },
             axis: AbsoluteAxis::MultitouchPositionY,
+        };
+        let front_abs_x_info = AbsoluteInfoSetup {
+            info: AbsoluteInfo {
+                minimum: 0,
+                maximum: FRONT_TOUCHPAD_RECT.1 .0 - 1,
+                ..Default::default()
+            },
+            axis: AbsoluteAxis::X,
+        };
+        let front_abs_y_info = AbsoluteInfoSetup {
+            info: AbsoluteInfo {
+                minimum: 0,
+                maximum: FRONT_TOUCHPAD_RECT.1 .1 - 1,
+                ..Default::default()
+            },
+            axis: AbsoluteAxis::Y,
         };
         let front_mt_id_info = AbsoluteInfoSetup {
             info: AbsoluteInfo {
@@ -171,19 +218,15 @@ impl<F: AsRawFd> VitaDevice<F> {
             axis: AbsoluteAxis::MultitouchPressure,
         }; //TODO: Query infos
 
-        main_handle.create(
+        touchpad_handle.create(
             &id,
-            b"PS Vita VitaOxiPad",
+            b"PS Vita VitaOxiPad (Touchpad)",
             0,
             &[
-                joystick_x_info,
-                joystick_y_info,
-                joystick_rx_info,
-                joystick_ry_info,
-                dpad_up_down,
-                dpad_left_right,
                 front_mt_x_info,
                 front_mt_y_info,
+                front_abs_x_info,
+                front_abs_y_info,
                 front_mt_id_info,
                 front_mt_slot_info,
                 front_mt_pressure_info,
@@ -297,12 +340,14 @@ impl<F: AsRawFd> VitaDevice<F> {
         let ids = main_handle
             .evdev_name()
             .ok()
+            .zip(touchpad_handle.evdev_name().ok())
             .zip(sensor_handle.evdev_name().ok())
-            .map(|(main, sensor)| [main, sensor].to_vec());
+            .map(|((main, touchpad), sensor)| [main, touchpad, sensor].to_vec());
 
         Ok(VitaDevice {
             config: config,
             main_handle,
+            touchpad_handle,
             sensor_handle,
             previous_front_touches: [None; 6],
             previous_back_touches: [None; 4],
@@ -338,8 +383,19 @@ impl VitaDevice<File> {
             .open("/dev/uinput")
             .map_err(Error::DeviceCreationFailed)?;
 
-        let device = Self::new(uinput_file, uinput_sensor_file, config)
+        let uinput_touchpad_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("/dev/uinput")
             .map_err(Error::DeviceCreationFailed)?;
+
+        let device = Self::new(
+            uinput_file,
+            uinput_sensor_file,
+            uinput_touchpad_file,
+            config,
+        )
+        .map_err(Error::DeviceCreationFailed)?;
 
         Ok(device)
     }
@@ -380,12 +436,22 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .as_event()
             .as_raw();
 
-        macro_rules! key_event {
+        macro_rules! ex_key_event {
             ($report:ident, $report_name:ident, $uinput_name:expr) => {
                 KeyEvent::new(
                     EVENT_TIME_ZERO,
                     $uinput_name,
                     KeyState::pressed($report.buttons.$report_name),
+                )
+            };
+        }
+
+        macro_rules! touch_key_event {
+            ($report:ident, $uinput_name:ident) => {
+                KeyEvent::new(
+                    EVENT_TIME_ZERO,
+                    Key::$uinput_name,
+                    KeyState::pressed($report.force > 0),
                 )
             };
         }
@@ -462,14 +528,14 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
         // Main device events
 
         let buttons_events: &[InputEvent] = &[
-            key_event!(report, triangle, map_button_to_ds4(Button::Triangle)),
-            key_event!(report, circle, map_button_to_ds4(Button::Circle)),
-            key_event!(report, cross, map_button_to_ds4(Button::Cross)),
-            key_event!(report, square, map_button_to_ds4(Button::Square)),
-            key_event!(report, lt, map_button_to_ds4(Button::TriggerLeft)),
-            key_event!(report, rt, map_button_to_ds4(Button::TriggerRight)),
-            key_event!(report, select, map_button_to_ds4(Button::Options)),
-            key_event!(report, start, map_button_to_ds4(Button::Share)),
+            ex_key_event!(report, triangle, map_button_to_ds4(Button::Triangle)),
+            ex_key_event!(report, circle, map_button_to_ds4(Button::Circle)),
+            ex_key_event!(report, cross, map_button_to_ds4(Button::Cross)),
+            ex_key_event!(report, square, map_button_to_ds4(Button::Square)),
+            ex_key_event!(report, lt, map_button_to_ds4(Button::TriggerLeft)),
+            ex_key_event!(report, rt, map_button_to_ds4(Button::TriggerRight)),
+            ex_key_event!(report, select, map_button_to_ds4(Button::Options)),
+            ex_key_event!(report, start, map_button_to_ds4(Button::Share)),
         ]
         .map(|ev| ev.into());
 
@@ -483,6 +549,26 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             stick_event!(report, ry, RY),
         ]
         .map(|ev| ev.into());
+
+        let events: Vec<input_event> = [
+            buttons_events,
+            sticks_events,
+            dpad_events,
+            // &front_touch_resets_events,
+            // &front_touch_events,
+        ]
+        .concat()
+        .into_iter()
+        .map(|ev| ev.into())
+        .map(|ev: InputEvent| *ev.as_raw())
+        .collect();
+
+        self.main_handle
+            .write(&events)
+            .map_err(Error::WriteEventFailed)?;
+        self.main_handle
+            .write(&[syn_event])
+            .map_err(Error::WriteEventFailed)?;
 
         let front_touch_resets_events = self
             .previous_front_touches
@@ -526,35 +612,43 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .into_iter()
             .enumerate()
             .map(|(slot, report)| {
-                [
-                    AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32),
-                    mt_event!(report, x, MultitouchPositionX),
-                    mt_event!(report, y, MultitouchPositionY),
-                    mt_event!(report, id, MultitouchTrackingId),
-                    mt_event!(report, force, MultitouchPressure),
-                ]
-                .map(|event| event.into())
+                let mut events = vec![
+                    AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32)
+                        .into(),
+                    mt_event!(report, x, MultitouchPositionX).into(),
+                    mt_event!(report, y, MultitouchPositionY).into(),
+                    mt_event!(report, x, X).into(),
+                    mt_event!(report, y, Y).into(),
+                    mt_event!(report, id, MultitouchTrackingId).into(),
+                    mt_event!(report, force, MultitouchPressure).into(),
+                ];
+
+                if report.force > 0 {
+                    events.push(
+                        KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonTouch, KeyState::PRESSED).into(),
+                    );
+                    events.push(
+                        KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonToolFinger, KeyState::PRESSED)
+                            .into(),
+                    );
+                }
+
+                events
             })
             .flatten()
             .collect::<Vec<InputEvent>>();
 
-        let events: Vec<input_event> = [
-            buttons_events,
-            sticks_events,
-            dpad_events,
-            &front_touch_resets_events,
-            &front_touch_events,
-        ]
-        .concat()
-        .into_iter()
-        .map(|ev| ev.into())
-        .map(|ev: InputEvent| *ev.as_raw())
-        .collect();
+        let events: Vec<input_event> = front_touch_resets_events
+            .iter()
+            .chain(front_touch_events.iter())
+            .map(|ev| (*ev).into())
+            .map(|ev: InputEvent| *ev.as_raw())
+            .collect();
 
-        self.main_handle
+        self.touchpad_handle
             .write(&events)
             .map_err(Error::WriteEventFailed)?;
-        self.main_handle
+        self.touchpad_handle
             .write(&[syn_event])
             .map_err(Error::WriteEventFailed)?;
 
