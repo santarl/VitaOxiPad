@@ -82,6 +82,7 @@ impl Config {
                 ),
             ])),
             trigger_config: TriggerConfig::Trigger,
+            touchpad_source: None,
         }
     }
 
@@ -121,6 +122,7 @@ impl Config {
                 ),
             ])),
             trigger_config: TriggerConfig::Shoulder,
+            touchpad_source: None,
         }
     }
 
@@ -159,6 +161,7 @@ impl Config {
             ])),
             rear_touch_config: Some(TouchConfig::Touchpad),
             trigger_config: TriggerConfig::Trigger,
+            touchpad_source: Some(TouchpadSource::Rear),
         }
     }
 
@@ -197,8 +200,17 @@ impl Config {
                 ),
             ])),
             trigger_config: TriggerConfig::Trigger,
+            touchpad_source: Some(TouchpadSource::Front),
         }
     }
+}
+
+/// Configuration for touchpad sourse.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[doc(hidden)]
+pub enum TouchpadSource {
+    Front,
+    Rear,
 }
 
 /// Overall configuration for the virtual device.
@@ -208,6 +220,7 @@ pub struct Config {
     pub front_touch_config: Option<TouchConfig>,
     pub rear_touch_config: Option<TouchConfig>,
     pub trigger_config: TriggerConfig,
+    pub touchpad_source: Option<TouchpadSource>,
 }
 
 impl Default for Config {
@@ -217,6 +230,7 @@ impl Default for Config {
             front_touch_config: Some(TouchConfig::Touchpad),
             rear_touch_config: None,
             trigger_config: TriggerConfig::default(),
+            touchpad_source: None,
         }
     }
 }

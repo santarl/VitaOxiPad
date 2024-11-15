@@ -3,6 +3,7 @@ use std::ffi::OsString;
 mod virtual_button;
 mod virtual_config;
 mod virtual_touch;
+mod virtual_utils;
 
 pub use virtual_touch::Point;
 
