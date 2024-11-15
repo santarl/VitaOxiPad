@@ -56,7 +56,7 @@ pub struct VitaDevice<F: AsRawFd> {
     touchpad_handle: UInputHandle<F>,
     sensor_handle: UInputHandle<F>,
     previous_front_touches: [Option<TrackingId>; 6],
-    previous_back_touches: [Option<TrackingId>; 4],
+    // previous_back_touches: [Option<TrackingId>; 4],
     ids: Option<Vec<OsString>>,
 }
 
@@ -233,17 +233,15 @@ impl<F: AsRawFd> VitaDevice<F> {
             ],
         )?;
 
-        // Have to create another device because sensors can't be mixed with directional axes
-        // and we can't assign the back touch surface along with the touchscreen.
-        // So this second device contains info for the motion sensors and the back touch surface.
+        // Motion Sensors
         let sensor_handle = UInputHandle::new(uinput_sensor_file);
 
         sensor_handle.set_evbit(EventKind::Absolute)?;
         sensor_handle.set_propbit(InputProperty::Accelerometer)?;
 
         let accel_abs_info = AbsoluteInfo {
-            minimum: -16,
-            maximum: 16,
+            minimum: -32768,
+            maximum: 32768,
             ..Default::default()
         };
         let accel_x_info = AbsoluteInfoSetup {
@@ -260,8 +258,8 @@ impl<F: AsRawFd> VitaDevice<F> {
         };
 
         let gyro_abs_info = AbsoluteInfo {
-            minimum: -1,
-            maximum: 1,
+            minimum: -32768,
+            maximum: 32768,
             ..Default::default()
         };
         let gyro_x_info = AbsoluteInfoSetup {
@@ -277,46 +275,46 @@ impl<F: AsRawFd> VitaDevice<F> {
             axis: AbsoluteAxis::RZ,
         };
 
-        let mt_x_info = AbsoluteInfoSetup {
-            info: AbsoluteInfo {
-                minimum: 0,
-                maximum: REAR_TOUCHPAD_RECT.1 .0 - 1,
-                ..Default::default()
-            },
-            axis: AbsoluteAxis::MultitouchPositionX,
-        };
-        let mt_y_info = AbsoluteInfoSetup {
-            info: AbsoluteInfo {
-                minimum: 0,
-                maximum: REAR_TOUCHPAD_RECT.1 .1 - 1,
-                ..Default::default()
-            },
-            axis: AbsoluteAxis::MultitouchPositionY,
-        };
-        let mt_id_info = AbsoluteInfoSetup {
-            info: AbsoluteInfo {
-                minimum: 0,
-                maximum: 128,
-                ..Default::default()
-            },
-            axis: AbsoluteAxis::MultitouchTrackingId,
-        };
-        let mt_slot_info = AbsoluteInfoSetup {
-            info: AbsoluteInfo {
-                minimum: 0,
-                maximum: 3,
-                ..Default::default()
-            },
-            axis: AbsoluteAxis::MultitouchSlot,
-        };
-        let mt_pressure_info = AbsoluteInfoSetup {
-            info: AbsoluteInfo {
-                minimum: 1,
-                maximum: 128,
-                ..Default::default()
-            },
-            axis: AbsoluteAxis::MultitouchPressure,
-        };
+        // let mt_x_info = AbsoluteInfoSetup {
+        //     info: AbsoluteInfo {
+        //         minimum: 0,
+        //         maximum: REAR_TOUCHPAD_RECT.1 .0 - 1,
+        //         ..Default::default()
+        //     },
+        //     axis: AbsoluteAxis::MultitouchPositionX,
+        // };
+        // let mt_y_info = AbsoluteInfoSetup {
+        //     info: AbsoluteInfo {
+        //         minimum: 0,
+        //         maximum: REAR_TOUCHPAD_RECT.1 .1 - 1,
+        //         ..Default::default()
+        //     },
+        //     axis: AbsoluteAxis::MultitouchPositionY,
+        // };
+        // let mt_id_info = AbsoluteInfoSetup {
+        //     info: AbsoluteInfo {
+        //         minimum: 0,
+        //         maximum: 128,
+        //         ..Default::default()
+        //     },
+        //     axis: AbsoluteAxis::MultitouchTrackingId,
+        // };
+        // let mt_slot_info = AbsoluteInfoSetup {
+        //     info: AbsoluteInfo {
+        //         minimum: 0,
+        //         maximum: 3,
+        //         ..Default::default()
+        //     },
+        //     axis: AbsoluteAxis::MultitouchSlot,
+        // };
+        // let mt_pressure_info = AbsoluteInfoSetup {
+        //     info: AbsoluteInfo {
+        //         minimum: 1,
+        //         maximum: 128,
+        //         ..Default::default()
+        //     },
+        //     axis: AbsoluteAxis::MultitouchPressure,
+        // };
 
         sensor_handle.create(
             &id,
@@ -329,11 +327,11 @@ impl<F: AsRawFd> VitaDevice<F> {
                 gyro_x_info,
                 gyro_y_info,
                 gyro_z_info,
-                mt_x_info,
-                mt_y_info,
-                mt_id_info,
-                mt_slot_info,
-                mt_pressure_info,
+                // mt_x_info,
+                // mt_y_info,
+                // mt_id_info,
+                // mt_slot_info,
+                // mt_pressure_info,
             ],
         )?;
 
@@ -506,21 +504,21 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
         }
 
         macro_rules! accel_event {
-            ($report:ident, $report_name:ident, $uinput_name:ident) => {
+            ($value:expr, $uinput_name:ident) => {
                 AbsoluteEvent::new(
                     EVENT_TIME_ZERO,
                     AbsoluteAxis::$uinput_name,
-                    $report.motion.accelerometer.$report_name.round() as i32,
+                    $value as i32,
                 )
             };
         }
-
+        
         macro_rules! gyro_event {
-            ($report:ident, $report_name:ident, $uinput_name:ident) => {
+            ($value:expr, $uinput_name:ident) => {
                 AbsoluteEvent::new(
                     EVENT_TIME_ZERO,
                     AbsoluteAxis::$uinput_name,
-                    $report.motion.gyro.$report_name.round() as i32,
+                    $value as i32,
                 )
             };
         }
@@ -654,72 +652,82 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
 
         // Sensors device events
 
+        // Convert the vita accel range [-4.0, 4.0] to the dualshock 4 range [-32768, 32768]
+        let accel_x_i16 = f32_to_i16(-report.motion.accelerometer.x, -4.0, 4.0); //inverted
+        let accel_y_i16 = f32_to_i16(report.motion.accelerometer.y, -4.0, 4.0);
+        let accel_z_i16 = f32_to_i16(-report.motion.accelerometer.z, -4.0, 4.0); //inverted
+
+        // Convert the vita gyro range [-35.0, 35.0] to the dualshock 4 range [-32768, 32768]
+        let gyro_x_i16 = f32_to_i16(report.motion.gyro.x, -35.0, 35.0);
+        let gyro_y_i16 = f32_to_i16(-report.motion.gyro.y, -35.0, 35.0); //inverted
+        let gyro_z_i16 = f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
+
         let motion_events: &[InputEvent] = &[
-            accel_event!(report, x, X),
-            accel_event!(report, z, Y),
-            accel_event!(report, y, Z),
-            gyro_event!(report, x, RX),
-            gyro_event!(report, z, RY),
-            gyro_event!(report, y, RZ),
+            accel_event!(accel_x_i16, X),
+            accel_event!(accel_z_i16, Y),
+            accel_event!(accel_y_i16, Z),
+            gyro_event!(gyro_x_i16, RX),
+            gyro_event!(gyro_z_i16, RY),
+            gyro_event!(gyro_y_i16, RZ),
         ]
         .map(|ev| ev.into());
 
-        let back_touch_resets_events = self
-            .previous_back_touches
-            .iter()
-            .enumerate()
-            .filter_map(|(slot, id)| {
-                let new_id = report.back_touch.reports.get(slot).map(|r| r.id);
+        // let back_touch_resets_events = self
+        //     .previous_back_touches
+        //     .iter()
+        //     .enumerate()
+        //     .filter_map(|(slot, id)| {
+        //         let new_id = report.back_touch.reports.get(slot).map(|r| r.id);
 
-                match (*id, new_id) {
-                    (Some(_), None) => Some([
-                        AbsoluteEvent::new(
-                            EVENT_TIME_ZERO,
-                            AbsoluteAxis::MultitouchSlot,
-                            slot as i32,
-                        ),
-                        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchTrackingId, -1),
-                    ]),
-                    _ => None,
-                }
-            })
-            .flatten()
-            .map(|ev| ev.into())
-            .collect::<Vec<InputEvent>>();
+        //         match (*id, new_id) {
+        //             (Some(_), None) => Some([
+        //                 AbsoluteEvent::new(
+        //                     EVENT_TIME_ZERO,
+        //                     AbsoluteAxis::MultitouchSlot,
+        //                     slot as i32,
+        //                 ),
+        //                 AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchTrackingId, -1),
+        //             ]),
+        //             _ => None,
+        //         }
+        //     })
+        //     .flatten()
+        //     .map(|ev| ev.into())
+        //     .collect::<Vec<InputEvent>>();
 
-        self.previous_back_touches = report
-            .back_touch
-            .reports
-            .iter()
-            .map(|report| Some(report.id))
-            .chain(
-                std::iter::repeat(None)
-                    .take(self.previous_back_touches.len() - report.back_touch.reports.len()),
-            )
-            .collect::<Vec<Option<u8>>>()
-            .try_into()
-            .unwrap();
+        // self.previous_back_touches = report
+        //     .back_touch
+        //     .reports
+        //     .iter()
+        //     .map(|report| Some(report.id))
+        //     .chain(
+        //         std::iter::repeat(None)
+        //             .take(self.previous_back_touches.len() - report.back_touch.reports.len()),
+        //     )
+        //     .collect::<Vec<Option<u8>>>()
+        //     .try_into()
+        //     .unwrap();
 
-        let back_touch_events: Vec<_> = report
-            .back_touch
-            .reports
-            .into_iter()
-            .enumerate()
-            .map(|(slot, report)| {
-                [
-                    AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32),
-                    mt_event!(report, x, MultitouchPositionX),
-                    mt_event!(report, y, MultitouchPositionY),
-                    mt_event!(report, id, MultitouchTrackingId),
-                    mt_event!(report, force, MultitouchPressure),
-                ]
-                .map(|event| event.into())
-            })
-            .flatten()
-            .collect::<Vec<InputEvent>>();
+        // let back_touch_events: Vec<_> = report
+        //     .back_touch
+        //     .reports
+        //     .into_iter()
+        //     .enumerate()
+        //     .map(|(slot, report)| {
+        //         [
+        //             AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32),
+        //             mt_event!(report, x, MultitouchPositionX),
+        //             mt_event!(report, y, MultitouchPositionY),
+        //             mt_event!(report, id, MultitouchTrackingId),
+        //             mt_event!(report, force, MultitouchPressure),
+        //         ]
+        //         .map(|event| event.into())
+        //     })
+        //     .flatten()
+        //     .collect::<Vec<InputEvent>>();
 
         let events: Vec<input_event> =
-            [motion_events, &back_touch_resets_events, &back_touch_events]
+            [motion_events]
                 .concat()
                 .into_iter()
                 .map(|ev| ev.into())
