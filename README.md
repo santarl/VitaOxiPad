@@ -33,9 +33,6 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
 **VitaOxiPad** is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4.
 The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
 
-The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
-This allows to support a large number of Windows games without any fixes.
-
 ## Installation
 
 To set up VitaOxiPad, follow these steps:
@@ -118,11 +115,16 @@ There are currently 4 DualShock 4 configurations emulations that can be selected
 | `rear_touchpad`     |     L1\R1     | upper area - L2\R2, lower area - L3\R3 |         DualShock 4 digitizer          |
 | `front_touchpad`    |     L1\R1     |         DualShock 4 digitizer          | upper area - L2\R2, lower area - L3\R3 |
 
-To better understand the emulation behavior, you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita.
+To better understand the emulation behavior,
+you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita for Windows
+or [evtest-qt](https://github.com/Grumbel/evtest-qt) for Linux.
 
 ## What works
 
 ### Windows Client
+
+The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
+This allows to support a large number of Windows games without any fixes.
 
 | Feature                         | Support | Details                                                                              |
 | ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
@@ -143,20 +145,24 @@ This option can be found in `Settings -> Device Options -> Virtual Controller Su
 
 ### Linux Client
 
-Linux support is at an early stage. Don't get your hopes up for much.
+The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Three `uinput` devices are emulated:
 
-| Feature                         | Support | Details                                       |
-| ------------------------------- | :-----: | --------------------------------------------- |
-| Dpad, Sticks, buttons           |    ✅    | -                                             |
-| Select and Start                |    ✅    | -                                             |
-| L1 and R1                       |    ✅    | -                                             |
-| L2/R2 and L3/R3 emulation       |    ❌    | -                                             |
-| Accelerometer and gyroscope     |    ⚠️    | -                                             |
-| DualShock 4 digitizer emulation |    ✅    | Almost non-functional                         |
-| DualShock 4 digitizer button    |    ❌    | Emulates up to five-finger simultaneous input |
-| Battery                         |    ❌    | -                                             |
-| Any configuration               |    ❌    | -                                             |
-| Sound                           |    ❌    | Probably will never be realized               |
+- Main `uinput` device (Dpad, Sticks, buttons, triggers)
+- Touchpad `uinput` device;
+- Motion Sensors `uinput` device for accelerometer and gyroscope.
+
+| Feature                         | Support | Details                                                                                 |
+| ------------------------------- | :-----: | --------------------------------------------------------------------------------------- |
+| Dpad, Sticks, buttons           |    ✅    | -                                                                                       |
+| Select and Start                |    ✅    | -                                                                                       |
+| L1 and R1                       |    ✅    | -                                                                                       |
+| L2/R2 and L3/R3 emulation       |    ❌    | -                                                                                       |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                           |
+| DualShock 4 digitizer emulation |    ⚠️    | Emulates up to five-finger simultaneous input, is not detected as a mouse on the system |
+| DualShock 4 digitizer button    |    ❌    | -                                                                                       |
+| Battery                         |    ❌    | -                                                                                       |
+| Any configuration               |    ❌    | -                                                                                       |
+| Sound                           |    ❌    | Probably will never be realized                                                         |
 
 ## Client compilation
 
