@@ -110,10 +110,10 @@ There are currently 4 DualShock 4 configurations emulations that can be selected
 
 | Configurations name | PS Vita L1\R1 |        PS Vita front digitizer         |         PS Vita rear digitizer         |
 | ------------------- | :-----------: | :------------------------------------: | :------------------------------------: |
-| `standart`          |     L1\R1     |                 L3\R3                  |                 L2\R2                  |
-| `alt_triggers`      |     L2\R2     |                 L3\R3                  |                 L1\R1                  |
-| `rear_touchpad`     |     L1\R1     | upper area - L2\R2, lower area - L3\R3 |         DualShock 4 digitizer          |
-| `front_touchpad`    |     L1\R1     |         DualShock 4 digitizer          | upper area - L2\R2, lower area - L3\R3 |
+| `standart`          |     L2\R2     |                 L3\R3                  |                 L1\R1                  |
+| `alt_triggers`      |     L1\R1     |                 L3\R3                  |                 L2\R2                  |
+| `rear_touchpad`     |     L2\R2     | upper area - L1\R1, lower area - L3\R3 |         DualShock 4 digitizer          |
+| `front_touchpad`    |     L2\R2     |         DualShock 4 digitizer          | upper area - L1\R1, lower area - L3\R3 |
 
 To better understand the emulation behavior,
 you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita for Windows
@@ -126,19 +126,19 @@ or [evtest-qt](https://github.com/Grumbel/evtest-qt) for Linux.
 The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
 This allows to support a large number of Windows games without any fixes.
 
-| Feature                         | Support | Details                                                                              |
-| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Dpad, Sticks, buttons           |    ✅    | -                                                                                    |
-| Select and Start                |    ✅    | -                                                                                    |
-| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                    |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer             |
-| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                         |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
-| DS4Windows support              |    ✅    | You need to enable Virtual Controller Support[*]                                     |
-| Sound                           |    ❌    | Probably will never be realized                                                      |
+| Feature                         | Support | Details                                                                                   |
+| ------------------------------- | :-----: | ----------------------------------------------------------------------------------------- |
+| Dpad, Sticks, buttons           |    ✅    | -                                                                                         |
+| Select and Start                |    ✅    | -                                                                                         |
+| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                       |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1 |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                             |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                         |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer                  |
+| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                              |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                          |
+| DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                         |
+| Sound                           |    ❌    | Probably will never be realized                                                           |
 
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
@@ -151,18 +151,18 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 - Touchpad `uinput` device;
 - Motion Sensors `uinput` device for accelerometer and gyroscope.
 
-| Feature                         | Support | Details                                                                              |
-| ------------------------------- | :-----: | ------------------------------------------------------------------------------------ |
-| Dpad, Sticks, buttons           |    ✅    | -                                                                                    |
-| Select and Start                |    ✅    | -                                                                                    |
-| L1 and R1                       |    ✅    | Press only, as the PS Vita does not have analog triggers. This emulates a full press |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be used of the back or front PS Vita digitizer for it                            |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                        |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to six-finger simultaneous input, same as DualShock 4                    |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer             |
-| Battery                         |    ❌    | -                                                                                    |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                     |
-| Sound                           |    ❌    | Probably will never be realized                                                      |
+| Feature                         | Support | Details                                                                                                         |
+| ------------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------- |
+| Dpad, Sticks, buttons           |    ✅    | -                                                                                                               |
+| Select and Start                |    ✅    | -                                                                                                               |
+| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                             |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                       |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                   |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to six-finger simultaneous input. Linux defines it like a touchpad                                  |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour |
+| Battery                         |    ❌    | -                                                                                                               |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                                                |
+| Sound                           |    ❌    | Probably will never be realized                                                                                 |
 
 ## Client compilation
 
