@@ -9,6 +9,7 @@ use vigem_client::{
 use crate::virtual_button::{Button, DpadDirection};
 use crate::virtual_config::{Config, ConfigBuilder, TouchConfig, TriggerConfig};
 use crate::virtual_touch::{Point, TouchAction};
+use crate::virtual_utils::{compute_dpad_direction, get_pressed_buttons};
 use crate::{f32_to_i16, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT};
 
 #[derive(Debug, thiserror::Error)]
@@ -38,51 +39,6 @@ fn map_button_to_ds4(button: Button) -> u16 {
         Button::Cross => DS4Buttons::CROSS,
         Button::Square => DS4Buttons::SQUARE,
     }
-}
-
-fn compute_dpad_direction(buttons: &vita_reports::ButtonsData) -> DpadDirection {
-    match (buttons.up, buttons.down, buttons.left, buttons.right) {
-        (true, false, false, false) => DpadDirection::North,
-        (true, false, true, false) => DpadDirection::NorthWest,
-        (true, false, false, true) => DpadDirection::NorthEast,
-        (false, true, false, false) => DpadDirection::South,
-        (false, true, true, false) => DpadDirection::SouthWest,
-        (false, true, false, true) => DpadDirection::SouthEast,
-        (false, false, true, false) => DpadDirection::West,
-        (false, false, false, true) => DpadDirection::East,
-        _ => DpadDirection::None,
-    }
-}
-
-fn get_pressed_buttons(
-    report_buttons: &vita_reports::ButtonsData,
-    trigger_config: TriggerConfig,
-) -> Vec<Button> {
-    let mut buttons = vec![
-        (report_buttons.circle, Button::Circle),
-        (report_buttons.square, Button::Square),
-        (report_buttons.cross, Button::Cross),
-        (report_buttons.triangle, Button::Triangle),
-        (report_buttons.start, Button::Options),
-        (report_buttons.select, Button::Share),
-    ];
-
-    // Trigger processing depending on the configuration
-    match trigger_config {
-        TriggerConfig::Shoulder => {
-            buttons.push((report_buttons.lt, Button::ShoulderLeft));
-            buttons.push((report_buttons.rt, Button::ShoulderRight));
-        }
-        TriggerConfig::Trigger => {
-            buttons.push((report_buttons.lt, Button::TriggerLeft));
-            buttons.push((report_buttons.rt, Button::TriggerRight));
-        }
-    }
-
-    buttons
-        .into_iter()
-        .filter_map(|(pressed, button)| if pressed { Some(button) } else { None })
-        .collect()
 }
 
 fn map_dpad_direction_to_ds4(dpad: DpadDirection) -> VigemDpadDirection {

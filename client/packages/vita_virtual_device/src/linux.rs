@@ -12,13 +12,10 @@ use input_linux::{
     InputId, InputProperty, Key, KeyEvent, KeyState, SynchronizeEvent, UInputHandle,
 };
 
-use crate::virtual_button::Button;
-use crate::virtual_config::{Config, ConfigBuilder, TouchpadSource};
-use crate::virtual_touch::TouchAction;
-use crate::virtual_utils::{
-    compute_dpad_direction, dpad_direction_to_axis_values, get_pressed_buttons,
-    process_touch_reports,
-};
+use crate::virtual_button::{Button, DpadDirection};
+use crate::virtual_config::{Config, ConfigBuilder, TouchConfig, TouchpadSource};
+use crate::virtual_touch::{Point, TouchAction};
+use crate::virtual_utils::{compute_dpad_direction, get_pressed_buttons};
 use crate::{f32_to_i16, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT};
 
 type TrackingId = u8;
@@ -59,6 +56,39 @@ fn map_button_to_ds4(button: Button) -> Key {
         Button::Cross => Key::ButtonSouth,
         Button::Square => Key::ButtonWest,
     }
+}
+
+/// Converts DpadDirection to axis values suitable for uinput.
+pub fn dpad_direction_to_axis_values(direction: DpadDirection) -> (i32, i32) {
+    match direction {
+        DpadDirection::North => (0, -1),
+        DpadDirection::NorthEast => (1, -1),
+        DpadDirection::East => (1, 0),
+        DpadDirection::SouthEast => (1, 1),
+        DpadDirection::South => (0, 1),
+        DpadDirection::SouthWest => (-1, 1),
+        DpadDirection::West => (-1, 0),
+        DpadDirection::NorthWest => (-1, -1),
+        DpadDirection::None => (0, 0),
+    }
+}
+
+/// Processes touch reports and returns a list of touch actions.
+pub fn process_touch_reports(
+    touch_reports: &[vita_reports::TouchReport],
+    touch_config: &Option<TouchConfig>,
+) -> Vec<TouchAction> {
+    let mut actions = Vec::new();
+    if let Some(TouchConfig::Zones(zones)) = touch_config {
+        for touch in touch_reports {
+            if let Some(zone) = zones.locate_at_point(&Point(touch.x.into(), touch.y.into())) {
+                if let Some(action) = zone.action {
+                    actions.push(action);
+                }
+            }
+        }
+    }
+    actions
 }
 
 pub struct VitaDevice<F: AsRawFd> {
