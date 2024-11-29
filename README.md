@@ -5,18 +5,21 @@ Turns your PS Vita into (almost) a DualShock 4!
 Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) and [Rust-based VitaPad by saidsay-so](https://github.com/saidsay-so/VitaPad).
 
 - [VitaOxiPad ](#vitaoxipad-)
-  - [Description](#description)
-  - [Installation](#installation)
-  - [Uses and options](#uses-and-options)
-    - [Saving Configs](#saving-configs)
-    - [Using a Static IP](#using-a-static-ip)
-    - [Configurations](#configurations)
-  - [What works](#what-works)
-    - [Windows Client](#windows-client)
-    - [Linux Client](#linux-client)
-  - [Client compilation](#client-compilation)
-    - [Windows](#windows)
-  - [PS Vita server compilation](#ps-vita-server-compilation)
+  - [1. Description](#1-description)
+  - [2. Installation](#2-installation)
+  - [3. Uses and options](#3-uses-and-options)
+    - [3.1 Saving Configs](#31-saving-configs)
+    - [3.2 Using a Static IP](#32-using-a-static-ip)
+    - [3.3 Configurations](#33-configurations)
+  - [4. What works](#4-what-works)
+    - [4.1 Windows Client](#41-windows-client)
+    - [4.2 Linux Client](#42-linux-client)
+  - [5. Client compilation](#5-client-compilation)
+    - [5.1 Dependencies](#51-dependencies)
+      - [5.1.1 Windows](#511-windows)
+      - [5.1.2 Linux](#512-linux)
+    - [5.2 Clone and Compile](#52-clone-and-compile)
+  - [6. PS Vita server compilation](#6-ps-vita-server-compilation)
   - [FAQ](#faq)
     - [Q1: Why Oxi?](#q1-why-oxi)
     - [Q2: Why isn't my PS Vita connecting to the PC?](#q2-why-isnt-my-ps-vita-connecting-to-the-pc)
@@ -28,12 +31,12 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
   <img src="./demo/demo.gif" width="60%" height="auto" alt="demo" />
 </div>
 
-## Description
+## 1. Description
 
 **VitaOxiPad** is a [client-server application](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) that turns your PS Vita into (almost) a DualShock 4.
 The PS Vita acts as a server to which the PC client will be connected within the local network (WiFi).
 
-## Installation
+## 2. Installation
 
 To set up VitaOxiPad, follow these steps:
 
@@ -47,7 +50,7 @@ To set up VitaOxiPad, follow these steps:
    - Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC.
    - Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
 
-## Uses and options
+## 3. Uses and options
 
 ```bash
 $ VitaOxiPad-x64.exe --help
@@ -70,7 +73,7 @@ Options:
   --help            display usage information
 ```
 
-### Saving Configs
+### 3.1 Saving Configs
 
 VitaOxiPad searches for the config file in the following locations:
 
@@ -91,7 +94,7 @@ VitaOxiPad-x64.exe --sample-config > vitaoxipad.toml
 
 This will create a `vitaoxipad.toml` file in the current directory with sample configuration options.
 
-### Using a Static IP
+### 3.2 Using a Static IP
 
 If your router allows it, A static IP can be assigned to the PS Vita in the Wi-Fi router settings, allowing this IP address to be saved in the vitaoxipad.toml configuration file.
 This setup enables VitaOxiPad to run without the need to specify the IP address as a flag each time.
@@ -104,7 +107,7 @@ ip = "PSVITA_STATIC_IP_ADDRESS"
 
 Now, you can launch VitaOxiPad without any flags, and it will automatically use the IP address specified in the configuration file.
 
-### Configurations
+### 3.3 Configurations
 
 There are currently 4 DualShock 4 configurations emulations that can be selected at client startup:
 
@@ -119,17 +122,16 @@ To better understand the emulation behavior,
 you can run [3D Controller Overlay](http://www.3d-controller-overlay.org/) after connecting your PS Vita for Windows
 or [evtest-qt](https://github.com/Grumbel/evtest-qt) for Linux.
 
-## What works
+## 4. What works
 
-### Windows Client
+### 4.1 Windows Client
 
 The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
 This allows to support a large number of Windows games without any fixes.
 
 | Feature                         | Support | Details                                                                                   |
 | ------------------------------- | :-----: | ----------------------------------------------------------------------------------------- |
-| Dpad, Sticks, buttons           |    ✅    | -                                                                                         |
-| Select and Start                |    ✅    | -                                                                                         |
+| Dpad, Sticks and Buttons        |    ✅    | -                                                                                         |
 | L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                       |
 | L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1 |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                             |
@@ -143,7 +145,7 @@ This allows to support a large number of Windows games without any fixes.
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
-### Linux Client
+### 4.2 Linux Client
 
 The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Three `uinput` devices are emulated:
 
@@ -153,8 +155,7 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 
 | Feature                         | Support | Details                                                                                                         |
 | ------------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks, buttons           |    ✅    | -                                                                                                               |
-| Select and Start                |    ✅    | -                                                                                                               |
+| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                               |
 | L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                             |
 | L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                       |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                   |
@@ -164,15 +165,17 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                                                |
 | Sound                           |    ❌    | Probably will never be realized                                                                                 |
 
-## Client compilation
+## 5. Client compilation
 
-### Windows
+### 5.1 Dependencies
 
-To compile on Windows you will need
+To compile the Client you will need
 
 - [Make](https://www.gnu.org/software/make) and [Cmake](https://cmake.org);
 - [Flatbuffers (flatc)](https://github.com/google/flatbuffers);
 - [Rust](https://www.rust-lang.org/learn) ([cargo](https://doc.rust-lang.org/cargo)).
+
+#### 5.1.1 Windows
 
 You can use [MSYS2](https://www.msys2.org), which provides this in a convenient way.
 
@@ -181,6 +184,12 @@ Dependencies you will need for **MSYS2 MINGW64**:
 ```bash
 pacman -S mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers make git wget cmake
 ```
+
+#### 5.1.2 Linux
+
+Install the necessary dependencies in a way that is convenient for you.
+
+### 5.2 Clone and Compile
 
 Clone the repository and log into it:
 
@@ -202,7 +211,7 @@ You can check the finished binary by running in it:
  ./target/release/cli.exe your_PS_Vita_IP
 ```
 
-## PS Vita server compilation
+## 6. PS Vita server compilation
 
 1. Make sure that you have [`cmake`](https://cmake.org) installed;
 1. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
