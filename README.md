@@ -7,6 +7,8 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
 - [VitaOxiPad ](#vitaoxipad-)
   - [1. Description](#1-description)
   - [2. Installation](#2-installation)
+    - [2.1 Client](#21-client)
+    - [2.2 Server](#22-server)
   - [3. Uses and options](#3-uses-and-options)
     - [3.1 Saving Configs](#31-saving-configs)
     - [3.2 Using a Static IP](#32-using-a-static-ip)
@@ -14,12 +16,7 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
   - [4. What works](#4-what-works)
     - [4.1 Windows Client](#41-windows-client)
     - [4.2 Linux Client](#42-linux-client)
-  - [5. Client compilation](#5-client-compilation)
-    - [5.1 Dependencies](#51-dependencies)
-      - [5.1.1 Windows](#511-windows)
-      - [5.1.2 Linux](#512-linux)
-    - [5.2 Clone and Compile](#52-clone-and-compile)
-  - [6. PS Vita server compilation](#6-ps-vita-server-compilation)
+  - [5. Client and Server compilation](#5-client-and-server-compilation)
   - [FAQ](#faq)
     - [Q1: Why Oxi?](#q1-why-oxi)
     - [Q2: Why isn't my PS Vita connecting to the PC?](#q2-why-isnt-my-ps-vita-connecting-to-the-pc)
@@ -38,17 +35,23 @@ The PS Vita acts as a server to which the PC client will be connected within the
 
 ## 2. Installation
 
-To set up VitaOxiPad, follow these steps:
+### 2.1 Client
 
-1. **Install the Server on PS Vita:**
-   - Ensure your PS Vita is set up for homebrew applications.
-   - Download the `VitaOxiPad.vpk` file.
-   - Use VitaShell or another package manager to install the `.vpk` on your PS Vita.
+**Install the Client on Windows:**
 
-2. **Install the Client on Windows PC:**
-   - Download the latest `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases).
-   - Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC.
-   - Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
+1. Download the latest `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases);
+1. Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC;
+1. Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
+
+**Install the Client on Linux:**
+
+Unfortunately, building static files is not supported for Linux at this time. [You will need to build the Client yourself](./Build.md).
+
+### 2.2 Server
+
+1. Ensure your PS Vita is set up for homebrew applications;
+1. Download the `VitaOxiPad.vpk` file;
+1. Use VitaShell or another package manager to install the `.vpk` on your PS Vita.
 
 ## 3. Uses and options
 
@@ -129,18 +132,18 @@ or [evtest-qt](https://github.com/Grumbel/evtest-qt) for Linux.
 The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
 This allows to support a large number of Windows games without any fixes.
 
-| Feature                         | Support | Details                                                                                   |
-| ------------------------------- | :-----: | ----------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | -                                                                                         |
-| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                       |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1 |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                             |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4                         |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer                  |
-| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                              |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                          |
-| DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                         |
-| Sound                           |    ❌    | Probably will never be realized                                                           |
+| Feature                         | Support | Details                                                                                              |
+| ------------------------------- | :-----: | ---------------------------------------------------------------------------------------------------- |
+| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                    |
+| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                  |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1            |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                        |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4. Supports front and rear digitizer |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer                             |
+| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                                         |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                  |
+| DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                                    |
+| Sound                           |    ❌    | Probably will never be realized                                                                      |
 
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
@@ -153,97 +156,24 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 - Touchpad `uinput` device;
 - Motion Sensors `uinput` device for accelerometer and gyroscope.
 
-| Feature                         | Support | Details                                                                                                         |
-| ------------------------------- | :-----: | --------------------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                               |
-| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                             |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                       |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                   |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to six-finger simultaneous input. Linux defines it like a touchpad                                  |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour |
-| Battery                         |    ❌    | -                                                                                                               |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#configurations)                                                |
-| Sound                           |    ❌    | Probably will never be realized                                                                                 |
+| Feature                         | Support | Details                                                                                                           |
+| ------------------------------- | :-----: | ----------------------------------------------------------------------------------------------------------------- |
+| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                                 |
+| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                               |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                         |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                     |
+| DualShock 4 digitizer emulation |    ✅    | Emulates up to multitouch simultaneous input. Linux defines it like a touchpad. Supports front and rear digitizer |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour   |
+| Battery                         |    ❌    | -                                                                                                                 |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                               |
+| Sound                           |    ❌    | Probably will never be realized                                                                                   |
 
-## 5. Client compilation
+You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
+or [input-remapper](https://github.com/sezanzeb/input-remapper).
 
-### 5.1 Dependencies
+## 5. Client and Server compilation
 
-To compile the Client you will need
-
-- [Make](https://www.gnu.org/software/make) and [Cmake](https://cmake.org);
-- [Flatbuffers (flatc)](https://github.com/google/flatbuffers);
-- [Rust](https://www.rust-lang.org/learn) ([cargo](https://doc.rust-lang.org/cargo)).
-
-#### 5.1.1 Windows
-
-You can use [MSYS2](https://www.msys2.org), which provides this in a convenient way.
-
-Dependencies you will need for **MSYS2 MINGW64**:
-
-```bash
-pacman -S mingw-w64-x86_64-rust mingw-w64-x86_64-flatbuffers make git wget cmake
-```
-
-#### 5.1.2 Linux
-
-Install the necessary dependencies in a way that is convenient for you.
-
-### 5.2 Clone and Compile
-
-Clone the repository and log into it:
-
-```bash
-git clone --recurse-submodules https://github.com/DvaMishkiLapa/VitaOxiPad.git
-cd ./VitaOxiPad
-```
-
-Build the client side:
-
-```bash
-cd ./client
-cargo build --release --bin cli
-```
-
-You can check the finished binary by running in it:
-
-```bash
- ./target/release/cli.exe your_PS_Vita_IP
-```
-
-## 6. PS Vita server compilation
-
-1. Make sure that you have [`cmake`](https://cmake.org) installed;
-1. Make sure you have [VitaSDK](https://vitasdk.org) installed and configured (try [vdpm](https://github.com/vitasdk/vdpm));
-
-  Sometimes, for whatever reason, `flatbuffers` are not installed in the VitaSDK (`fatal error: flatbuffers/flatbuffers.h: No such file or directory`).
-
-  You can install it manually via vdpm. Do this after installing the VitaSDK via vdpm:
-
-  ```bash
-  ./vdpm flatbuffers
-  ```
-
-1. Install [`flatc` v24.3.25](https://flatbuffers.dev/flatbuffers_guide_building.html) for your system. For Linux:
-
-  ```bash
-  git clone --branch v24.3.25 https://github.com/google/flatbuffers.git && cd flatbuffers
-  cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-  make -j
-  ./flattests # this is quick, and should print "ALL TESTS PASSED"
-  sudo make install
-  sudo ldconfig
-  flatc --version # "flatc version 24.3.25"
-  ```
-
-1. Build the project with the following commands:
-
-  ```bash
-  cmake -S server -B build
-  cmake --build build
-  ```
-
-Then, install the generated `VitaOxiPad.vpk` file on your PS Vita.
+If necessary, you can compile the Client and Server yourself. [Refer to this manual for instructions](./Build.md).
 
 ## FAQ
 
