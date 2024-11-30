@@ -143,7 +143,8 @@ This allows to support a large number of Windows games without any fixes.
 | Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                                         |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                  |
 | DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                                    |
-| Sound                           |    ❌    | Probably will never be realized                                                                      |
+| Changing the sound volume       |    ✅    | Volume Up = Select + R1, Volume Down = Select + L1                                                   |
+| Sound sending                   |    ❌    | Probably will never be realized                                                                      |
 
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
 This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
@@ -166,7 +167,8 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 | DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour   |
 | Battery                         |    ❌    | -                                                                                                                 |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                               |
-| Sound                           |    ❌    | Probably will never be realized                                                                                   |
+| Changing the sound volume       |    ❌    | -                                                                                                                 |
+| Sound sending                   |    ❌    | Probably will never be realized                                                                                   |
 
 You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
 or [input-remapper](https://github.com/sezanzeb/input-remapper).

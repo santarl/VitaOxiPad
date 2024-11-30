@@ -8,7 +8,7 @@ flatbuffers_structs = { path = "../flatbuffers_structs" }
 thiserror = "2.0.3"
 vita_reports = { path = "../vita_reports" }
 tokio-util = { version = "0.7.12", optional = true, features = ["codec"] }
-bytes = { version = "1.8.0", optional = true }
+bytes = { version = "1.9.0", optional = true }
 
 [features]
 codec = ["dep:tokio-util", "dep:bytes"]

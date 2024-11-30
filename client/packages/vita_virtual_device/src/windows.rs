@@ -6,11 +6,68 @@ use vigem_client::{
     DS4TouchPoint, DS4TouchReport, DpadDirection as VigemDpadDirection, DualShock4Wired, TargetId,
 };
 
+use windows::Win32::{
+    Media::Audio::Endpoints::IAudioEndpointVolume,
+    Media::Audio::{eMultimedia, eRender, IMMDevice, IMMDeviceEnumerator, MMDeviceEnumerator},
+    System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED},
+    UI::Input::KeyboardAndMouse::{
+        SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP,
+        VIRTUAL_KEY, VK_VOLUME_DOWN, VK_VOLUME_UP,
+    },
+};
+
 use crate::virtual_button::{Button, DpadDirection};
 use crate::virtual_config::{Config, ConfigBuilder, TouchConfig, TriggerConfig};
 use crate::virtual_touch::{Point, TouchAction};
 use crate::virtual_utils::{compute_dpad_direction, get_pressed_buttons};
 use crate::{f32_to_i16, VitaVirtualDevice, FRONT_TOUCHPAD_RECT, REAR_TOUCHPAD_RECT};
+
+unsafe fn simulate_key_press(vk: VIRTUAL_KEY) -> windows::core::Result<()> {
+    let inputs = &mut [
+        INPUT {
+            r#type: INPUT_KEYBOARD,
+            Anonymous: INPUT_0 {
+                ki: KEYBDINPUT {
+                    wVk: vk,
+                    wScan: 0,
+                    dwFlags: KEYBD_EVENT_FLAGS(0),
+                    time: 0,
+                    dwExtraInfo: 0,
+                },
+            },
+        },
+        INPUT {
+            r#type: INPUT_KEYBOARD,
+            Anonymous: INPUT_0 {
+                ki: KEYBDINPUT {
+                    wVk: vk,
+                    wScan: 0,
+                    dwFlags: KEYEVENTF_KEYUP,
+                    time: 0,
+                    dwExtraInfo: 0,
+                },
+            },
+        },
+    ];
+
+    let result = SendInput(inputs, std::mem::size_of::<INPUT>() as i32);
+    if result == 0 {
+        Err(windows::core::Error::from_win32())
+    } else {
+        Ok(())
+    }
+}
+
+fn change_volume_by_key(delta: f32) -> windows::core::Result<()> {
+    unsafe {
+        if delta > 0.0 {
+            simulate_key_press(VK_VOLUME_UP)?;
+        } else if delta < 0.0 {
+            simulate_key_press(VK_VOLUME_DOWN)?;
+        }
+        Ok(())
+    }
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -197,6 +254,12 @@ impl VitaVirtualDevice<&ConfigBuilder> for VitaDevice {
 
         // Get the pressed buttons
         let pressed_buttons = get_pressed_buttons(&report.buttons, self.config.trigger_config);
+        if report.buttons.vol_up {
+            change_volume_by_key(0.02).expect("Failed to increase volume");
+        }
+        if report.buttons.vol_down {
+            change_volume_by_key(-0.02).expect("Failed to increase volume");
+        }
 
         // Create DS4Buttons object
         let mut buttons = DS4Buttons::new().dpad(ds4_dpad);

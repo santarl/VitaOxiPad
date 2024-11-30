@@ -13,7 +13,9 @@ NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {
       (data.buttons & SCE_CTRL_DOWN) > 0, (data.buttons & SCE_CTRL_LEFT) > 0,
       (data.buttons & SCE_CTRL_LTRIGGER) > 0, (data.buttons & SCE_CTRL_RTRIGGER) > 0,
       (data.buttons & SCE_CTRL_TRIANGLE) > 0, (data.buttons & SCE_CTRL_CIRCLE) > 0,
-      (data.buttons & SCE_CTRL_CROSS) > 0, (data.buttons & SCE_CTRL_SQUARE) > 0);
+      (data.buttons & SCE_CTRL_CROSS) > 0, (data.buttons & SCE_CTRL_SQUARE) > 0,
+      (data.buttons & SCE_CTRL_VOLUP) > 0, (data.buttons & SCE_CTRL_VOLDOWN) > 0
+    );
 }
 
 flatbuffers::Offset<NetProtocol::TouchData>
@@ -38,6 +40,15 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder, SharedData
   while (pad.timeStamp <= last_ts) {
     sceCtrlPeekBufferPositive(0, &pad, 1);
   }
+  if (pad.buttons & SCE_CTRL_SELECT && pad.buttons & SCE_CTRL_LTRIGGER){
+    sceKernelDelayThread(20 * 1000);
+    pad.buttons |= SCE_CTRL_VOLDOWN;
+  }
+  if (pad.buttons & SCE_CTRL_SELECT && pad.buttons & SCE_CTRL_RTRIGGER){
+    sceKernelDelayThread(20 * 1000);
+    pad.buttons |= SCE_CTRL_VOLUP;
+  }
+
   auto buttons = convert_pad_data(pad);
 
   sceTouchPeek(SCE_TOUCH_PORT_FRONT, &touch_data_front, 1);

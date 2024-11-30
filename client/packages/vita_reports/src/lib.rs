@@ -12,6 +12,8 @@ pub struct ButtonsData {
     pub circle: bool,
     pub cross: bool,
     pub square: bool,
+    pub vol_up: bool,
+    pub vol_down: bool,
     // timestamp: u64;
 }
 
@@ -30,6 +32,8 @@ impl From<flatbuffers_structs::net_protocol::ButtonsData> for ButtonsData {
             circle: buttons.circle(),
             cross: buttons.cross(),
             square: buttons.square(),
+            vol_up: buttons.vol_up(),
+            vol_down: buttons.vol_down(),
             // timestamp: buttons.timestamp(),
         }
     }
