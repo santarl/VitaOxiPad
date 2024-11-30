@@ -346,6 +346,7 @@ int net_thread(__attribute__((unused)) unsigned int arglen, void *argp) {
     }
 
     timeout = client->remaining_polling_time();
+    sceKernelDelayThread(10 * 1000);
   }
 
   sceNetCtlInetUnregisterCallback(cbid);
