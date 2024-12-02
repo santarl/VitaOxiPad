@@ -151,11 +151,12 @@ This option can be found in `Settings -> Device Options -> Virtual Controller Su
 
 ### 4.2 Linux Client
 
-The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Three `uinput` devices are emulated:
+The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Four `uinput` devices are emulated:
 
 - Main `uinput` device (Dpad, Sticks, buttons, triggers)
 - Touchpad `uinput` device;
-- Motion Sensors `uinput` device for accelerometer and gyroscope.
+- Motion Sensors `uinput` device for accelerometer and gyroscope;
+- Keyboard `uinput` device.
 
 | Feature                         | Support | Details                                                                                                           |
 | ------------------------------- | :-----: | ----------------------------------------------------------------------------------------------------------------- |
@@ -167,7 +168,7 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 | DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour   |
 | Battery                         |    ❌    | -                                                                                                                 |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                               |
-| Changing the sound volume       |    ❌    | -                                                                                                                 |
+| Changing the sound volume       |    ✅    | Volume Up = Select + R1, Volume Down = Select + L1                                                                |
 | Sound sending                   |    ❌    | Probably will never be realized                                                                                   |
 
 You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
