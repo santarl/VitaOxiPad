@@ -41,11 +41,11 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder, SharedData
     sceCtrlPeekBufferPositive(0, &pad, 1);
   }
   if (pad.buttons & SCE_CTRL_SELECT && pad.buttons & SCE_CTRL_LTRIGGER){
-    sceKernelDelayThread(20 * 1000);
+    sceKernelDelayThread(50 * 1000);
     pad.buttons |= SCE_CTRL_VOLDOWN;
   }
   if (pad.buttons & SCE_CTRL_SELECT && pad.buttons & SCE_CTRL_RTRIGGER){
-    sceKernelDelayThread(20 * 1000);
+    sceKernelDelayThread(50 * 1000);
     pad.buttons |= SCE_CTRL_VOLUP;
   }
 
