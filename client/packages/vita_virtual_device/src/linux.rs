@@ -103,6 +103,7 @@ pub struct VitaDevice<F: AsRawFd> {
     main_handle: UInputHandle<F>,
     touchpad_handle: UInputHandle<F>,
     sensor_handle: UInputHandle<F>,
+    keyboard_handle: UInputHandle<F>,
     previous_front_touches: Vec<Option<TrackingId>>,
     previous_rear_touches: Vec<Option<TrackingId>>,
     touch_state: bool,
@@ -117,6 +118,7 @@ impl<F: AsRawFd> VitaDevice<F> {
         uinput_file: F,
         uinput_sensor_file: F,
         uinput_touchpad_file: F,
+        uinput_keyboard_file: F,
         config: Config,
     ) -> std::io::Result<Self> {
         let main_handle = UInputHandle::new(uinput_file);
@@ -266,7 +268,7 @@ impl<F: AsRawFd> VitaDevice<F> {
             },
             AbsoluteInfoSetup {
                 info: AbsoluteInfo {
-                    minimum: 0,
+                    minimum: -1,
                     maximum: 128,
                     ..Default::default()
                 },
@@ -282,7 +284,7 @@ impl<F: AsRawFd> VitaDevice<F> {
             },
             AbsoluteInfoSetup {
                 info: AbsoluteInfo {
-                    minimum: 1,
+                    minimum: 0,
                     maximum: 128,
                     ..Default::default()
                 },
@@ -607,8 +609,6 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
 }
 
 fn create_motion_events(report: &vita_reports::MainReport) -> Vec<InputEvent> {
-    const EVENT_TIME_ZERO: EventTime = EventTime::new(0, 0);
-
     // Convert the vita accel range [-4.0, 4.0] to the range [-32768, 32768]
     let accel_x_i16 = f32_to_i16(-report.motion.accelerometer.x, -4.0, 4.0); // inverted
     let accel_y_i16 = f32_to_i16(report.motion.accelerometer.y, -4.0, 4.0);
@@ -645,7 +645,6 @@ fn create_touch_events(
     touch_state: &mut bool,
 ) -> Vec<InputEvent> {
     let mut events = Vec::new();
-    const EVENT_TIME_ZERO: EventTime = EventTime::new(0, 0);
 
     // Reset slots where touches have ended
     for slot in 0..max_slots {

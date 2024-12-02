@@ -6,14 +6,9 @@ use vigem_client::{
     DS4TouchPoint, DS4TouchReport, DpadDirection as VigemDpadDirection, DualShock4Wired, TargetId,
 };
 
-use windows::Win32::{
-    Media::Audio::Endpoints::IAudioEndpointVolume,
-    Media::Audio::{eMultimedia, eRender, IMMDevice, IMMDeviceEnumerator, MMDeviceEnumerator},
-    System::Com::{CoCreateInstance, CoInitializeEx, CLSCTX_ALL, COINIT_MULTITHREADED},
-    UI::Input::KeyboardAndMouse::{
-        SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP,
-        VIRTUAL_KEY, VK_VOLUME_DOWN, VK_VOLUME_UP,
-    },
+use windows::Win32::UI::Input::KeyboardAndMouse::{
+    SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP,
+    VIRTUAL_KEY, VK_VOLUME_DOWN, VK_VOLUME_UP,
 };
 
 use crate::virtual_button::{Button, DpadDirection};
