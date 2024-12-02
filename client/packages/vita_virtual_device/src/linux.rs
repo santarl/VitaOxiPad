@@ -6,6 +6,8 @@ use std::{
     os::fd::AsRawFd,
 };
 
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use input_linux::{
     sys::{input_event, BUS_VIRTUAL},
     AbsoluteAxis, AbsoluteEvent, AbsoluteInfo, AbsoluteInfoSetup, EventKind, EventTime, InputEvent,
@@ -40,6 +42,11 @@ const FRONT_TOUCHPAD_MAX_SLOTS: usize = 6;
 const REAR_TOUCHPAD_MAX_X: i32 = REAR_TOUCHPAD_RECT.1 .0 - 1;
 const REAR_TOUCHPAD_MAX_Y: i32 = REAR_TOUCHPAD_RECT.1 .1 - 1;
 const REAR_TOUCHPAD_MAX_SLOTS: usize = 4;
+
+fn get_current_event_time() -> EventTime {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    EventTime::new(now.as_secs() as i64, now.subsec_nanos() as i64)
+}
 
 fn map_button_to_ds4(button: Button) -> Key {
     match button {
@@ -426,8 +433,7 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
     }
 
     fn send_report(&mut self, report: vita_reports::MainReport) -> crate::Result<()> {
-        const EVENT_TIME_ZERO: EventTime = EventTime::new(0, 0);
-        let syn_event = *SynchronizeEvent::report(EVENT_TIME_ZERO)
+        let syn_event = *SynchronizeEvent::report(get_current_event_time())
             .as_event()
             .as_raw();
 
@@ -474,7 +480,7 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .iter()
             .map(|&button| {
                 KeyEvent::new(
-                    EVENT_TIME_ZERO,
+                    get_current_event_time(),
                     map_button_to_ds4(button),
                     KeyState::PRESSED,
                 )
@@ -487,7 +493,7 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .iter()
             .map(|&button| {
                 KeyEvent::new(
-                    EVENT_TIME_ZERO,
+                    get_current_event_time(),
                     map_button_to_ds4(button),
                     KeyState::RELEASED,
                 )
@@ -502,12 +508,12 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
         let mut dpad_events = Vec::new();
         if hat_x_value != self.previous_hat_x {
             dpad_events
-                .push(AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::Hat0X, hat_x_value).into());
+                .push(AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::Hat0X, hat_x_value).into());
             self.previous_hat_x = hat_x_value;
         }
         if hat_y_value != self.previous_hat_y {
             dpad_events
-                .push(AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::Hat0Y, hat_y_value).into());
+                .push(AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::Hat0Y, hat_y_value).into());
             self.previous_hat_y = hat_y_value;
         }
 
@@ -614,21 +620,21 @@ fn create_motion_events(report: &vita_reports::MainReport) -> Vec<InputEvent> {
     let gyro_z_i16 = f32_to_i16(report.motion.gyro.z, -35.0, 35.0);
 
     vec![
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::X, accel_x_i16 as i32).into(),
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::Y, accel_z_i16 as i32).into(),
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::Z, accel_y_i16 as i32).into(),
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::RX, gyro_x_i16 as i32).into(),
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::RY, gyro_z_i16 as i32).into(),
-        AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::RZ, gyro_y_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::X, accel_x_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::Y, accel_z_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::Z, accel_y_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::RX, gyro_x_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::RY, gyro_z_i16 as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::RZ, gyro_y_i16 as i32).into(),
     ]
 }
 
 fn create_stick_events(report: &vita_reports::MainReport) -> Vec<InputEvent> {
     vec![
-        AbsoluteEvent::new(EventTime::new(0, 0), AbsoluteAxis::X, report.lx as i32).into(),
-        AbsoluteEvent::new(EventTime::new(0, 0), AbsoluteAxis::Y, report.ly as i32).into(),
-        AbsoluteEvent::new(EventTime::new(0, 0), AbsoluteAxis::RX, report.rx as i32).into(),
-        AbsoluteEvent::new(EventTime::new(0, 0), AbsoluteAxis::RY, report.ry as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::X, report.lx as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::Y, report.ly as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::RX, report.rx as i32).into(),
+        AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::RY, report.ry as i32).into(),
     ]
 }
 
@@ -648,11 +654,11 @@ fn create_touch_events(
 
         if old_id.is_some() && new_id.is_none() {
             events.push(
-                AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32)
+                AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::MultitouchSlot, slot as i32)
                     .into(),
             );
             events.push(
-                AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchTrackingId, -1).into(),
+                AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::MultitouchTrackingId, -1).into(),
             );
             previous_touches[slot] = None;
         }
@@ -666,11 +672,11 @@ fn create_touch_events(
             break;
         }
         events.push(
-            AbsoluteEvent::new(EVENT_TIME_ZERO, AbsoluteAxis::MultitouchSlot, slot as i32).into(),
+            AbsoluteEvent::new(get_current_event_time(), AbsoluteAxis::MultitouchSlot, slot as i32).into(),
         );
         events.push(
             AbsoluteEvent::new(
-                EVENT_TIME_ZERO,
+                get_current_event_time(),
                 AbsoluteAxis::MultitouchTrackingId,
                 touch.id as i32,
             )
@@ -678,7 +684,7 @@ fn create_touch_events(
         );
         events.push(
             AbsoluteEvent::new(
-                EVENT_TIME_ZERO,
+                get_current_event_time(),
                 AbsoluteAxis::MultitouchPositionX,
                 touch.x as i32,
             )
@@ -686,7 +692,7 @@ fn create_touch_events(
         );
         events.push(
             AbsoluteEvent::new(
-                EVENT_TIME_ZERO,
+                get_current_event_time(),
                 AbsoluteAxis::MultitouchPositionY,
                 touch.y as i32,
             )
@@ -694,7 +700,7 @@ fn create_touch_events(
         );
         events.push(
             AbsoluteEvent::new(
-                EVENT_TIME_ZERO,
+                get_current_event_time(),
                 AbsoluteAxis::MultitouchPressure,
                 touch.force as i32,
             )
@@ -710,15 +716,15 @@ fn create_touch_events(
 
     if any_touch_active && !*touch_state {
         // Touch started
-        events.push(KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonTouch, KeyState::PRESSED).into());
+        events.push(KeyEvent::new(get_current_event_time(), Key::ButtonTouch, KeyState::PRESSED).into());
         events
-            .push(KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonToolFinger, KeyState::PRESSED).into());
+            .push(KeyEvent::new(get_current_event_time(), Key::ButtonToolFinger, KeyState::PRESSED).into());
         *touch_state = true;
     } else if !any_touch_active && *touch_state {
         // Touch ended
-        events.push(KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonTouch, KeyState::RELEASED).into());
+        events.push(KeyEvent::new(get_current_event_time(), Key::ButtonTouch, KeyState::RELEASED).into());
         events
-            .push(KeyEvent::new(EVENT_TIME_ZERO, Key::ButtonToolFinger, KeyState::RELEASED).into());
+            .push(KeyEvent::new(get_current_event_time(), Key::ButtonToolFinger, KeyState::RELEASED).into());
         *touch_state = false;
     }
 
