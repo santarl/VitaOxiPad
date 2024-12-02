@@ -337,18 +337,26 @@ impl<F: AsRawFd> VitaDevice<F> {
 
         sensor_handle.create(&id, b"PS Vita VitaOxiPad (Motion Sensors)", 0, &sensor_axes)?;
 
+        let keyboard_handle = UInputHandle::new(uinput_keyboard_file);
+        keyboard_handle.set_evbit(EventKind::Key)?;
+        keyboard_handle.set_keybit(Key::VolumeUp)?;
+        keyboard_handle.set_keybit(Key::VolumeDown)?;
+        keyboard_handle.create(&id, b"PS Vita VitaOxiPad (Virtual Keyboard)", 0, &[])?;
+
         let ids = main_handle
             .evdev_name()
             .ok()
             .zip(touchpad_handle.evdev_name().ok())
             .zip(sensor_handle.evdev_name().ok())
-            .map(|((main, touchpad), sensor)| [main, touchpad, sensor].to_vec());
+            .zip(keyboard_handle.evdev_name().ok())
+            .map(|(((main, touchpad), sensor), keyboard)| [main, touchpad, sensor, keyboard].to_vec());
 
         Ok(VitaDevice {
             config,
             main_handle,
             touchpad_handle,
             sensor_handle,
+            keyboard_handle,
             previous_front_touches: vec![None; FRONT_TOUCHPAD_MAX_SLOTS],
             previous_rear_touches: vec![None; REAR_TOUCHPAD_MAX_SLOTS],
             touch_state: false,
@@ -393,10 +401,17 @@ impl VitaDevice<File> {
             .open("/dev/uinput")
             .map_err(Error::DeviceCreationFailed)?;
 
+        let uinput_keyboard_file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open("/dev/uinput")
+            .map_err(Error::DeviceCreationFailed)?;
+
         let device = Self::new(
             uinput_file,
             uinput_sensor_file,
             uinput_touchpad_file,
+            uinput_keyboard_file,
             config,
         )
         .map_err(Error::DeviceCreationFailed)?;
@@ -519,6 +534,16 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             self.previous_hat_y = hat_y_value;
         }
 
+        let mut volume_events: Vec<InputEvent> = Vec::new();
+        if report.buttons.vol_up {
+            volume_events.push(KeyEvent::new(get_current_event_time(), Key::VolumeUp, KeyState::PRESSED).into());
+            volume_events.push(KeyEvent::new(get_current_event_time(), Key::VolumeUp, KeyState::RELEASED).into());
+        }
+        if report.buttons.vol_down {
+            volume_events.push(KeyEvent::new(get_current_event_time(), Key::VolumeDown, KeyState::PRESSED).into());
+            volume_events.push(KeyEvent::new(get_current_event_time(), Key::VolumeDown, KeyState::RELEASED).into());
+        }
+
         // Create stick events (always send)
         let stick_events = create_stick_events(&report);
 
@@ -528,6 +553,7 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .chain(button_release_events.iter())
             .chain(dpad_events.iter())
             .chain(stick_events.iter())
+            .chain(volume_events.iter())
             .map(|ev| (*ev).into())
             .map(|ev: InputEvent| *ev.as_raw())
             .collect();
@@ -536,6 +562,13 @@ impl<F: AsRawFd + Write> VitaVirtualDevice<&ConfigBuilder> for VitaDevice<F> {
             .write(&events)
             .map_err(Error::WriteEventFailed)?;
         self.main_handle
+            .write(&[syn_event])
+            .map_err(Error::WriteEventFailed)?;
+
+        self.keyboard_handle
+            .write(&events)
+            .map_err(Error::WriteEventFailed)?;
+        self.keyboard_handle
             .write(&[syn_event])
             .map_err(Error::WriteEventFailed)?;
 
