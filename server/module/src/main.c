@@ -31,7 +31,7 @@ int kctrlGetCtrlData(int port, SceCtrlData *pad_data, int count) {
   ENTER_SYSCALL(state);
 
   int res = ksceCtrlReadBufferPositive(port, &pad, count);
-  ksceKernelMemcpyKernelToUser((uintptr_t)pad_data, &pad, sizeof(SceCtrlData));
+  ksceKernelMemcpyKernelToUser(pad_data, &pad, sizeof(SceCtrlData));
 
   EXIT_SYSCALL(state);
   return res;

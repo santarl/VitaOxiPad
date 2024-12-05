@@ -5,7 +5,7 @@
 #include <psp2/motion.h>
 #include <psp2/touch.h>
 
-#include "ctrl.hpp"
+#include <ctrl.hpp>
 #include "kctrl-kernel.h"
 
 NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {

@@ -38,9 +38,10 @@ link_directories(
 
 # Include directories
 include_directories(
+  ./include
+  ../include
   module/include
   ${CMAKE_CURRENT_BINARY_DIR}/module
-  ../include
   ${CMAKE_BINARY_DIR}/generated
 )
 
@@ -62,10 +63,10 @@ include_directories(${CMAKE_BINARY_DIR}/generated)
 
 # App Source files
 add_executable(${VITA_APP_NAME}
-  src/status.cpp
-  src/ctrl.cpp
   src/main.cpp
   src/net.cpp
+  src/status.cpp
+  src/ctrl.cpp
 )
 
 add_compile_definitions(FLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE)
