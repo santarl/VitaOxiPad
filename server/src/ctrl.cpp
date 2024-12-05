@@ -1,10 +1,12 @@
 #include <assert.h>
 
 #include <psp2/ctrl.h>
+#include <psp2/libdbg.h>
 #include <psp2/motion.h>
 #include <psp2/touch.h>
 
 #include "ctrl.hpp"
+#include "kctrl-kernel.h"
 
 NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {
   return NetProtocol::ButtonsData(
@@ -14,8 +16,7 @@ NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {
       (data.buttons & SCE_CTRL_LTRIGGER) > 0, (data.buttons & SCE_CTRL_RTRIGGER) > 0,
       (data.buttons & SCE_CTRL_TRIANGLE) > 0, (data.buttons & SCE_CTRL_CIRCLE) > 0,
       (data.buttons & SCE_CTRL_CROSS) > 0, (data.buttons & SCE_CTRL_SQUARE) > 0,
-      (data.buttons & SCE_CTRL_VOLUP) > 0, (data.buttons & SCE_CTRL_VOLDOWN) > 0
-    );
+      (data.buttons & SCE_CTRL_VOLUP) > 0, (data.buttons & SCE_CTRL_VOLDOWN) > 0);
 }
 
 flatbuffers::Offset<NetProtocol::TouchData>
@@ -36,10 +37,48 @@ void get_ctrl_as_netprotocol(flatbuffers::FlatBufferBuilder &builder, SharedData
   SceMotionState motion_data;
   SceTouchData touch_data_front, touch_data_back;
 
-  sceCtrlPeekBufferPositive(0, &pad, 1);
-  while (pad.timeStamp <= last_ts) {
-    sceCtrlPeekBufferPositive(0, &pad, 1);
+  int res = kctrlGetCtrlData(0, &pad, 1);
+  if (res < 0) {
+    // Handle error
+    SCE_DBG_LOG_ERROR("kctrlGetCtrlData failed: 0x%08X", res);
+    return;
   }
+  while (pad.timeStamp <= last_ts) {
+    kctrlGetCtrlData(0, &pad, 1);
+  }
+
+  // if (pad.buttons & SCE_CTRL_UP)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_UP");
+  // if (pad.buttons & SCE_CTRL_DOWN)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_DOWN");
+  // if (pad.buttons & SCE_CTRL_LEFT)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_LEFT");
+  // if (pad.buttons & SCE_CTRL_RIGHT)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_RIGHT");
+  // if (pad.buttons & SCE_CTRL_LTRIGGER)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_LTRIGGER");
+  // if (pad.buttons & SCE_CTRL_RTRIGGER)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_RTRIGGER");
+  // if (pad.buttons & SCE_CTRL_TRIANGLE)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_TRIANGLE");
+  // if (pad.buttons & SCE_CTRL_CIRCLE)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_CIRCLE");
+  // if (pad.buttons & SCE_CTRL_CROSS)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_CROSS");
+  // if (pad.buttons & SCE_CTRL_SQUARE)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_SQUARE");
+  // if (pad.buttons & SCE_CTRL_START)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_START");
+  // if (pad.buttons & SCE_CTRL_SELECT)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_SELECT");
+  // if (pad.buttons & SCE_CTRL_PSBUTTON)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_PSBUTTON");
+  // if (pad.buttons & SCE_CTRL_VOLUP)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_VOLUP");
+  // if (pad.buttons & SCE_CTRL_VOLDOWN)
+  //   SCE_DBG_LOG_DEBUG("SCE_CTRL_VOLDOWN");
+
+
   if (pad.buttons & SCE_CTRL_SELECT && pad.buttons & SCE_CTRL_LTRIGGER){
     sceKernelDelayThread(50 * 1000);
     pad.buttons |= SCE_CTRL_VOLDOWN;

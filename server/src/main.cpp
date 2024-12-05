@@ -1,11 +1,16 @@
 #include <arpa/inet.h>
+#include <psp2/appmgr.h>
 #include <psp2/ctrl.h>
+#include <psp2/kernel/modulemgr.h>
 #include <psp2/kernel/threadmgr.h>
 #include <psp2/libdbg.h>
 #include <psp2/motion.h>
 #include <psp2/power.h>
+#include <psp2/shellutil.h>
 #include <psp2/sysmodule.h>
 #include <psp2/touch.h>
+#include <psp2/vshbridge.h>
+#include <taihen.h>
 #include <vita2d.h>
 
 #include "ctrl.hpp"
@@ -13,7 +18,11 @@
 #include "net.hpp"
 #include "status.hpp"
 
+#include "kctrl-kernel.h"
+
 #include <common.h>
+
+#define MOD_PATH "ux0:app/VOXIPAD01/module/kctrl.skprx"
 
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
 
@@ -36,6 +45,34 @@ int stop_thread(SceUID thread_uid, SceUInt timeout) {
 }
 
 int main() {
+  SceUID mod_id;
+  int search_param[2];
+  SceUID res = _vshKernelSearchModuleByName("kctrl", search_param);
+  if (res <= 0) {
+    tai_module_args_t argg;
+    memset(&argg, 0, sizeof(argg));
+    argg.size = sizeof(argg);
+    argg.pid = KERNEL_PID;
+    mod_id = taiLoadStartKernelModuleForUser(MOD_PATH, &argg);
+    SCE_DBG_LOG_DEBUG("kctrl.skprx loading status: 0x%08X", mod_id);
+    sceKernelDelayThread(1000000);
+    sceAppMgrLoadExec("app0:eboot.bin", NULL, NULL);
+  }
+
+  // sceShellUtilInitEvents(0);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_QUICK_MENU);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_POWEROFF_MENU);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK8);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_USB_CONNECTION);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MC_INSERTED);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MC_REMOVED);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK80);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK100);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK200);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MUSIC_PLAYER);
+  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN_2);
+
   // Enabling analog, motion and touch support
   sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
   sceMotionStartSampling();
