@@ -1,4 +1,5 @@
 #include <arpa/inet.h>
+#include <chrono>
 #include <psp2/appmgr.h>
 #include <psp2/ctrl.h>
 #include <psp2/kernel/modulemgr.h>
@@ -27,6 +28,8 @@
 #define MOD_PATH "ux0:app/VOXIPAD01/module/kctrl.skprx"
 
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
+constexpr size_t TARGET_FPS = 10;
+constexpr size_t FRAME_DURATION_MS = 1000 / TARGET_FPS;
 
 std::atomic<bool> g_net_thread_running(true);
 std::atomic<bool> g_status_thread_running(true);
@@ -45,20 +48,6 @@ int main() {
     sceKernelDelayThread(1000000);
     sceAppMgrLoadExec("app0:eboot.bin", NULL, NULL);
   }
-
-  // sceShellUtilInitEvents(0);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_QUICK_MENU);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_POWEROFF_MENU);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK8);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_USB_CONNECTION);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MC_INSERTED);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MC_REMOVED);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK80);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK100);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_UNK200);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_MUSIC_PLAYER);
-  // sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN_2);
 
   // Enabling analog, motion and touch support
   sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
@@ -106,6 +95,8 @@ int main() {
   shared_data.events = 0;
   shared_data.battery_level = scePowerGetBatteryLifePercent();
   shared_data.charger_connected = scePowerIsBatteryCharging();
+  shared_data.pad_mode = false;
+  shared_data.display_on = true;
   ThreadMessage message = {ev_flag, &shared_data};
 
   // Creating events and status thread
@@ -136,19 +127,61 @@ int main() {
   }
   events = 0;
 
-  // Main loop for events
-  // Loop is executed if the MainEvent state changes
-  do {
+  bool exit_state = true;
+  while (exit_state) {
+    auto frame_start = std::chrono::high_resolution_clock::now();
+    sceKernelPollEventFlag(ev_flag, 0xFFFFFFFF, SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &events);
+
     vita2d_start_drawing();
     vita2d_clear_screen();
 
-    draw_pad_mode(&events, &connected_to_network, &pc_connect_state, vita_ip, &info, &shared_data);
+    if (events & MainEvent::NET_CONNECT) {
+      connected_to_network = true;
+      sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &info);
+      snprintf(vita_ip, INET_ADDRSTRLEN, "%s", info.ip_address);
+    } else if (events & MainEvent::NET_DISCONNECT) {
+      connected_to_network = false;
+    }
+
+    if (events & MainEvent::PC_CONNECT) {
+      pc_connect_state = true;
+    } else if (events & MainEvent::PC_DISCONNECT) {
+      pc_connect_state = false;
+    }
+
+    if ((shared_data.pad_data.buttons & SCE_CTRL_CROSS) && !shared_data.pad_mode) {
+      shared_data.pad_mode = true;
+      sceShellUtilInitEvents(0);
+      sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN_2);
+      sceShellUtilLock(SCE_SHELL_UTIL_LOCK_TYPE_POWEROFF_MENU);
+    }
+
+    if ((shared_data.pad_data.buttons & SCE_CTRL_SELECT &&
+         shared_data.pad_data.buttons & SCE_CTRL_START) &&
+        shared_data.pad_mode) {
+      shared_data.pad_mode = false;
+      sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN_2);
+      sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_POWEROFF_MENU);
+    }
+
+    if (shared_data.pad_mode)
+      draw_pad_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
+    else {
+      draw_start_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
+    }
 
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
     vita2d_swap_buffers();
-  } while (sceKernelWaitEventFlag(ev_flag, 0xFFFFFFFF, SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR,
-                                  &events, NULL) == 0);
+
+    auto frame_end = std::chrono::high_resolution_clock::now();
+    auto elapsed_ms =
+        std::chrono::duration_cast<std::chrono::milliseconds>(frame_end - frame_start).count();
+    if (elapsed_ms < FRAME_DURATION_MS) {
+      SceUInt delay_us = static_cast<SceUInt>((FRAME_DURATION_MS - elapsed_ms) * 1000);
+      sceKernelDelayThread(delay_us);
+    }
+  }
 
   // Turn on network thread stop signal and wait for its normal termination
   SceUInt THREAD_TIMEOUT = (SceUInt)(15 * 1000 * 1000);
