@@ -16,7 +16,8 @@ NetProtocol::ButtonsData convert_pad_data(const SceCtrlData &data) {
       (data.buttons & SCE_CTRL_LTRIGGER) > 0, (data.buttons & SCE_CTRL_RTRIGGER) > 0,
       (data.buttons & SCE_CTRL_TRIANGLE) > 0, (data.buttons & SCE_CTRL_CIRCLE) > 0,
       (data.buttons & SCE_CTRL_CROSS) > 0, (data.buttons & SCE_CTRL_SQUARE) > 0,
-      (data.buttons & SCE_CTRL_VOLUP) > 0, (data.buttons & SCE_CTRL_VOLDOWN) > 0);
+      (data.buttons & SCE_CTRL_VOLUP) > 0, (data.buttons & SCE_CTRL_VOLDOWN) > 0,
+      (data.buttons & SCE_CTRL_PSBUTTON) > 0);
 }
 
 flatbuffers::Offset<NetProtocol::TouchData>
