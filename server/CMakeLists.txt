@@ -67,6 +67,8 @@ add_executable(${VITA_APP_NAME}
   src/net.cpp
   src/status.cpp
   src/ctrl.cpp
+  src/thread_helper.cpp
+  src/draw_helper.cpp
 )
 
 add_compile_definitions(FLATBUFFERS_TRACK_VERIFIER_BUFFER_SIZE)

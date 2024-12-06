@@ -14,9 +14,11 @@
 #include <vita2d.h>
 
 #include "ctrl.hpp"
+#include "draw_helper.hpp"
 #include "events.hpp"
 #include "net.hpp"
 #include "status.hpp"
+#include "thread_helper.hpp"
 
 #include "kctrl-kernel.h"
 
@@ -26,23 +28,8 @@
 
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
 
-vita2d_pgf *debug_font;
-
 std::atomic<bool> g_net_thread_running(true);
 std::atomic<bool> g_status_thread_running(true);
-
-int stop_thread(SceUID thread_uid, SceUInt timeout) {
-  int wait_result = sceKernelWaitThreadEnd(thread_uid, NULL, &timeout);
-  if (wait_result < 0) {
-    SCE_DBG_LOG_ERROR("Error waiting for thread to end: 0x%08X", wait_result);
-  }
-  int delete_result = sceKernelDeleteThread(thread_uid);
-  if (delete_result < 0) {
-    SCE_DBG_LOG_ERROR("Error deleting thread: 0x%08X", delete_result);
-  }
-  SCE_DBG_LOG_TRACE("Thread stopped and deleted successfully");
-  return delete_result;
-}
 
 int main() {
   SceUID mod_id;
@@ -96,10 +83,6 @@ int main() {
   vita2d_init();
   vita2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
   debug_font = vita2d_load_default_pgf();
-  uint32_t need_color = 0;
-  uint32_t common_color = RGBA8(0xFF, 0xFF, 0xFF, 0xFF); // White color
-  uint32_t error_color = RGBA8(0xFF, 0x00, 0x00, 0xFF);  // Bright red color
-  uint32_t done_color = RGBA8(0x00, 0xFF, 0x00, 0xFF);   // Bright green color
 
   // Initializing network stuffs
   sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
@@ -126,18 +109,22 @@ int main() {
   ThreadMessage message = {ev_flag, &shared_data};
 
   // Creating events and status thread
-  SceUID status_thread_uid = sceKernelCreateThread("StatusThread", &status_thread, 0x10000100,
-                                                   0x10000, 0, SCE_KERNEL_CPU_MASK_USER_1, NULL);
-  sceKernelStartThread(status_thread_uid, sizeof(ThreadMessage), &message);
-
-  // Creating events and network thread
-  SceUID net_thread_uid = sceKernelCreateThread("NetThread", &net_thread, 0x10000100, 0x10000, 0,
-                                                SCE_KERNEL_CPU_MASK_USER_2, nullptr);
-  if (net_thread_uid < 0) {
-    SCE_DBG_LOG_ERROR("Error creating thread: 0x%08X", net_thread_uid);
+  ThreadParams status_thread_params{
+      "StatusThread", &status_thread, 0x10000100,           0x10000, 0, SCE_KERNEL_CPU_MASK_USER_1,
+      nullptr,        &message,       sizeof(ThreadMessage)};
+  SceUID status_thread_uid = create_and_start_thread(status_thread_params);
+  if (status_thread_uid < 0) {
     return -1;
   }
-  sceKernelStartThread(net_thread_uid, sizeof(ThreadMessage), &message);
+
+  // Creating events and network thread
+  ThreadParams net_thread_params{"NetThread", &net_thread, 0x10000100,
+                                 0x10000,     0,           SCE_KERNEL_CPU_MASK_USER_2,
+                                 nullptr,     &message,    sizeof(ThreadMessage)};
+  SceUID net_thread_uid = create_and_start_thread(net_thread_params);
+  if (net_thread_uid < 0) {
+    return -1;
+  }
 
   uint32_t events;
   sceNetCtlInetGetState(reinterpret_cast<int *>(&events));
@@ -154,53 +141,8 @@ int main() {
   do {
     vita2d_start_drawing();
     vita2d_clear_screen();
-    vita2d_pgf_draw_text(debug_font, 2, 20, common_color, 1.0,
-                         "VitaOxiPad v1.2.0 \nbuild " __DATE__ ", " __TIME__);
 
-    if (events & MainEvent::NET_CONNECT) {
-      connected_to_network = true;
-      sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &info);
-      snprintf(vita_ip, INET_ADDRSTRLEN, "%s", info.ip_address);
-    } else if (events & MainEvent::NET_DISCONNECT) {
-      connected_to_network = false;
-    }
-
-    if (connected_to_network) {
-      vita2d_pgf_draw_textf(debug_font, 750, 20, common_color, 1.0,
-                            "Listening on:\nIP: %s\nPort: %d", vita_ip, NET_PORT);
-    } else {
-      vita2d_pgf_draw_text(debug_font, 750, 20, error_color, 1.0, "Not connected\nto a network :(");
-    }
-
-    if (events & MainEvent::PC_CONNECT) {
-      pc_connect_state = true;
-    } else if (events & MainEvent::PC_DISCONNECT) {
-      pc_connect_state = false;
-    }
-    if (pc_connect_state) {
-      vita2d_pgf_draw_textf(debug_font, 2, 540, done_color, 1.0, "Status: Connected (%s)",
-                            shared_data.client_ip);
-    } else {
-      vita2d_pgf_draw_text(debug_font, 2, 540, error_color, 1.0, "Status: Not connected :(");
-    }
-
-    if (shared_data.charger_connected) {
-      need_color = done_color;
-    } else if (shared_data.battery_level < 30) {
-      need_color = error_color;
-    } else {
-      need_color = common_color;
-    }
-    vita2d_pgf_draw_textf(debug_font, 785, 520, need_color, 1.0, "Battery: %s%d%%",
-                          shared_data.charger_connected ? "+" : "", shared_data.battery_level);
-
-    if (shared_data.wifi_signal_strength < 50) {
-      need_color = error_color;
-    } else {
-      need_color = common_color;
-    }
-    vita2d_pgf_draw_textf(debug_font, 785, 540, need_color, 1.0, "WiFi signal: %d%%",
-                          shared_data.wifi_signal_strength);
+    draw_pad_mode(&events, &connected_to_network, &pc_connect_state, vita_ip, &info, &shared_data);
 
     vita2d_end_drawing();
     vita2d_wait_rendering_done();
