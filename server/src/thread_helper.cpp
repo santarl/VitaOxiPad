@@ -1,6 +1,3 @@
-#include <psp2/kernel/clib.h>
-#include <psp2/kernel/processmgr.h>
-#include <psp2/kernel/threadmgr.h>
 #include <psp2/libdbg.h>
 
 #include "thread_helper.hpp"

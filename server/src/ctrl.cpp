@@ -1,6 +1,3 @@
-#include <assert.h>
-
-#include <psp2/ctrl.h>
 #include <psp2/libdbg.h>
 #include <psp2/motion.h>
 #include <psp2/touch.h>

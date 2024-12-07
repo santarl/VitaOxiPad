@@ -1,4 +1,3 @@
-#include <psp2/ctrl.h>
 #include <psp2/kernel/processmgr.h>
 #include <psp2/motion.h>
 #include <psp2/touch.h>

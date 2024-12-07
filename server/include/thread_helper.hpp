@@ -1,6 +1,4 @@
 #include <psp2/kernel/threadmgr.h>
-// #include <psp2/kernel/clib.h>
-// #include <psp2/kernel/processmgr.h>
 
 #ifndef THREAD_HELPER_HPP
 #define THREAD_HELPER_HPP

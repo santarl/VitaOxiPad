@@ -3,8 +3,6 @@
 
 #include <psp2/ctrl.h>
 #include <psp2/kernel/threadmgr.h>
-#include <psp2/net/net.h>
-#include <psp2/net/netctl.h>
 
 #include <arpa/inet.h>
 

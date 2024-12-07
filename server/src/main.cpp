@@ -1,9 +1,4 @@
-#include <arpa/inet.h>
-#include <chrono>
 #include <psp2/appmgr.h>
-#include <psp2/ctrl.h>
-#include <psp2/kernel/modulemgr.h>
-#include <psp2/kernel/threadmgr.h>
 #include <psp2/libdbg.h>
 #include <psp2/motion.h>
 #include <psp2/power.h>
@@ -12,18 +7,16 @@
 #include <psp2/touch.h>
 #include <psp2/vshbridge.h>
 #include <taihen.h>
-#include <vita2d.h>
 
 #include "ctrl.hpp"
 #include "draw_helper.hpp"
-#include "events.hpp"
 #include "net.hpp"
 #include "status.hpp"
 #include "thread_helper.hpp"
 
 #include "kctrl-kernel.h"
 
-#include <common.h>
+// #include <common.h>
 
 #define MOD_PATH "ux0:app/VOXIPAD01/module/kctrl.skprx"
 

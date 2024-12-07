@@ -1,5 +1,4 @@
 #include "draw_helper.hpp"
-#include "status.hpp"
 
 #include <common.h>
 
