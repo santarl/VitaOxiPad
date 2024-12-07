@@ -39,10 +39,8 @@ void draw_start_mode(bool connected_to_network, bool pc_connect_state, char *vit
                        "* CROSS => Enter Pad mode");
   vita2d_pgf_draw_text(debug_font, text_offset + offset, 145 + offset, white_color, 1.0,
                        "* START + SELECT in Pad mode => Exit Pad mode");
-  // vita2d_pgf_draw_text(debug_font, text_offset + offset, 175 + offset, white_color, 1.0,
-  //                      "* START + DPAD UP in Pad mode => Switch the screen on");
-  // vita2d_pgf_draw_text(debug_font, text_offset + offset, 205 + offset, white_color, 1.0,
-  //                      "* START + DPAD DOWN in Pad mode => Switch the screen off");
+  vita2d_pgf_draw_text(debug_font, text_offset + offset, 175 + offset, white_color, 1.0,
+                       "* START + DPAD UP in Pad mode => Toggle screen On/Off");
 
   vita2d_draw_line(10 + offset, 380 + offset, screen_width - 10 - offset, 380 + offset,
                    white_color);
@@ -80,7 +78,9 @@ void draw_pad_mode(bool connected_to_network, bool pc_connect_state, char *vita_
     vita2d_pgf_draw_text(debug_font, 5, 20, error_color, 1.0, "Status:\nNot connected :(");
   }
 
-  vita2d_pgf_draw_text(debug_font, 5, 535, white_color, 1.0, "START + SELECT => Exit Pad mode");
+  vita2d_pgf_draw_text(debug_font, 5, 515, white_color, 1.0, "START + SELECT => Exit Pad mode");
+  vita2d_pgf_draw_text(debug_font, 5, 535, white_color, 1.0,
+                       "START + DPAD UP => Toggle screen On/Off");
 
   if (shared_data->charger_connected) {
     need_color = done_color;

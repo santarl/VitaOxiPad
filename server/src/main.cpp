@@ -28,7 +28,7 @@
 #define MOD_PATH "ux0:app/VOXIPAD01/module/kctrl.skprx"
 
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
-constexpr size_t TARGET_FPS = 10;
+constexpr size_t TARGET_FPS = 15;
 constexpr size_t FRAME_DURATION_MS = 1000 / TARGET_FPS;
 
 std::atomic<bool> g_net_thread_running(true);
@@ -162,11 +162,24 @@ int main() {
       shared_data.pad_mode = false;
       sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_PS_BTN_2);
       sceShellUtilUnlock(SCE_SHELL_UTIL_LOCK_TYPE_POWEROFF_MENU);
+      shared_data.display_on = true;
+      kctrlScreenOn();
     }
 
-    if (shared_data.pad_mode)
-      draw_pad_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
-    else {
+    if (shared_data.pad_mode) {
+      if ((shared_data.pad_data.buttons & SCE_CTRL_UP) &&
+          (shared_data.pad_data.buttons & SCE_CTRL_START)) {
+        shared_data.display_on = !shared_data.display_on;
+        if (shared_data.display_on) {
+          kctrlScreenOn();
+        } else {
+          kctrlScreenOff();
+        }
+      }
+      if (shared_data.display_on) {
+        draw_pad_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
+      }
+    } else {
       draw_start_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
     }
 

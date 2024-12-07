@@ -24,7 +24,10 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   SceDebugForDriver_stub
   SceCtrlForDriver_stub
+  SceModulemgrForDriver_stub
   SceSysmemForDriver_stub
+  SceOledForDriver_stub_weak
+  SceLcdForDriver_stub_weak
 )
 
 # Include the module's include directory

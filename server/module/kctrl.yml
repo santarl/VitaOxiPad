@@ -10,4 +10,7 @@ kctrl:
     kctrlForKernel:
       syscall: true
       functions:
+        - kctrlScreenOn
+        - kctrlScreenOff
+        - kctrlToggleScreen
         - kctrlGetCtrlData

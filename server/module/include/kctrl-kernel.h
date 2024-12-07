@@ -4,11 +4,13 @@
 #include <psp2/ctrl.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    int kctrlGetCtrlData(int port, SceCtrlData* pad_data, int count);
+void kctrlScreenOn(void);
+void kctrlScreenOff(void);
+void kctrlToggleScreen(void);
+int kctrlGetCtrlData(int port, SceCtrlData *pad_data, int count);
 
 #ifdef __cplusplus
 }
