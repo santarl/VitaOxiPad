@@ -163,11 +163,8 @@ int main() {
       if ((shared_data.pad_data.buttons & SCE_CTRL_UP) &&
           (shared_data.pad_data.buttons & SCE_CTRL_START)) {
         shared_data.display_on = !shared_data.display_on;
-        if (shared_data.display_on) {
-          kctrlScreenOn();
-        } else {
-          kctrlScreenOff();
-        }
+        kctrlToggleScreen();
+        sceKernelDelayThread(300 * 1000);
       }
       if (shared_data.display_on) {
         draw_pad_mode(connected_to_network, pc_connect_state, vita_ip, &shared_data);
