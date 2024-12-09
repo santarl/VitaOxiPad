@@ -41,8 +41,7 @@ int main() {
   }
 
   // Enabling analog, motion and touch support
-  sceCtrlSetButtonIntercept(1);
-  sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
+  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
   sceMotionStartSampling();
   sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
   sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);

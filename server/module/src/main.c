@@ -81,6 +81,7 @@ uint8_t kctrlVersion() { return KCTRL_MODULE_API; }
 
 void _start() __attribute__((weak, alias("module_start")));
 int module_start(SceSize args, const void *argp) {
+  ksceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
   if (ksceKernelSearchModuleByName("SceLcd") >= 0) {
     g_is_lcd = 1;
   } else if (ksceKernelSearchModuleByName("SceOled") >= 0) {
