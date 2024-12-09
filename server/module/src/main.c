@@ -1,14 +1,3 @@
-#include <psp2/appmgr.h>
-#include <psp2/ctrl.h>
-#include <psp2/io/devctl.h>
-#include <psp2/io/dirent.h>
-#include <psp2/io/fcntl.h>
-#include <psp2/io/stat.h>
-#include <psp2/kernel/modulemgr.h>
-#include <psp2/kernel/processmgr.h>
-#include <psp2/power.h>
-#include <psp2/shellutil.h>
-#include <psp2/vshbridge.h>
 #include <psp2kern/ctrl.h>
 #include <psp2kern/kernel/cpu.h>
 #include <psp2kern/kernel/debug.h>
@@ -16,11 +5,6 @@
 #include <psp2kern/kernel/sysmem.h>
 #include <psp2kern/kernel/threadmgr.h>
 #include <taihen.h>
-
-#include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "kctrl-kernel.h"
 
