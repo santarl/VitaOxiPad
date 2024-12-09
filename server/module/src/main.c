@@ -101,9 +101,6 @@ int module_start(SceSize args, const void *argp) {
     g_is_oled = 1;
   }
 
-  ksceKernelPrintf("is_lcd: %d\n", g_is_lcd);
-  ksceKernelPrintf("is_oled: %d\n", g_is_oled);
-
   if (g_is_oled) {
     g_prev_brightness = ksceOledGetBrightness();
   } else if (g_is_lcd) {

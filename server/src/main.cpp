@@ -16,8 +16,6 @@
 
 #include "kctrl-kernel.h"
 
-// #include <common.h>
-
 #define MOD_PATH "ux0:app/VOXIPAD01/module/kctrl.skprx"
 
 constexpr size_t NET_INIT_SIZE = 1 * 1024 * 1024;
@@ -43,7 +41,8 @@ int main() {
   }
 
   // Enabling analog, motion and touch support
-  sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
+  sceCtrlSetButtonIntercept(1);
+  sceCtrlSetSamplingMode(SCE_CTRL_MODE_DIGITAL);
   sceMotionStartSampling();
   sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
   sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
