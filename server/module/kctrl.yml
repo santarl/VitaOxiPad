@@ -14,3 +14,4 @@ kctrl:
         - kctrlScreenOff
         - kctrlToggleScreen
         - kctrlGetCtrlData
+        - kctrlVersion

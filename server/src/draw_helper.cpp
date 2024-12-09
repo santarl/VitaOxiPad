@@ -18,6 +18,11 @@ void draw_rectangle_outline(float x, float y, float width, float height, uint32_
   vita2d_draw_line(x, y + height, x, y, color);
 }
 
+void draw_old_module() {
+  vita2d_pgf_draw_text(debug_font, 50, screen_height / 2, error_color, 2.0,
+                       "Wrong module version detected.\nPlease reboot your console");
+}
+
 void draw_start_mode(bool connected_to_network, bool pc_connect_state, char *vita_ip,
                      SharedData *shared_data) {
   float offset = 40;

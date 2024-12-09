@@ -77,6 +77,8 @@ int kctrlGetCtrlData(int port, SceCtrlData *pad_data, int count) {
   return res;
 }
 
+uint8_t kctrlVersion() { return KCTRL_MODULE_API; }
+
 void _start() __attribute__((weak, alias("module_start")));
 int module_start(SceSize args, const void *argp) {
   if (ksceKernelSearchModuleByName("SceLcd") >= 0) {

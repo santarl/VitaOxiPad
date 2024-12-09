@@ -120,6 +120,17 @@ int main() {
   events = 0;
 
   bool exit_state = true;
+  if (kctrlVersion() != KCTRL_MODULE_API) {
+    vita2d_start_drawing();
+    vita2d_clear_screen();
+    draw_old_module();
+    vita2d_end_drawing();
+    vita2d_wait_rendering_done();
+    vita2d_swap_buffers();
+    sceKernelDelayThread(10 * 1000 * 1000);
+    exit_state = false;
+  }
+
   while (exit_state) {
     auto frame_start = std::chrono::high_resolution_clock::now();
     sceKernelPollEventFlag(ev_flag, 0xFFFFFFFF, SCE_EVENT_WAITOR | SCE_EVENT_WAITCLEAR, &events);
