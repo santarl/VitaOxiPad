@@ -108,6 +108,7 @@ int main() {
   if (net_thread_uid < 0) {
     return -1;
   }
+  sceKernelDelayThread(1 * 1000 * 1000); // wait for the first SceCtrlData data to be received
 
   uint32_t events;
   sceNetCtlInetGetState(reinterpret_cast<int *>(&events));
