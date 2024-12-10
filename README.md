@@ -17,6 +17,7 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [4.1 Windows Client](#41-windows-client)
     - [4.2 Linux Client](#42-linux-client)
   - [5. Client and Server compilation](#5-client-and-server-compilation)
+  - [6. Notes to developers](#6-notes-to-developers)
   - [FAQ](#faq)
     - [Q1: Why Oxi?](#q1-why-oxi)
     - [Q2: Why isn't my PS Vita connecting to the PC?](#q2-why-isnt-my-ps-vita-connecting-to-the-pc)
@@ -178,6 +179,10 @@ or [input-remapper](https://github.com/sezanzeb/input-remapper).
 ## 5. Client and Server compilation
 
 If necessary, you can compile the Client and Server yourself. [Refer to this manual for instructions](./Build.md).
+
+## 6. Notes to developers
+
+If you would like to get involved in the development, please refer to [this guide](./Dev_notes). It can help you.
 
 ## FAQ
 
