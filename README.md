@@ -207,9 +207,13 @@ Or you can use [VitaDB-Downloader](https://github.com/Rinnegatamante/VitaDB-Down
 
 ## Thanks
 
-- Thanks to all the people who contributed to [VitaSDK](https://vitasdk.org), [Vitadev Package manager](https://github.com/vitasdk/vdpm) and [ViGEm Bus Driver](https://github.com/nefarius/ViGEmBus);
+- Thanks to all the people who contributed to [VitaSDK](https://vitasdk.org), [Vitadev Package manager](https://github.com/vitasdk/vdpm)
+   and [ViGEm Bus Driver](https://github.com/nefarius/ViGEmBus);
+- [Vita Nuova](https://discord.com/invite/PyCaBx9) and [HENkaku](https://discord.com/invite/m7MwpKA) Discord servers for answering my stupid questions;
 - [Rinnegatamante](https://github.com/Rinnegatamante) for [the original VitaPad version](https://github.com/Rinnegatamante/VitaPad);
 - [saidsay-so](https://github.com/saidsay-so) for [the improved Rust VitaPad version](https://github.com/saidsay-so/VitaPad);
 - [santarl](https://github.com/santarl) for advice and help with accelerometer, gyroscope and also adding DualShock 4 digitizer emulation;
-- [gl33ntwine](https://github.com/v-atamanenko) for creating [the awesome article](https://gl33ntwine.com/posts/develop-for-vita) for those new to development for the PS Vita;
+- [gl33ntwine](https://github.com/v-atamanenko) for creating [the awesome article](https://gl33ntwine.com/posts/develop-for-vita)
+   for those new to development for the PS Vita;
+- [isage](https://github.com/isage) for [ViViD](https://github.com/isage/vivid) that was a good example for understanding how modules work on the PS Vita system;
 - [CasualX](https://github.com/CasualX) for [ViGEm client in Rust](https://github.com/CasualX/vigem-client).
