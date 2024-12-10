@@ -22,6 +22,7 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [Q2: Why isn't my PS Vita connecting to the PC?](#q2-why-isnt-my-ps-vita-connecting-to-the-pc)
     - [Q3: I'm experiencing input lag. What can I do?](#q3-im-experiencing-input-lag-what-can-i-do)
     - [Q4: How do I update VitaOxiPad?](#q4-how-do-i-update-vitaoxipad)
+    - [Q5: Are there plans to add support for wired connection, Bluetooth, etc.?](#q5-are-there-plans-to-add-support-for-wired-connection-bluetooth-etc)
   - [Thanks](#thanks)
 
 <div align="center">
@@ -198,6 +199,11 @@ In this implementation, the client application was written using **Rust**.
 
 **A:** Check the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases) for the latest version and follow the installation instructions provided.
 Or you can use [VitaDB-Downloader](https://github.com/Rinnegatamante/VitaDB-Downloader) on your PS Vita.
+
+### Q5: Are there plans to add support for wired connection, Bluetooth, etc.?
+
+**A:** There are no plans to do so in the near future. For wired connection, please refer to other excellent projects like
+[ViViD](https://github.com/isage/vivid) or [vitapad by carlelieser](https://github.com/carlelieser/vitapad).
 
 ## Thanks
 
