@@ -136,7 +136,7 @@ This allows to support a large number of Windows games without any fixes.
 
 | Feature                         | Support | Details                                                                                              |
 | ------------------------------- | :-----: | ---------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                    |
+| Dpad, Sticks and Buttons        |    ✅    | All sticks, triggers and buttons, including PS button                                                |
 | L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                  |
 | L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1            |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                        |
@@ -162,7 +162,7 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 
 | Feature                         | Support | Details                                                                                                           |
 | ------------------------------- | :-----: | ----------------------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | -                                                                                                                 |
+| Dpad, Sticks and Buttons        |    ✅    | All sticks, triggers and buttons, including PS button                                                             |
 | L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                               |
 | L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                         |
 | Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                     |
@@ -182,7 +182,7 @@ If necessary, you can compile the Client and Server yourself. [Refer to this man
 
 ## 6. Notes to developers
 
-If you would like to get involved in the development, please refer to [this guide](./Dev_notes). It can help you.
+If you would like to get involved in the development, please refer to [this guide](./Dev_notes.md). It can help you.
 
 ## FAQ
 

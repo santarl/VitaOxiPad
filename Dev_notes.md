@@ -67,7 +67,7 @@ This guide describes how to contribute to this project (and not just this PS Vit
 
 **Notes:**
 
-- If you change the code in a kernel module, update its version.
+- If you change the code in a kernel module, [update its version](https://github.com/DvaMishkiLapa/VitaOxiPad/blob/63f484d6a2899df04f94252086461702db1f8893/server/module/include/kctrl-kernel.h#L10).
    This will help inform users after the update that they should reboot, as the old module may still be in memory;
 - If you modify Cmake instructions, don't be lazy to do a complete cleanup of the project (for the lazy, you can just delete the build folder).
    This will help you avoid a lot of non-obvious problems;
