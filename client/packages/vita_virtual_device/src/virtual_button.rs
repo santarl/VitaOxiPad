@@ -14,6 +14,7 @@ pub enum Button {
     Circle,
     Cross,
     Square,
+    PSButton,
 }
 
 #[derive(Clone, Debug, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]

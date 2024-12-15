@@ -29,6 +29,7 @@ pub fn get_pressed_buttons(
         (report_buttons.triangle, Button::Triangle),
         (report_buttons.start, Button::Options),
         (report_buttons.select, Button::Share),
+        (report_buttons.ps, Button::PSButton),
     ];
 
     // Trigger processing depending on the configuration
