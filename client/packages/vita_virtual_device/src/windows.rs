@@ -90,6 +90,7 @@ fn map_button_to_ds4(button: Button) -> u16 {
         Button::Circle => DS4Buttons::CIRCLE,
         Button::Cross => DS4Buttons::CROSS,
         Button::Square => DS4Buttons::SQUARE,
+        Button::PSButton => DS4SpecialButtons::PS_HOME as u16, // Doesn't really work, added for compatibility between platforms
     }
 }
 

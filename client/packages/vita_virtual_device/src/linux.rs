@@ -62,6 +62,7 @@ fn map_button_to_ds4(button: Button) -> Key {
         Button::Circle => Key::ButtonEast,
         Button::Cross => Key::ButtonSouth,
         Button::Square => Key::ButtonWest,
+        Button::PSButton => Key::ButtonMode,
     }
 }
 
@@ -144,6 +145,7 @@ impl<F: AsRawFd> VitaDevice<F> {
             Button::Circle,
             Button::Cross,
             Button::Square,
+            Button::PSButton,
         ] {
             main_handle.set_keybit(map_button_to_ds4(button))?;
         }
