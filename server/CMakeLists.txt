@@ -14,7 +14,7 @@ project(VitaOxiPad)
 include("${VITASDK}/share/vita.cmake" REQUIRED)
 set(VITA_APP_NAME "VitaOxiPad")
 set(VITA_TITLEID  "VOXIPAD01")
-set(VITA_VERSION  "01.20")
+set(VITA_VERSION  "01.30")
 
 # Vita's IP to send over FTP
 if(DEFINED ENV{VITA_IP})

@@ -34,7 +34,7 @@ void draw_start_mode(bool connected_to_network, bool pc_connect_state, char *vit
                          screen_width - 2 * (offset + rect_outline_spase),
                          screen_height - 2 * (offset + rect_outline_spase), white_color);
   vita2d_pgf_draw_textf(debug_font, text_offset + offset, 35 + offset, white_color, 1.0,
-                        "VitaOxiPad v1.2.0 build %s, %s by theSame, santarl and saidsay-so.",
+                        "VitaOxiPad v1.3.0 build %s, %s by theSame, santarl and saidsay-so.",
                         __DATE__, __TIME__);
 
   vita2d_draw_line(10 + offset, 55 + offset, screen_width - 10 - offset, 55 + offset, white_color);
