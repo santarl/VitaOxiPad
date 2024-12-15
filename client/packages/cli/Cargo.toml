@@ -14,7 +14,7 @@ flatbuffers_structs = { version = "0.1.0", path = "../flatbuffers_structs" }
 protocol = { version = "0.1.0", path = "../protocol" }
 vita_reports = { version = "0.1.0", path = "../vita_reports" }
 vita_virtual_device = { version = "0.1.0", path = "../vita_virtual_device" }
-serde = { version = "1.0.215", features = ["derive"] }
+serde = { version = "1.0.216", features = ["derive"] }
 config = "0.14.1"
 toml = "0.8.19"
 home = "0.5.9"
