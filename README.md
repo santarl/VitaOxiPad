@@ -145,7 +145,7 @@ This allows to support a large number of Windows games without any fixes.
 | Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                                         |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                  |
 | DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                                    |
-| Changing the sound volume       |    ✅    | Volume Up = Select + R1, Volume Down = Select + L1                                                   |
+| Changing the sound volume       |    ✅    | Implemented via pressing the PS Vita's volume buttons                                                |
 | Sound sending                   |    ❌    | Probably will never be realized                                                                      |
 
 [*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
@@ -170,7 +170,7 @@ The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`
 | DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour   |
 | Battery                         |    ❌    | -                                                                                                                 |
 | Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                               |
-| Changing the sound volume       |    ✅    | Volume Up = Select + R1, Volume Down = Select + L1                                                                |
+| Changing the sound volume       |    ✅    | Implemented via pressing the PS Vita's volume buttons                                                             |
 | Sound sending                   |    ❌    | Probably will never be realized                                                                                   |
 
 You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
@@ -217,7 +217,8 @@ Or you can use [VitaDB-Downloader](https://github.com/Rinnegatamante/VitaDB-Down
 - [Vita Nuova](https://discord.com/invite/PyCaBx9) and [HENkaku](https://discord.com/invite/m7MwpKA) Discord servers for answering my stupid questions;
 - [Rinnegatamante](https://github.com/Rinnegatamante) for [the original VitaPad version](https://github.com/Rinnegatamante/VitaPad);
 - [saidsay-so](https://github.com/saidsay-so) for [the improved Rust VitaPad version](https://github.com/saidsay-so/VitaPad);
-- [santarl](https://github.com/santarl) for advice and help with accelerometer, gyroscope and also adding DualShock 4 digitizer emulation;
+- [santarl](https://github.com/santarl) for advice and help with accelerometer, gyroscope, adding DualShock 4 digitizer emulation
+   and also for the logic of working with configuration files;
 - [gl33ntwine](https://github.com/v-atamanenko) for creating [the awesome article](https://gl33ntwine.com/posts/develop-for-vita)
    for those new to development for the PS Vita;
 - [isage](https://github.com/isage) for [ViViD](https://github.com/isage/vivid) that was a good example for understanding how modules work on the PS Vita system;

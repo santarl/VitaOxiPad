@@ -72,5 +72,5 @@ This guide describes how to contribute to this project (and not just this PS Vit
 - If you modify Cmake instructions, don't be lazy to do a complete cleanup of the project (for the lazy, you can just delete the build folder).
    This will help you avoid a lot of non-obvious problems;
 - `cmake --build build -j && cmake --build build --target send` a quick way to send changes to the PS Vita.
-   Just don't forget to specify the `VITA_IP` variable before generating build instructions via `cmake -S server -B build`;
-- Keep in mind that `cmake --build build --target send` will only send the module and eboot executable files. The same is true for `PARSECOREPATH`.
+   Just don't forget to specify the `VITA_IP` variable before generating build instructions via `cmake -S server -B build`. The same is true for `PARSECOREPATH`;
+- Keep in mind that `cmake --build build --target send` will only send the module and eboot executable files.
