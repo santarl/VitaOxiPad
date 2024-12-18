@@ -14,8 +14,6 @@ Based on [VitaPad by Rinnegatamante](https://github.com/Rinnegatamante/VitaPad) 
     - [3.2 Using a Static IP](#32-using-a-static-ip)
     - [3.3 Configurations](#33-configurations)
   - [4. What works](#4-what-works)
-    - [4.1 Windows Client](#41-windows-client)
-    - [4.2 Linux Client](#42-linux-client)
   - [5. Client and Server compilation](#5-client-and-server-compilation)
   - [6. Notes to developers](#6-notes-to-developers)
   - [FAQ](#faq)
@@ -129,52 +127,35 @@ or [evtest-qt](https://github.com/Grumbel/evtest-qt) for Linux.
 
 ## 4. What works
 
-### 4.1 Windows Client
+| Feature                         | Support | Details                                                                                   |
+| ------------------------------- | :-----: | ----------------------------------------------------------------------------------------- |
+| Dpad, Sticks and Buttons        |    ✅    | All sticks, triggers and buttons, including PS button                                     |
+| PS Vita's L1 and R1             |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                       |
+| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1 |
+| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                             |
+| DualShock 4 digitizer emulation |    ✅    | Supports front and rear digitizer for multi-touch DualShock 4 emulation                   |
+| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer                  |
+| Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                       |
+| Changing the sound volume       |    ✅    | Implemented via pressing the PS Vita's volume buttons                                     |
+| Battery level                   |    ⚠️    | PS Vita's battery level is sent to the emulated DualShock 4, not used in Linux            |
+| Sound streaming                 |    ❌    | Probably will never be realized                                                           |
 
-The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) connected via USB.
-This allows to support a large number of Windows games without any fixes.
+**Notes for Windows:**
 
-| Feature                         | Support | Details                                                                                              |
-| ------------------------------- | :-----: | ---------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | All sticks, triggers and buttons, including PS button                                                |
-| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                  |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1            |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                        |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to two-finger simultaneous input, same as DualShock 4. Supports front and rear digitizer |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer                             |
-| Battery                         |    ✅    | PS Vita's battery status is sent to the emulated DualShock 4                                         |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                  |
-| DS4Windows support              |    ✅    | Virtual Controller Support[*] requires activation                                                    |
-| Changing the sound volume       |    ✅    | Implemented via pressing the PS Vita's volume buttons                                                |
-| Sound sending                   |    ❌    | Probably will never be realized                                                                      |
+- The gamepad chosen for emulation was a DualShock 4 v1 (`vendor: 0x054C`, `product: 0x05C4`) like connected via USB.
+   This allows to support a large number of Windows games without any fixes;
+- You can use DS4Windows if you need to. Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
+   This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
 
-[*] - Virtual Controller Support can be found in the [schmaldeo DS4Windows fork](https://github.com/schmaldeo/DS4Windows).
-This option can be found in `Settings -> Device Options -> Virtual Controller Support`.
+**Notes for Linux:**
 
-### 4.2 Linux Client
-
-The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Four `uinput` devices are emulated:
-
-- Main `uinput` device (Dpad, Sticks, buttons, triggers)
-- Touchpad `uinput` device;
-- Motion Sensors `uinput` device for accelerometer and gyroscope;
-- Keyboard `uinput` device.
-
-| Feature                         | Support | Details                                                                                                           |
-| ------------------------------- | :-----: | ----------------------------------------------------------------------------------------------------------------- |
-| Dpad, Sticks and Buttons        |    ✅    | All sticks, triggers and buttons, including PS button                                                             |
-| L1 and R1                       |    ✅    | It can be used for L\R presses. For L2\R2, a full press is emulated                                               |
-| L2/R2 and L3/R3 emulation       |    ✅    | Can be emulated via the PS Vita's rear or front digitizer, as well as the PS Vita's L1\R1                         |
-| Accelerometer and gyroscope     |    ✅    | A little less accurate than the DualShock 4, but still usable                                                     |
-| DualShock 4 digitizer emulation |    ✅    | Emulates up to multitouch simultaneous input. Linux defines it like a touchpad. Supports front and rear digitizer |
-| DualShock 4 digitizer button    |    ✅    | Works as a quick tap on the digitizer. Supports front and rear digitizer. Linux itself determines the behaviour   |
-| Battery                         |    ❌    | -                                                                                                                 |
-| Any configuration               |    ✅    | You can choose from [ready-made configurations](#33-configurations)                                               |
-| Changing the sound volume       |    ✅    | Implemented via pressing the PS Vita's volume buttons                                                             |
-| Sound sending                   |    ❌    | Probably will never be realized                                                                                   |
-
-You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
-or [input-remapper](https://github.com/sezanzeb/input-remapper).
+- The behavior is close to how the DualShock 4 (`vendor: 0x054C`, `product: 0x9CC`) is defined in Linux. Four `uinput` devices are emulated:
+  - Main `uinput` device (Dpad, Sticks, buttons, triggers);
+  - Touchpad `uinput` device;
+  - Motion Sensors `uinput` device for accelerometer and gyroscope;
+  - Keyboard `uinput` device.
+- You can also use a convenient input signal remapper, such as [antimicrox](https://github.com/AntiMicroX/antimicrox/)
+   or [input-remapper](https://github.com/sezanzeb/input-remapper).
 
 ## 5. Client and Server compilation
 
