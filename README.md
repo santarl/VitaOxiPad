@@ -41,7 +41,7 @@ The PS Vita acts as a server to which the PC client will be connected within the
 
 1. Download the latest `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` from the [releases page](https://github.com/DvaMishkiLapa/VitaOxiPad/releases);
 1. Install [ViGEmBus](https://github.com/ViGEm/ViGEmBus/releases) on your PC;
-1. Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` and enter your PS Vita's IP address.
+1. Run the `VitaOxiPad-x64.exe` or `VitaOxiPad-x32.exe` in the console (PowerShell, Windows Terminal, Bash, etc) and enter your PS Vita's IP address.
 
 **Install the Client on Linux:**
 
