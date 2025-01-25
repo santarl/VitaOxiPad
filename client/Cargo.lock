@@ -231,15 +231,14 @@ dependencies = [
  "color-eyre",
  "config",
  "flatbuffers_structs",
- "home",
  "log",
  "polling",
  "pretty_env_logger",
  "protocol",
  "serde",
- "toml",
  "vita_reports",
  "vita_virtual_device",
+ "vitaoxipad_config",
 ]
 
 [[package]]
@@ -1443,6 +1442,17 @@ dependencies = [
  "vigem-client",
  "vita_reports",
  "windows",
+]
+
+[[package]]
+name = "vitaoxipad_config"
+version = "0.1.0"
+dependencies = [
+ "color-eyre",
+ "config",
+ "home",
+ "serde",
+ "toml",
 ]
 
 [[package]]

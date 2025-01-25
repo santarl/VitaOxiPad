@@ -5,5 +5,5 @@ members = [
     "packages/flatbuffers_structs",
     "packages/protocol",
     "packages/vita_reports",
-    "packages/vita_virtual_device",
+    "packages/vita_virtual_device", "packages/vitaoxipad_config",
 ]

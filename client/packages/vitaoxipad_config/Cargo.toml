@@ -1,0 +1,11 @@
+[package]
+name = "vitaoxipad_config"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+config = "0.14.1"
+toml = "0.8.19"
+home = "0.5.9"
+serde = { version = "1.0.216", features = ["derive"] }
+color-eyre = "0.6.3"
