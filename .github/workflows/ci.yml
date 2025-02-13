@@ -1,10 +1,51 @@
-name: Create release by tag
+name: PS Vita server and Windows MSYS2 client builds
 
 on:
+  push:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README.md'
+      - 'gyro_accel_tester'
+      - 'demo'
+  pull_request:
+    branches:
+      - main
+      - dev
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - 'README.md'
+      - 'gyro_accel_tester'
+      - 'demo'
   release:
     types: [published]
 
 jobs:
+  update_release_tags:
+    if: ${{ github.event_name != 'release' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create development latest release
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/dev' }}
+        uses: slord399/action-automatic-releases@v1.0.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: dev_latest
+          prerelease: true
+          title: "Development latest build"
+      - name: Create latest stable release
+        if: ${{ github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+        uses: slord399/action-automatic-releases@v1.0.1
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: latest
+          prerelease: true
+          title: "Latest stable build"
+
   build_vita_server:
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +107,6 @@ jobs:
             mingw-w64-i686-gcc
             mingw-w64-x86_64-rust
             mingw-w64-i686-rust
-            mingw-w64-x86_64-flatbuffers
             make
             wget
             cmake
@@ -83,9 +123,25 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pacman -S --noconfirm mingw-w64-x86_64-rust mingw-w64-i686-rust mingw-w64-x86_64-flatbuffers mingw-w64-x86_64-cargo-c mingw-w64-i686-cargo-c make wget cmake
-          wget https://repo.msys2.org/mingw/mingw32/mingw-w64-i686-flatbuffers-23.5.26-2-any.pkg.tar.zst
-          pacman -U --noconfirm mingw-w64-i686-flatbuffers-23.5.26-2-any.pkg.tar.zst
+          pacman -S --noconfirm mingw-w64-x86_64-rust mingw-w64-i686-rust mingw-w64-x86_64-cargo-c mingw-w64-i686-cargo-c make wget cmake
+
+      - name: Install flatc for x64
+        run: |
+          export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw64/bin:${PATH}"
+          git clone --branch v24.3.25 https://github.com/google/flatbuffers.git flatbuffers_x64
+          cd flatbuffers_x64
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${{ steps.msys2.outputs.msys2-location }}/mingw64" -DCMAKE_BUILD_TYPE=Release
+          make -j
+          make install
+
+      - name: Install flatc for x32
+        run: |
+          export PATH="${{ steps.msys2.outputs.msys2-location }}/mingw32/bin:${PATH}"
+          git clone --branch v24.3.25 https://github.com/google/flatbuffers.git flatbuffers_x32
+          cd flatbuffers_x32
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="${{ steps.msys2.outputs.msys2-location }}/mingw32" -DCMAKE_BUILD_TYPE=Release
+          make -j
+          make install
 
       - name: Build Windows x64 Client
         run: |
@@ -145,7 +201,29 @@ jobs:
           name: VitaOxiPad-x32.exe
           path: ./release
 
+      - name: Upload latest development release
+        if: ${{ github.event_name != 'release' && github.event_name != 'pull_request' && github.ref == 'refs/heads/dev' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: dev_latest
+          overwrite: true
+          file_glob: true
+          prerelease: true
+
       - name: Upload latest stable release
+        if: ${{ github.event_name != 'release' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./release/*
+          tag: latest
+          overwrite: true
+          file_glob: true
+          prerelease: true
+
+      - name: Upload release from tag
         if: ${{ github.event_name == 'release' }}
         uses: svenstaro/upload-release-action@v2
         with:
@@ -160,19 +238,19 @@ jobs:
         id: secret-check
         shell: bash
         run: |
-          if [ "${{ secrets.VT_API_KEY }}" != '' ]; then
-            echo "vt_available=true" >> $GITHUB_OUTPUT;
+          if [ "${{ secrets.VT_API_KEY }}" != "" ]; then
+            echo "vt_available=true" >> $GITHUB_OUTPUT
           else
-            echo "vt_available=false" >> $GITHUB_OUTPUT;
+            echo "vt_available=false" >> $GITHUB_OUTPUT
           fi
 
       - name: VirusTotal Windows binary files scan
-        if: ${{steps.secret-check.outputs.vt_available == 'true' && github.event_name != 'pull_request' }}
+        if: ${{ steps.secret-check.outputs.vt_available == 'true' && github.event_name != 'pull_request' }}
         uses: cssnr/virustotal-action@v1.2.0
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            vt_api_key: ${{ secrets.VT_API_KEY }}
-            update_release: true
-            file_globs: |
-              ./release/VitaOxiPad-x64.exe
-              ./release/VitaOxiPad-x32.exe
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          update_release: true
+          file_globs: |
+            ./release/VitaOxiPad-x64.exe
+            ./release/VitaOxiPad-x32.exe
