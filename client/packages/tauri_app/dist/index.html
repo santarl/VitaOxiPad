@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Rust GUI App</title>
+</head>
+<body>
+    <h1>Hello from Tauri 2.0!</h1>
+    <button onclick="greet()">Greet</button>
+    <script>
+      async function greet() {
+        const message = await window.__TAURI__.invoke('greet', { name: 'Tauri User' });
+        alert(message);
+      }
+    </script>
+</body>
+</html>

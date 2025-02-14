@@ -1,0 +1,25 @@
+{
+    "build": {
+      "devPath": "../dist",
+      "distDir": "../dist"
+    },
+    "package": {
+      "productName": "VitaOxiPad",
+      "version": "0.1.0"
+    },
+    "tauri": {
+      "bundle": {
+        "active": true,
+        "identifier": "com.vitaoxipad.app"
+      },
+      "windows": [
+        {
+          "title": "VitaOxiPad",
+          "width": 800,
+          "height": 600,
+          "resizable": true
+        }
+      ]
+    }
+}
+  
