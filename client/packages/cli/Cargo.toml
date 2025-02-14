@@ -4,6 +4,7 @@ version = "1.3.0"
 edition = "2021"
 
 [dependencies]
+config = "0.14.1"
 argh = "0.1.13"
 color-eyre = "0.6.3"
 log = "0.4.25"
@@ -15,9 +16,8 @@ protocol = { version = "0.1.0", path = "../protocol" }
 vita_reports = { version = "0.1.0", path = "../vita_reports" }
 vita_virtual_device = { version = "0.1.0", path = "../vita_virtual_device" }
 serde = { version = "1.0.217", features = ["derive"] }
-config = "0.15.8"
-toml = "0.8.20"
-home = "0.5.11"
+vitaoxipad_config = { path = "../vitaoxipad_config" }
+
 
 [build-dependencies]
 build-data = "0.2.1"

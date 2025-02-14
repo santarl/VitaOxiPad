@@ -13,7 +13,7 @@ use flatbuffers_structs::net_protocol::{ConfigArgs, Endpoint, HandshakeArgs};
 use protocol::connection::Connection;
 use vita_virtual_device::{VitaDevice, VitaVirtualDevice};
 
-mod config;
+use vitaoxipad_config::*;
 
 /// Create a virtual controller and fetch its data from a Vita
 /// over the network.
@@ -68,10 +68,10 @@ fn main() -> color_eyre::Result<()> {
     // Do not load existing config while printing sample config
     if !args.sample_config {
         // Load existing config if any
-        config = config::load_config().wrap_err("Failed to load configuration")?;
+        config = load_config().wrap_err("Failed to load configuration")?;
     } else {
         // Show sample configuration
-        config::print_sample_config();
+        print_sample_config();
         return Ok(());
     }
 
