@@ -5,12 +5,11 @@
 </head>
 <body>
     <h1>Hello from Tauri 2.0!</h1>
-    <button onclick="greet()">Greet</button>
-    <script>
-      async function greet() {
-        const message = await window.__TAURI__.invoke('greet', { name: 'Tauri User' });
-        alert(message);
-      }
-    </script>
+    <form id="greet-form">
+        <input type="text" id="greet-input" placeholder="Enter your name" />
+        <button type="submit">Greet</button>
+    </form>
+    <p id="greet-msg"></p>
+    <script src="main.js"></script>
 </body>
 </html>

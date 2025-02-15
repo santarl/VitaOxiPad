@@ -83,3 +83,8 @@ Temporary Items
 **.fbs.**
 
 .cache
+client/packages/tauri_app/node_modules/
+client/packages/tauri_app/pnpm-lock.yaml
+client/packages/tauri_app/icons/*.png
+client/packages/tauri_app/icons/*.icns
+client/packages/tauri_app/gen/

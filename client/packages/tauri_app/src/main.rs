@@ -1,13 +1,6 @@
-use tauri::{command, generate_handler, Builder};
-
-#[command]
-fn greet(name: String) -> String {
-    format!("Hello, {}!", name)
-}
+// Prevents additional console window on Windows in release, DO NOT REMOVE!!
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    Builder::default()
-        .invoke_handler(generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    tauri_app_lib::run()
 }
